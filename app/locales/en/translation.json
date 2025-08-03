@@ -1,0 +1,1043 @@
+{
+  "login": {
+    "title": "Verify your phone number",
+    "terms": "I don't want to receive special offers and personalised recommendations via text messages or calls",
+    "promo": "By entering your phone number, you agree to receive promotional SMS, WhatsApp messages and calls from Viacar. Opt out now by checking the box above or at any time in your profile settings.",
+    "btn_main": "Verify",
+    "modal_title": "Please Verify Your Number",
+    "modal_subtitle": "Please enter the six-digit verification code that we have sent to your mobile number ending in",
+    "modal_subtitle_suffix": " ***325.",
+    "modal_footer": "If you haven't received the code, please check your messages or",
+    "modal_footer_action": "request a new code.",
+    "skip_button": "I'll do it later",
+    "phone_label": "Mobile number*"
+  },
+
+  "book": {
+    "hero_title": "Your Selection of Rides at",
+    "hero_highlight": "Affordable",
+    "hero_subtitle": "Prices",
+
+    "steps_title": "Following 3 Working Steps",
+    "steps_subtitle": "How It Works",
+
+    "steps": [
+      {
+        "title": "Choose a Location",
+        "desc": "Select your pick-up and drop-off locations to find rides that suit your route."
+      },
+      {
+        "title": "Pick-Up-Date",
+        "desc": "Choose the date and time that works best for your journey."
+      },
+      {
+        "title": "Book Your Car",
+        "desc": "Confirm your booking and get ready to travel with trusted drivers."
+      }
+    ],
+
+    "convenience_title": "Where Convenience Meets the Road.",
+    "convenience_desc": "With ViaCars, finding and booking rides has never been easier. Save time, money, and energy while traveling safely with trusted drivers.",
+
+    "convenience": [
+      {
+        "title": "Your pick of rides at low prices",
+        "desc": "No matter where you're going, by bus or carpool, find the perfect ride from our wide range of destinations and routes at low prices."
+      },
+      {
+        "title": "Easy booking process",
+        "desc": "Booking a ride takes just a few taps. Search, select, and confirm your trip in minutes."
+      },
+      {
+        "title": "Secure payments",
+        "desc": "All transactions are encrypted and secure for your peace of mind."
+      },
+      {
+        "title": "Verified drivers",
+        "desc": "Ride with drivers who are rated and reviewed by the community for safety and reliability."
+      }
+    ],
+
+    "driving_title": "Driving in your car soon?",
+    "driving_subtitle": "Let's make this your least expensive journey ever.",
+    "offer_ride": "Offer a Ride",
+    "help_center_title": "ViaCars Help Centre",
+    "faq": [
+      {
+        "question": "How do I book a carpool ride?",
+        "answer": "You can book a carpool ride on our mobile app, or on blablacar.in. Simply search for your destination, choose the date you want to travel and pick the carpool that suits you best! Some rides can be booked instantly, while other rides require manual approval from the driver. Either way, booking a carpool ride is fast, simple and easy."
+      },
+      {
+        "question": "How much does a ViaCars ride cost?",
+        "answer": "We accept multiple payment methods including credit/debit cards, digital wallets, and UPI transactions."
+      },
+      {
+        "question": "How do I cancel my carpool ride?",
+        "answer": "Yes, you can cancel your ride before departure. Cancellation policies may vary based on the driver's preferences."
+      },
+      {
+        "question": "How do I publish a carpool ride?",
+        "answer": "Yes, every carpool ride is covered under our insurance policy to ensure safety."
+      },
+      {
+        "question": "What are the benefits of travelling by carpool?",
+        "answer": "Once your booking is confirmed, you can contact your driver via chat or call in the app."
+      },
+      {
+        "question": "How do I start carpooling?",
+        "answer": "If your driver cancels, we will notify you immediately, and you can book another ride or request a refund."
+      },
+      {
+        "question": "How do I cancel my carpool ride?",
+        "answer": "Pets are allowed if the driver agrees. Be sure to check with them before booking."
+      }
+    ],
+    "download_title": "Download our app now!",
+    "publish_ride": {
+      "title": "Publish Ride",
+      "success": "Your ride listing has been successfully published and is active!",
+      "verify": "One last step : we need to verify your profile",
+      "publish_return": "Publish my return ride",
+      "publish_later": "I'll publish my return ride later",
+      "see_ride": "See my ride"
+    }
+  },
+
+  "ride": {
+    "title": "Select ride",
+    "filters": "Filters",
+    "create_alert": "Create a Ride Alert",
+    "alert_created": "Ride Alert",
+    "alert_dialog": {
+      "title": "Enter your email ID, and we'll notify you.",
+      "pickup": "Pickup",
+      "drop": "Drop",
+      "description": "Please enter your full email address so we can send you ride details and notifications.",
+      "email_placeholder": "Enter your email address"
+    }
+  },
+
+  "components": {
+    "ride_filter": {
+      "title": "Filter",
+      "reset_all": "Reset all",
+      "sort_by": "Sort by",
+      "clear_all": "Clear all",
+      "sort_options": {
+        "earliest_departure": "Earliest departure",
+        "lowest_price": "Lowest price",
+        "close_to_departure": "Close to departure point",
+        "close_to_arrival": "Close to arrival point",
+        "shortest_ride": "Shortest ride"
+      },
+      "stops": {
+        "title": "Number of stops",
+        "direct": "Direct rides only",
+        "one_stop": "1 Stop",
+        "two_plus_stops": "2 Stops or more"
+      },
+      "trust": {
+        "title": "Trust and safety",
+        "verified_profile": "Verified Profile"
+      },
+      "amenities": {
+        "title": "Amenities"
+      },
+      "car_model": {
+        "title": "Car model",
+        "last_3_years": "Last 3 years",
+        "last_5_years": "Last 5 years",
+        "all": "All"
+      }
+    },
+    "ride_item": {
+      "duration": "4h 40m",
+      "departure_time": "13:00",
+      "departure_location": "Al Khobar, Saudi Arabia",
+      "arrival_time": "17:40",
+      "arrival_location": "Ar Riyadh, Saudi Arabia",
+      "price": "SR 560.00",
+      "driver_name": "Abhimanyu",
+      "rating": "4.5"
+    }
+  },
+
+  "ride_details": {
+    "title": "Ride Details",
+    "date": "Thursday, 16 January",
+    "duration": "4h 40m",
+    "pickup": "Pickup",
+    "pickup_location": "King Fahd Street, Al Khobar 34429, Saudi Arabia",
+    "drop": "Drop",
+    "drop_location": "Makhzoumi Street, Riyadh 13243, Saudi Arabia",
+    "pickup_time": "Pickup Time",
+    "pickup_time_value": "13:00",
+    "drop_time": "Drop Time",
+    "drop_time_value": "17:40",
+    "details": {
+      "title": "Details",
+      "rarely_cancels": "Rarely cancels rides",
+      "instant_confirmation": "Your booking will be confirmed instantly",
+      "smoking_ok": "I'm fine with smoking"
+    },
+    "driver": {
+      "name": "Abhimanyu",
+      "rating": "4.5",
+      "ratings_text": "Ratings"
+    },
+    "passengers": {
+      "title": "Passengers",
+      "passenger1": {
+        "name": "Karthik",
+        "from": "Chennai",
+        "to": "Bangalore"
+      },
+      "passenger2": {
+        "name": "Karthik",
+        "from": "Chennai",
+        "to": "Bangalore"
+      }
+    },
+    "passenger_count": "1 Passenger",
+    "currency": "SR",
+    "passenger_price": "460.00",
+    "car": {
+      "title": "Car Type",
+      "type": "Sedan"
+    },
+    "price_summary": {
+      "title": "Price Summary",
+      "driver_amount": "Amount paid to the driver",
+      "driver_amount_value": "SR 460.00",
+      "service_fee": "Service fee and VAT",
+      "service_fee_value": "SR 100.00",
+      "total": "Total Price",
+      "total_value": "SR 560.00"
+    },
+    "book_now": "Book Now"
+  },
+
+  "payment": {
+    "title": "Payment",
+    "account": {
+      "title": "Account",
+      "description": "Log in to your existing account or sign up.",
+      "have_account": "Have an account?",
+      "login": "LOG IN",
+      "logged_in": "Logged in",
+      "phone_number": "+966 331 766 152"
+    },
+    "login": {
+      "title": "Login",
+      "phone_label": "Mobile number",
+      "button": "Login"
+    },
+    "otp": {
+      "title": "OTP Verification",
+      "enter_label": "Enter OTP",
+      "no_code_received": "If you haven't received the code, please check your messages or",
+      "request_new_code": "request a new code.",
+      "verify": "Verify"
+    },
+    "payment": {
+      "title": "Payment",
+      "methods": {
+        "card": "Credit/Debit Card",
+        "applepay": "Apple PAY",
+        "samsungpay": "Samsung Pay"
+      },
+      "card_number": "Card Number",
+      "name_on_card": "Name on card",
+      "valid_thru": "Valid Thru (MM/YY)",
+      "cvv": "CVV",
+      "error": "Error",
+      "save_card": "Save this card for faster payments",
+      "pay_now": "PAY NOW",
+      "waiting": {
+        "title": "Waiting for approval",
+        "ok": "OK"
+      },
+      "approved": {
+        "title": "Your booking has been successfully confirmed!",
+        "ok": "OK"
+      }
+    },
+    "summary": {
+      "title": "Price Summary",
+      "passenger_count": "1 Passenger",
+      "passenger_price": "SR 460.00",
+      "driver_amount": "Amount paid to the driver",
+      "driver_amount_value": "SR 460.00",
+      "service_fee": "Service fee and VAT",
+      "service_fee_value": "SR 100.00",
+      "total": "Total Price",
+      "total_value": "SR 560.00"
+    }
+  },
+
+  "publish": {
+    "hero": {
+      "title": "Share your ride with passengers",
+      "subtitle": "to save",
+      "highlight": " more on ",
+      "end": "travel costs"
+    },
+    "publish": {
+      "title": "Publish your ride in just minutes",
+      "description": "Effortlessly publish your ride in just a few minutes, allowing you to connect with passengers quickly and efficiently. By sharing your journey, you can save on travel costs, reduce your environmental impact, and make your trip more enjoyable. Experience a seamless and hassle-free way to travel while building meaningful connections."
+    },
+    "steps": {
+      "create_account": {
+        "title": "Create a account",
+        "description": "Add your profile picture, a few words about you and your phone number to increase trust between members."
+      },
+      "publish_ride": {
+        "title": "Publish your ride",
+        "description": "Specify departure, arrival, ride date, and check our suggested price to attract your first passengers and earn ratings."
+      },
+      "accept_booking": {
+        "title": "Accept booking requests",
+        "description": "Review passenger profiles and accept their requests to ride with you. That's how easy it is to start saving on travel costs!"
+      }
+    },
+    "benefits": {
+      "drive": {
+        "title": "Drive",
+        "description": "Stay committed to your original plans while maximizing the potential of your journey by filling the empty seats in your car. By sharing the ride, you can save on travel expenses, reduce environmental impact, and enjoy a pleasant and efficient trip."
+      },
+      "share": {
+        "title": "Share",
+        "description": "Enhance your travel experience by enjoying great company along the way. Connect with travelers from diverse backgrounds, share stories, and create lasting memories together on a journey you'll never forget."
+      },
+      "save": {
+        "title": "Save",
+        "description": "Manage expenses like tolls, gas, electricity, and more with ease. Share costs fairly and transparently with fellow travelers, making your journeys more affordable, efficient, and hassle-free for everyone involved."
+      }
+    },
+    "testimonials": {
+      "title": "What our drivers are saying",
+      "description": "As a carpool driver, I find this app efficient, user-friendly, and reliable. It simplifies ride-sharing, connects me with passengers, and saves travel costs effectively.",
+      "button": "Offer a Ride"
+    },
+    "support": {
+      "title": "We're here every step of the way",
+      "service": {
+        "title": "At your service 24/7",
+        "description": "Our team is at your disposal to answer any questions by email or social media. You can also have a live chat directly with experienced members."
+      },
+      "car": {
+        "title": "Car at your side",
+        "description": "For just 2 €, benefit from the reimbursement of up to 1,500€ of your excess when you publish a ride as a driver on Car."
+      },
+      "secure": {
+        "title": "100% secure information",
+        "description": "Our team is dedicated to the protection of your data, which is always 100% confidential thanks to monitoring tools, secure navigation and encrypted data."
+      }
+    },
+    "faq": {
+      "title": "Everything you need as",
+      "subtitle": "a driver, in our",
+      "highlight": " Help Centre",
+      "questions": {
+        "book": {
+          "title": "How do I book a carpool ride?",
+          "answer": "You can book a carpool ride on our mobile app, or on blablacar.in. Simply search for your destination, choose the date you want to travel and pick the carpool that suits you best! Some rides can be booked instantly, while other rides require manual approval from the driver. Either way, booking a carpool ride is fast, simple and easy."
+        },
+        "cost": {
+          "title": "How much does a ViaCars ride cost?",
+          "answer": "We accept multiple payment methods including credit/debit cards, digital wallets, and UPI transactions."
+        },
+        "cancel": {
+          "title": "How do I cancel my carpool ride?",
+          "answer": "Yes, you can cancel your ride before departure. Cancellation policies may vary based on the driver's preferences."
+        },
+        "publish": {
+          "title": "How do I publish a carpool ride?",
+          "answer": "Yes, every carpool ride is covered under our insurance policy to ensure safety."
+        },
+        "benefits": {
+          "title": "What are the benefits of travelling by carpool?",
+          "answer": "Once your booking is confirmed, you can contact your driver via chat or call in the app."
+        },
+        "start": {
+          "title": "How do I start carpooling?",
+          "answer": "If your driver cancels, we will notify you immediately, and you can book another ride or request a refund."
+        },
+        "pets": {
+          "title": "How do I cancel my carpool ride?",
+          "answer": "Pets are allowed if the driver agrees. Be sure to check with them before booking."
+        }
+      }
+    },
+    "publish_ride": {
+      "title": "Publish Ride",
+      "success": "Your ride listing has been successfully published and is active!",
+      "verify": "One last step : we need to verify your profile",
+      "publish_return": "Publish my return ride",
+      "publish_later": "I'll publish my return ride later",
+      "see_ride": "See my ride"
+    }
+  },
+
+  "dropoff": {
+    "title": "Drop-off Location",
+    "subtitle": "this is where your journey begins!",
+    "section_name": "Drop-off",
+    "section_title": "Please specify the location where you would like to drop off passengers"
+  },
+
+  "pickup": {
+    "title": "Pick-up Location",
+    "subtitle": "this is where your journey begins!",
+    "section_name": "Pick-up",
+    "section_title": "Please specify the location where you would like to pick up passengers."
+  },
+
+  "locations": {
+    "search_placeholder": "Search for a location",
+    "why_exact_location": "Why an exact location?",
+    "continue": "Continue",
+    "no_items": "No items found",
+    "al_khobar": {
+      "name": "Al Khobar",
+      "desc": "Eastern Province, Saudi Arabia"
+    },
+    "riyadh": {
+      "name": "Riyadh",
+      "desc": "Capital of Saudi Arabia"
+    },
+    "jeddah": {
+      "name": "Jeddah",
+      "desc": "Makkah Province, Saudi Arabia"
+    },
+    "dammam": {
+      "name": "Dammam",
+      "desc": "Eastern Province, Saudi Arabia"
+    },
+    "mecca": {
+      "name": "Mecca",
+      "desc": "Makkah Province, Saudi Arabia"
+    },
+    "medina": {
+      "name": "Medina",
+      "desc": "Al Madinah Province, Saudi Arabia"
+    },
+    "abha": {
+      "name": "Abha",
+      "desc": "Asir Province, Saudi Arabia"
+    },
+    "tabuk": {
+      "name": "Tabuk",
+      "desc": "Tabuk Province, Saudi Arabia"
+    },
+    "hail": {
+      "name": "Hail",
+      "desc": "Hail Province, Saudi Arabia"
+    },
+    "najran": {
+      "name": "Najran",
+      "desc": "Najran Province, Saudi Arabia"
+    }
+  },
+
+  "route": {
+    "title": "Select Route",
+    "header_title": "What's your route?",
+    "continue": "Continue",
+    "routes": {
+      "duration": "{{duration}} hr {{minutes}} min",
+      "distance": "{{distance}} km - {{road}}"
+    }
+  },
+
+  "stopovers": {
+    "title": "Stopovers",
+    "header_title": "Add stopovers to get more passengers",
+    "add_city": "Add city",
+    "continue": "Continue",
+    "cities": {
+      "dammam": "Dammam",
+      "sedra_resort": "Sedra Resort",
+      "judah": "Judah"
+    }
+  },
+
+  "stopovers_preview": {
+    "title": "Stopovers",
+    "header_title": "These are the best places to stop. OK for you?",
+    "continue": "Continue",
+    "stops": {
+      "heritage_village": {
+        "name": "Heritage Village",
+        "desc": "Corniche Rd, Dammam, Saudi Arabia"
+      }
+    }
+  },
+
+  "date": {
+    "title": "Date",
+    "header_title": "When Are you Going?",
+    "apply": "Apply"
+  },
+
+  "time": {
+    "title": "Time",
+    "header_title": "When Are You Going?",
+    "apply": "Apply",
+    "am": "AM",
+    "pm": "PM"
+  },
+
+  "passenger_count": {
+    "title": "Passenger Count",
+    "header_title": "So how many ViaCars passengers can you take?",
+    "passenger_options": "Passenger options",
+    "max_back": "Max. 2 in the back",
+    "comfort_note": "Think comfort, keep the middle seat empty",
+    "continue": "Continue",
+    "decrease": "Decrease",
+    "increase": "Increase"
+  },
+
+  "pricing": {
+    "title": "Pricing",
+    "header_title": "Set your price per seat",
+    "recommended_price": "Recommended Price: SR2000 - SR3000",
+    "perfect_price": "Perfect price for this ride! You'll get passengers in to time.",
+    "show_prices": "Show Prices",
+    "continue": "Continue",
+    "pickup": "Pickup",
+    "drop": "Drop",
+    "decrease": "Decrease",
+    "increase": "Increase"
+  },
+
+  "return": {
+    "title": "Return Ride",
+    "header_title": "Coming back as well?",
+    "subtitle": "Publish your return ride now!",
+    "publish_return": "Publish my return ride",
+    "publish_later": "I'll publish my return ride later"
+  },
+
+  "publish_comment": {
+    "title": "Ride Details",
+    "header_title": "Would you like to provide any additional details about your ride?",
+    "section_title": "Anything to add about your ride?",
+    "placeholder": "Flexible about where and when to meet? Not taking motorway? Got limited space in your boot? Keep passenger in the loop.",
+    "publish_ride": "Publish ride"
+  },
+
+  "publish_ride": {
+    "title": "Publish Ride",
+    "success": "Your ride listing has been successfully published and is active!",
+    "verify": "One last step : we need to verify your profile",
+    "publish_return": "Publish my return ride",
+    "publish_later": "I'll publish my return ride later",
+    "see_ride": "See my ride"
+  },
+
+  "your_ride": {
+    "title": "Publish Ride",
+    "breadcrumb": {
+      "home": "Home",
+      "publish_ride": "Publish Ride",
+      "your_ride": "Your Ride"
+    },
+    "ride_plan": "Ride plan",
+    "passenger_request": "Passenger request : 0",
+    "pickup": "Pickup",
+    "drop": "Drop",
+    "pickup_time": "Pickup Time",
+    "drop_time": "Drop Time",
+    "verify_id": "Verify your ID",
+    "see_publication": {
+      "title": "See your publication online",
+      "views": "3 Views"
+    },
+    "edit_publication": "Edit your publication",
+    "locations": {
+      "pickup": "Al Khobar, Saudi Arabia",
+      "drop": "Ar Riyadh, Saudi Arabia"
+    }
+  },
+
+  "booking_request": {
+    "title": "Booking Request",
+    "header": "Request",
+    "locations": {
+      "pickup": "Al Khobar, Saudi Arabia",
+      "drop": "Ar Riyadh, Saudi Arabia"
+    },
+    "date": "Thu, 06 February",
+    "time": "08 : 00 pm",
+    "names": {
+      "default": "Mohammed Arshad"
+    }
+  },
+
+  "booking_request_details": {
+    "title": "Booking Request Details",
+    "breadcrumb": {
+      "home": "Home",
+      "booking_request": "Booking Request",
+      "details": "Booking Request Details"
+    },
+    "date": "Thu, 6 February",
+    "pickup": {
+      "label": "Pickup",
+      "address": "King Fahd Street, Al Khobar 34429, Saudi Arabia",
+      "time": "13:00"
+    },
+    "drop": {
+      "label": "Drop",
+      "address": "Makhzoumi Street, Riyadh 13243, Saudi Arabia",
+      "time": "17:40"
+    },
+    "passenger": {
+      "name": "Karthik"
+    },
+    "chat": {
+      "message": "Hello",
+      "reply": "Reply"
+    },
+    "seats": "For 2 seats",
+    "price": "SR 3000",
+    "actions": {
+      "decline": "Decline",
+      "approve": "Approve"
+    }
+  },
+
+  "your_publication": {
+    "title": "Your Publication",
+    "breadcrumb": {
+      "home": "Home",
+      "publish_ride": "Publish Ride",
+      "your_ride": "Your Ride",
+      "your_publication": "Your Publication"
+    },
+    "header": "Your publication",
+    "menu": {
+      "itinerary": "Itinerary details",
+      "route": "Route",
+      "price": {
+        "title": "Price",
+        "subtitle": "Passengers will pay in cash"
+      },
+      "seats": "Seat and options",
+      "boost": "Boost your booking requests"
+    },
+    "actions": {
+      "duplicate": "Duplicate your publication",
+      "return": "Publish your return ride",
+      "cancel": "Cancel your ride"
+    }
+  },
+
+  "itinerary": {
+    "title": "Itinerary",
+    "breadcrumb": {
+      "home": "Home",
+      "publish_ride": "Publish Ride",
+      "your_ride": "Your Ride",
+      "your_publication": "Your Publication",
+      "itinerary": "Itinerary"
+    },
+    "ride_plan": "Ride plan",
+    "passenger_request": "Passenger request : 0",
+    "pickup": {
+      "label": "Pickup",
+      "address": "Al Khobar , Saudi Arabia"
+    },
+    "stopover": {
+      "label": "Stopover",
+      "address": "Heritage Village, Dammam, Saudi Arabia"
+    },
+    "drop": {
+      "label": "Drop",
+      "address": "Ar Riyadh , Saudi Arabia"
+    },
+    "date": {
+      "label": "Date",
+      "value": "03/02/20205"
+    },
+    "time": {
+      "label": "Time",
+      "value": "07:00 AM"
+    },
+    "manage_stopovers": "Manage stopovers"
+  },
+
+  "your_pricing": {
+    "title": "Your Pricing",
+    "breadcrumb": {
+      "home": "Home",
+      "publish_ride": "Publish Ride",
+      "your_ride": "Your Ride",
+      "your_publication": "Your Publication",
+      "your_pricing": "Your Pricing"
+    },
+    "header": "Your price",
+    "pickup": {
+      "label": "Pickup",
+      "address": "Al Khobar , Saudi Arabia"
+    },
+    "drop": {
+      "label": "Drop",
+      "address": "Ar Riyadh , Saudi Arabia"
+    },
+    "stopover": {
+      "address": "Heritage Village, Dammam, Saudi Arabia"
+    },
+    "currency": "SR",
+    "buttons": {
+      "decrease": "Decrease",
+      "increase": "Increase"
+    }
+  },
+
+  "passenger_options": {
+    "title": "Seat and Options",
+    "breadcrumb": {
+      "home": "Home",
+      "publish_ride": "Publish Ride",
+      "your_ride": "Your Ride",
+      "your_publication": "Your Publication",
+      "seat_options": "Seat and Options"
+    },
+    "header": "Your publication",
+    "passengers": {
+      "title": "So how many ViaCars passengers can you take?",
+      "options": "Passenger options",
+      "max_back": {
+        "label": "Max. 2 in the back",
+        "description": "Think comfort, keep the middle seat empty"
+      }
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "model": "Mercedes-Benz E-Class",
+      "color": "Black"
+    },
+    "additional_details": {
+      "title": "Additional details",
+      "placeholder": "Flexible about where and when to meet? Not taking motorway? Got limited space in your boot? Keepp passenger in the loop."
+    },
+    "buttons": {
+      "decrease": "Decrease",
+      "increase": "Increase",
+      "save": "Save"
+    }
+  },
+
+  "your_rides": {
+    "title": "Your Rides",
+    "tabs": {
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "ride_status": {
+      "date": "On 27/01/2025",
+      "completed": "Completed",
+      "pickup_time": "13:00",
+      "pickup_address": "Al Khobar, Saudi Arabia",
+      "drop_time": "17:40",
+      "drop_address": "Ar Riyadh, Saudi Arabia",
+      "price": "SR 560.00",
+      "passenger_name": "Abhimanyu",
+      "rating": "4.5",
+      "invoice": "Invoice"
+    }
+  },
+
+  "inbox": {
+    "title": "Inbox",
+    "request": {
+      "from": "Al Khobar, Saudi Arabia",
+      "to": "Ar Riyadh, Saudi Arabia",
+      "date": "Thu, 06 February",
+      "time": "08 : 00 pm",
+      "passenger_name": "Mohammed Arshad"
+    }
+  },
+
+  "user_profile": {
+    "title": "Profile",
+    "name": "Abhimanyu",
+    "rating": "4.5",
+    "edit": "Edit",
+    "personal_info": {
+      "mail": "Mail",
+      "mail_value": "abhimanyu123@gmail.com",
+      "number": "Number",
+      "number_value": "+96763266563",
+      "age": "Age",
+      "age_value": "+26",
+      "gender": "Gender",
+      "gender_value": "Male"
+    },
+    "tabs": {
+      "about": "About",
+      "account": "Account"
+    },
+    "verify_profile": {
+      "title": "Verify your profile",
+      "id_verified": "ID verified",
+      "confirm_email": "Confirm your email",
+      "phone": "+966 00 00 00 00 00"
+    },
+    "about_you": {
+      "title": "About you",
+      "description": "Dedicated to making travel more convenient and cost-effective, he prioritizes safety, punctuality, and passenger comfort. By providing a reliable and efficient service, he ensures that commuters enjoy a smooth and stress-free journey. His commitment to shared transportation allows passengers to save money while reducing environmental impact. Beyond just a ride, he fosters a sense of community among travelers, encouraging connections and a more enjoyable commuting experience. His dependable service transforms everyday travel into a seamless, shared experience.",
+      "preferences": {
+        "chatty": "I'm chatty when I feel comfortable",
+        "smoking": "Cigarette breaks outside the car are ok",
+        "music": "I'll jam depending on the mood",
+        "pets": "I'll travel with pets depending on the animal"
+      },
+      "edit_preferences": "Edit travel preferences"
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "details": {
+        "model": "BMW 530i",
+        "type": "Sedan, Black"
+      },
+      "add_vehicle": "Add vehicle"
+    },
+    "account": {
+      "password": "Password",
+      "privacy_policy": "Privacy policy",
+      "communication_preferences": "Communication preferences",
+      "about_us": "About Us",
+      "close_account": "Close my account",
+      "payout_methods": "Payout methods",
+      "transfers": "Transfers",
+      "payment_methods": "Payment methods",
+      "payments_refunds": "Payments & refunds",
+      "logout": "Log out"
+    }
+  },
+
+  "change_password": {
+    "title": "Change Password",
+    "requirements": "It must have at least 8 characters, 1 letter, 1 number and 1 special character.",
+    "current_password": "Current password",
+    "new_password": "New password",
+    "confirm_password": "Confirm new password",
+    "save_button": "Save new password",
+    "success": "Password updated successfully!",
+    "errors": {
+      "fill_all_fields": "Please fill out all fields.",
+      "passwords_dont_match": "New password and confirmation do not match.",
+      "password_requirements": "New password must be at least 8 characters, including 1 letter, 1 number, and 1 special character."
+    }
+  },
+
+  "breadcrumbs": {
+    "home": "Home",
+    "profile": "Profile"
+  },
+
+  "add_vehicles": {
+    "title": "Add Vehicles",
+    "model": {
+      "subtitle": "Vehicles model",
+      "pickup": {
+        "section_name": "Pick-up",
+        "section_title": "Please specify the location where you would like to pick up passengers."
+      },
+      "search_placeholder": "Enter the full address",
+      "no_items": "No items.",
+      "models": {
+        "530i": "BMW 530i",
+        "3 series": "BMW 3 Series",
+        "x7": "BMW X7",
+        "1 series": "BMW 1 Series"
+      }
+    }
+  },
+
+  "chat": {
+    "title": "Chat",
+    "user_name": "Abhimanyu",
+    "guidelines": {
+      "title": "Messaging guidelines",
+      "no_contact_info": "Please don't include your phone number, email address or any website URLs.",
+      "message_filtering": "We may filter all or part of your message, in particular if it includes contact information, as this is contrary to our",
+      "terms_conditions": "Terms and Conditions.",
+      "save_changes": "Save changes"
+    },
+    "ride_details": {
+      "pickup": "Al Khobar, Saudi Arabia",
+      "dropoff": "Al Khobar, Saudi Arabia",
+      "date_time": "Thu, 06 February 08:00 pm"
+    },
+    "messages": {
+      "moderate_info": "We may moderate messages. You can also report inappropriate ones from our",
+      "guidelines_link": "guidelines page.",
+      "scam_warning": "To avoid scams, never visit links sent by members to pay or transfer money.",
+      "learn_more": "Learn more.",
+      "new": "New",
+      "hello": "Hello"
+    },
+    "input": {
+      "placeholder": "Your message"
+    }
+  },
+
+  "passenger_profile": {
+    "title": "Profile",
+    "breadcrumb": {
+      "booking_request": "Booking Request",
+      "booking_request_details": "Booking Request Details",
+      "profile": "Profile"
+    },
+    "user_name": "Abhimanyu",
+    "location": "Al Balad, Saudi Arabia",
+    "report_number": "Report this number",
+    "rating": "Rating",
+    "verified": {
+      "email": "Confirmed mail id",
+      "phone": "Confirmed phone number"
+    },
+    "rides_published": "ride published",
+    "about": "About",
+    "phone_number": "Phone Number",
+    "email": "Mail id",
+    "experience": "Experience",
+    "experience_level": "Intermediate",
+    "bio": "Making travel more convenient and cost-effective for passengers. With a strong commitment to safety and punctuality, he ensures a smooth and comfortable ride. His reliable service helps commuters share journeys efficiently while fostering a sense of community on the road."
+  },
+
+  "profile": {
+    "title": "Profile",
+    "breadcrumb": {
+      "select_ride": "Select Ride",
+      "ride_details": "Ride Details",
+      "profile": "Profile"
+    },
+    "chat": "Chat",
+    "user_name": "Abhimanyu",
+    "location": "Al Balad, Saudi Arabia",
+    "report_number": "Report this number",
+    "rating": "Rating",
+    "verified": {
+      "email": "Confirmed mail id",
+      "phone": "Confirmed phone number"
+    },
+    "rides_published": "ride published",
+    "about": "About",
+    "bio": "Making travel more convenient and cost-effective for passengers. With a strong commitment to safety and punctuality, he ensures a smooth and comfortable ride. His reliable service helps commuters share journeys efficiently while fostering a sense of community on the road."
+  },
+
+  "reviews": {
+    "title": "Profile",
+    "breadcrumb": {
+      "home": "Home",
+      "select_ride": "Select Ride",
+      "ride_details": "Ride Details",
+      "profile": "Profile",
+      "reviews": "Reviews"
+    },
+    "reviewer_name": "Fathima Rana",
+    "review_date": "January 9, 2025",
+    "review_text": "Dedicated to making travel more convenient and cost-effective, he prioritizes safety, punctuality, and passenger comfort. By providing a reliable and efficient service, he ensures that commuters enjoy a smooth and stress-free journey. His commitment to shared transportation allows passengers to save money while reducing environmental impact. Beyond just a ride, he fosters a sense of community among travelers, encouraging connections and a more enjoyable commuting experience. His dependable service transforms everyday travel into a seamless, shared experience."
+  },
+
+  "common": {
+    "home": "Home"
+  },
+
+  "vehicle_category": {
+    "title": "Select Category",
+    "select_category": "Select Category",
+    "categories": {
+      "sedan": "Sedan",
+      "luxury": "Luxury",
+      "suv": "SUV"
+    },
+    "continue": "Continue"
+  },
+
+  "vehicle_color": {
+    "title": "Add Vehicles",
+    "subtitle": "Vehicles color",
+    "pickup": {
+      "section_name": "Pick-up",
+      "section_title": "Please specify the location where you would like to pick up passengers."
+    },
+    "search_placeholder": "Enter the full address",
+    "no_items": "No items.",
+    "colors": {
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "black": "Black"
+    }
+  },
+
+  "layout": {
+    "header": {
+      "publish_ride": "Publish a Ride"
+    },
+    "footer": {
+      "download_app": "Download our App now!",
+      "get_in_touch": "How can we help you",
+      "contact": "Get in touch",
+      "quick_links": "Quick Links",
+      "how_it_works": "How It Works",
+      "about_us": "About Us",
+      "help_center": "Help Center",
+      "privacy_policy": "Privacy Policy",
+      "copyright": "© 2025 . All rights reserved"
+    },
+    "navbar": {
+      "your_rides": "Your rides",
+      "message_request": "Message request",
+      "inbox": "Inbox",
+      "profile": "Profile",
+      "transfers": "Transfers",
+      "payment_refunds": "Payment & refunds",
+      "logout": "Log out"
+    }
+  },
+
+  "search": {
+    "ride": {
+      "leaving_from": "Leaving From",
+      "going_to": "Going To",
+      "select_pickup": "Select pickup",
+      "select_dropoff": "Select dropoff",
+      "search": "Search",
+      "passengers": {
+        "label": "Passengers",
+        "placeholder": "Select no. of passengers",
+        "adults": "Adults",
+        "children": "Children",
+        "infants": "Infants",
+        "age_12_plus": "Age 12+",
+        "ages_2_11": "Ages 2-11",
+        "under_2": "Under 2"
+      },
+      "date": {
+        "label": "Schedule trip",
+        "placeholder": "Pick a date",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "apply": "Apply"
+      },
+      "filters": {
+        "max_passengers": "Max. 2 in the back",
+        "instant_booking": "Instant Booking",
+        "smoking_allowed": "Smoking allowed",
+        "pets_allowed": "Pets allowed",
+        "power_outlets": "Power outlets",
+        "air_conditioning": "Air conditioning",
+        "accessible": "Accessible for passengers with disabilities"
+      }
+    }
+  }
+}
