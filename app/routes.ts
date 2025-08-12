@@ -39,4 +39,7 @@ export default [
   route("/user-profile", "./routes/user-profile.tsx"),
   route("/change-password", "./routes/change-password.tsx"),
   route("/inbox", "./routes/inbox.tsx"),
+  route("/transactions", "./routes/transaction-list.tsx"),
+  route("/payment-refunds", "./routes/payment-refunds.tsx"),
+  route("/bank-details", "./routes/bank-details.tsx"),
 ] satisfies RouteConfig;

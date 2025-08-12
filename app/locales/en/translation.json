@@ -102,6 +102,9 @@
       "see_ride": "See my ride"
     }
   },
+  "edit_profile_modal": {
+    "save_button": "Save"
+  },
 
   "ride": {
     "title": "Select ride",
@@ -999,8 +1002,9 @@
       "message_request": "Message request",
       "inbox": "Inbox",
       "profile": "Profile",
-      "transfers": "Transfers",
+      "transactions": "Transactions",
       "payment_refunds": "Payment & refunds",
+      "bank_details": "Bank Account",
       "logout": "Log out"
     }
   },
@@ -1038,6 +1042,47 @@
         "air_conditioning": "Air conditioning",
         "accessible": "Accessible for passengers with disabilities"
       }
+    }
+  },
+  "transactions": {
+    "title": "Transactions",
+    "filterText": "Filter",
+    "subtitle": "Transaction history",
+    "table": {
+      "user": "User",
+      "date": "Date",
+      "from": "From",
+      "to": "To",
+      "amount": "Amount",
+      "status": "Status"
+    }
+  },
+  "payment_refunds": {
+    "title": "Payment & Refunds",
+    "filterText": "Filter",
+    "subtitle": "Payment & refund history",
+    "table": {
+      "user": "User",
+      "date": "Date",
+      "from": "From",
+      "to": "To",
+      "amount": "Amount",
+      "status": "Status"
+    }
+  },
+  "bank_details": {
+    "bank_account": "Bank",
+    "title": "Bank Account",
+    "subtitle": "Bank account details",
+    "add_bank_account": "Add Bank ",
+    "subtitle": "Bank account details",
+    "table": {
+      "bank_name": "Bank Name",
+      "account_number": "Account Number",
+      "account_holder_name": "Account Holder Name",
+      "iban": "IBAN",
+      "swift_code": "SWIFT Code",
+      "bank_address": "Branch"
     }
   }
 }
