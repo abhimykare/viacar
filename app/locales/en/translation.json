@@ -1074,15 +1074,30 @@
     "bank_account": "Bank",
     "title": "Bank Account",
     "subtitle": "Bank account details",
-    "add_bank_account": "Add Bank ",
-    "subtitle": "Bank account details",
+    "add_bank_account": "Add Bank Account",
     "table": {
+      "account_holder_name": "Account Holder Name",
       "bank_name": "Bank Name",
       "account_number": "Account Number",
-      "account_holder_name": "Account Holder Name",
       "iban": "IBAN",
       "swift_code": "SWIFT Code",
-      "bank_address": "Branch"
+      "branch": "Branch",
+      "buttonText": "Save"
+
+    }
+  },
+  "profile_details": {
+    "title": "Enter your Profile Details",
+    "form": {
+      "fname": "First Name",
+      "lname": "Last Name",
+      "date_of_birth": "Date of Birth",
+      "gender": "Gender",
+      "select_gender_placeholder": "Select Gender",
+      "gender_male": "Male",
+      "gender_female": "Female",
+      "gender_other": "Other",
+      "button_text": "Submit"
     }
   }
 }

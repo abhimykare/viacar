@@ -25,9 +25,18 @@ export function meta({}: Route.MetaArgs) {
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  console.log("im in pagee");
+  const searchParams = new URLSearchParams(window.location.search);
+  const from = searchParams.get("from");
+  console.log(from, "from");
 
   const handleVerify = () => {
-    navigate("/book");
+    console.log(from, "from");
+    if (from === "ride-details") {
+      navigate("/profile-details");
+    } else {
+      navigate("/book/ride");
+    }
   };
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">

@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import Header from "~/components/layouts/header";
 import Footer from "~/components/layouts/footer";
+import { AddBankAccountModal } from "~/components/modals/add-bank-details-modal";
 
 interface BankAccount {
   id: string;
@@ -42,6 +43,7 @@ const BankDetails: React.FC = () => {
   const [selectedBank, setSelectedBank] = useState<string>(
     bankAccounts[0]?.id || ""
   );
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   return (
     <div className="bg-[#F8FAFB]">
@@ -54,6 +56,7 @@ const BankDetails: React.FC = () => {
           <Button
             variant="outline"
             className="flex items-center gap-2 text-base text-[##FF4848] border-[#EBEBEB] shadow-none rounded-full h-10 px-4"
+            onClick={() => setIsAddModalOpen(true)}
           >
             <PlusCircle className="size-4" />
             <span>{t("bank_details.add_bank_account")}</span>
@@ -135,6 +138,10 @@ const BankDetails: React.FC = () => {
           ))}
         </RadioGroup>
       </div>
+      <AddBankAccountModal 
+        open={isAddModalOpen} 
+        onOpenChange={setIsAddModalOpen} 
+      />
       <Footer />
     </div>
   );

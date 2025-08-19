@@ -290,7 +290,7 @@ export default function Page() {
                 className="bg-[#FF4848] rounded-full h-[55px] w-[241px] px-8 cursor-pointer text-xl"
                 asChild
               >
-                <Link to={`/payment`}>
+                <Link to={`/login?from=ride-details`}>
                   <BsFillLightningFill className="size-[18px]" />
                   <span>{t("book_now")}</span>
                 </Link>

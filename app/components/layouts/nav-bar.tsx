@@ -277,18 +277,23 @@ export default function NavBar({ variant, className = "" }: Props) {
                   ))}
                 </div>
               </div>
-              <DropdownMenuItem className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent">
-                <img
-                  className="size-[20px]"
-                  src="/assets/logout.svg"
-                  alt="Booking request"
-                />
-                <p className="text-base font-normal">
-                  {t("layout.navbar.logout")}
-                </p>
-                <div className="ml-auto flex items-center gap-4">
-                  <RightArrowRounded className="size-[20px]" />
-                </div>
+              <DropdownMenuItem
+                asChild
+                className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
+              >
+                <Link to={`/login`}>
+                  <img
+                    className="size-[20px]"
+                    src="/assets/logout.svg"
+                    alt="Booking request"
+                  />
+                  <p className="text-base font-normal">
+                    {t("layout.navbar.logout")}
+                  </p>
+                  <div className="ml-auto flex items-center gap-4">
+                    <RightArrowRounded className="size-[20px]" />
+                  </div>
+                </Link>
               </DropdownMenuItem>
             </div>
           </DropdownMenuContent>
