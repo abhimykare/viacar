@@ -1,10 +1,21 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import { PencilIcon, XIcon } from "lucide-react";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import ModelImage from "../../../public/assets/profileeditimg.png";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { useTranslation } from "react-i18next";
+import PlaceholderGallery from "../../../public/assets/placeholdeGallery.png";
+import EditIcon from "../../../public/assets/editIcon.png";
 
-export function EditProfileModal() {
+export function EditProfileModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { t } = useTranslation();
   const [fullName, setFullName] = useState("John Doe");
   const [email, setEmail] = useState("john.doe@example.com");
   const [phoneNumber, setPhoneNumber] = useState("+1234567890");
@@ -13,99 +24,104 @@ export function EditProfileModal() {
 
   const handleSave = () => {
     // Implement save logic here
-    console.log("Saving profile:", { fullName, email, phoneNumber, age, gender });
+    console.log("Saving profile:", {
+      fullName,
+      email,
+      phoneNumber,
+      age,
+      gender,
+    });
+    onOpenChange(false);
   };
 
   return (
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          {/* Image with edit icon */}
-          <div className="relative w-24 h-24 rounded-lg overflow-hidden">
-            <img
-              src="/public/assets/profile-img.png" // Replace with actual user image
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute top-1 right-1 bg-white rounded-full p-1 cursor-pointer">
-              {/* Edit icon */}
-              <svg
-                xmlns="http://www.w3.org/2020/svg"
-                className="h-4 w-4 text-gray-600"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                <path
-                  fillRule="evenodd"
-                  d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                  clipRule="evenodd"
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="p-0 !max-w-5xl w-full grid grid-cols-2 rounded-lg overflow-hidden min-h-[600px] sm:!max-w-5xl">
+        {/* Left Section: Image and Text */}
+        <div className="relative h-[600px] flex items-end p-8 rounded-l-lg overflow-hidden">
+          <img
+            src={ModelImage}
+            alt="People in car"
+            className="absolute inset-0 w-full h-full object-cover z-0 opacity-70"
+          />
+        </div>
+
+        {/* Right Section: Form */}
+        <div className="relative p-8 bg-white flex flex-col justify-between rounded-r-lg min-h-[600px]">
+          {/* Close Button */}
+
+          <div className="flex flex-col items-center gap-6 mt-8 flex-grow justify-center">
+            {/* Profile Image Placeholder with Edit Icon */}
+            <div className="relative w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+              <img
+                src={PlaceholderGallery}
+                alt="Profile"
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <div className="absolute bottom-0 right-0 top-[110px]">
+                <img
+                  src={EditIcon}
+                  alt="Edit Icon"
+                  className="h-6 w-6 top-10"
                 />
-              </svg>
+              </div>
+            </div>
+
+            {/* Input Fields */}
+            <div className="grid w-full gap-4 max-w-sm">
+              <Input
+                id="fullName"
+                placeholder={t("edit_profile_modal.full_name_placeholder")}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="bg-gray-100 border-none focus:ring-0 focus:ring-offset-0 h-12"
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  id="email"
+                  placeholder={t("edit_profile_modal.email_placeholder")}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-gray-100 border-none focus:ring-0 focus:ring-offset-0 h-12"
+                />
+                <Input
+                  id="phoneNumber"
+                  placeholder={t("edit_profile_modal.phone_number_placeholder")}
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="bg-gray-100 border-none focus:ring-0 focus:ring-offset-0 h-12"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  id="age"
+                  placeholder={t("edit_profile_modal.age_placeholder")}
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="bg-gray-100 border-none focus:ring-0 focus:ring-offset-0 h-12"
+                />
+                <Input
+                  id="gender"
+                  placeholder={t("edit_profile_modal.gender_placeholder")}
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="bg-gray-100 border-none focus:ring-0 focus:ring-offset-0 h-12"
+                />
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="fullName" className="text-right">
-              Full Name
-            </Label>
-            <Input
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="email" className="text-right">
-              Email
-            </Label>
-            <Input
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="phoneNumber" className="text-right">
-              Phone Number
-            </Label>
-            <Input
-              id="phoneNumber"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="age" className="text-right">
-              Age
-            </Label>
-            <Input
-              id="age"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="gender" className="text-right">
-              Gender
-            </Label>
-            <Input
-              id="gender"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className="col-span-3"
-            />
+
+          <div className=" flex items-center justify-end">
+            <Button
+              type="submit"
+              onClick={handleSave}
+              className="float-end  w-[170px] bg-red-500 hover:bg-red-600 text-white py-3 h-12 text-lg rounded-full"
+            >
+              {t("edit_profile_modal.save_button")}
+            </Button>
           </div>
         </div>
-        <Button type="submit" onClick={handleSave}>Save changes</Button>
       </DialogContent>
+    </Dialog>
   );
 }

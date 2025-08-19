@@ -205,31 +205,59 @@ export default function NavBar({ variant, className = "" }: Props) {
                   </div>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent">
-                <img
-                  className="size-[20px]"
-                  src="/assets/transfer.png"
-                  alt="Booking request"
-                />
-                <p className="text-base font-normal">
-                  {t("layout.navbar.transfers")}
-                </p>
-                <div className="ml-auto flex items-center gap-4">
-                  <RightArrowRounded className="size-[20px]" />
-                </div>
+              <DropdownMenuItem
+                className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
+                asChild
+              >
+                <Link to={`/transactions`}>
+                  <img
+                    className="size-[20px]"
+                    src="/assets/transfer.png"
+                    alt="Booking request"
+                  />
+                  <p className="text-base font-normal">
+                    {t("layout.navbar.transactions")}
+                  </p>
+                  <div className="ml-auto flex items-center gap-4">
+                    <RightArrowRounded className="size-[20px]" />
+                  </div>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent">
-                <img
-                  className="size-[20px]"
-                  src="/assets/payment.png"
-                  alt="Booking request"
-                />
-                <p className="text-base font-normal">
-                  {t("layout.navbar.payment_refunds")}
-                </p>
-                <div className="ml-auto flex items-center gap-4">
-                  <RightArrowRounded className="size-[20px]" />
-                </div>
+              <DropdownMenuItem
+                asChild
+                className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
+              >
+                <Link to={`/payment-refunds`}>
+                  <img
+                    className="size-[20px]"
+                    src="/assets/payment.png"
+                    alt="Booking request"
+                  />
+                  <p className="text-base font-normal">
+                    {t("layout.navbar.payment_refunds")}
+                  </p>
+                  <div className="ml-auto flex items-center gap-4">
+                    <RightArrowRounded className="size-[20px]" />
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
+              >
+                <Link to={`/bank-details`}>
+                  <img
+                    className="size-[20px]"
+                    src="/assets/bank-account.png"
+                    alt="Booking request"
+                  />
+                  <p className="text-base font-normal">
+                    {t("layout.navbar.bank_details")}
+                  </p>
+                  <div className="ml-auto flex items-center gap-4">
+                    <RightArrowRounded className="size-[20px]" />
+                  </div>
+                </Link>
               </DropdownMenuItem>
               <div className="sm:hidden py-2">
                 <p className="text-sm text-gray-500 mb-2 px-2">Language</p>
@@ -249,18 +277,23 @@ export default function NavBar({ variant, className = "" }: Props) {
                   ))}
                 </div>
               </div>
-              <DropdownMenuItem className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent">
-                <img
-                  className="size-[20px]"
-                  src="/assets/logout.svg"
-                  alt="Booking request"
-                />
-                <p className="text-base font-normal">
-                  {t("layout.navbar.logout")}
-                </p>
-                <div className="ml-auto flex items-center gap-4">
-                  <RightArrowRounded className="size-[20px]" />
-                </div>
+              <DropdownMenuItem
+                asChild
+                className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
+              >
+                <Link to={`/login`}>
+                  <img
+                    className="size-[20px]"
+                    src="/assets/logout.svg"
+                    alt="Booking request"
+                  />
+                  <p className="text-base font-normal">
+                    {t("layout.navbar.logout")}
+                  </p>
+                  <div className="ml-auto flex items-center gap-4">
+                    <RightArrowRounded className="size-[20px]" />
+                  </div>
+                </Link>
               </DropdownMenuItem>
             </div>
           </DropdownMenuContent>

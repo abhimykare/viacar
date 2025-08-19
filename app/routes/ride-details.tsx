@@ -13,6 +13,7 @@ import { MdKeyboardArrowRight } from "react-icons/md";
 import { BsFillLightningFill } from "react-icons/bs";
 import { useTranslation } from "react-i18next";
 import { cn } from "~/lib/utils";
+import GoogleMap from "~/components/common/google-map";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -71,7 +72,21 @@ export default function Page() {
                 <p className="text-base lg:text-lg">{t("drop_time_value")}</p>
               </div>
             </div>
-            <img src="/assets/map-direction.png" alt="" />
+            <GoogleMap
+              startLocation={{
+                lat: 10.0159,
+                lng: 76.3419,
+                address: "Kakkanad, Kerala",
+              }}
+              endLocation={{
+                lat: 10.0672,
+                lng: 76.3202,
+                address: "Kalamassery, Kerala",
+              }}
+              height="300px"
+              width="100%"
+            />
+
             <div className="flex flex-col">
               <p className="text-xl lg:text-2xl mb-4">{t("details.title")}</p>
               <div className="flex flex-wrap gap-4 pb-4 lg:pb-10">
@@ -275,7 +290,7 @@ export default function Page() {
                 className="bg-[#FF4848] rounded-full h-[55px] w-[241px] px-8 cursor-pointer text-xl"
                 asChild
               >
-                <Link to={`/payment`}>
+                <Link to={`/login?from=ride-details`}>
                   <BsFillLightningFill className="size-[18px]" />
                   <span>{t("book_now")}</span>
                 </Link>

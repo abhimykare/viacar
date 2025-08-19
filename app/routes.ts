@@ -2,11 +2,12 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
   // index("routes/home.tsx"),
-  index("./routes/login.tsx"),
-  route("/book", "./routes/book.tsx"),
+  index("./routes/book.tsx"),
+  route("/login", "./routes/login.tsx"),
   route("/book/ride", "./routes/ride.tsx"),
   route("/ride-details", "./routes/ride-details.tsx"),
   route("/profile", "./routes/profile.tsx"),
+  route("/profile-details", "./routes/profile-details.tsx"),
   route("/chat", "./routes/chat.tsx"),
   route("/reviews", "./routes/reviews.tsx"),
   route("/payment", "./routes/payment.tsx"),
@@ -39,4 +40,7 @@ export default [
   route("/user-profile", "./routes/user-profile.tsx"),
   route("/change-password", "./routes/change-password.tsx"),
   route("/inbox", "./routes/inbox.tsx"),
+  route("/transactions", "./routes/transaction-list.tsx"),
+  route("/payment-refunds", "./routes/payment-refunds.tsx"),
+  route("/bank-details", "./routes/bank-details.tsx"),
 ] satisfies RouteConfig;

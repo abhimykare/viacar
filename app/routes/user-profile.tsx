@@ -13,6 +13,7 @@ import { EditProfileModal } from "~/components/modals/edit-profile-modal";
 import { BiSolidPencil } from "react-icons/bi";
 import { useTranslation } from "react-i18next";
 import { cn } from "~/lib/utils";
+import { useState } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -22,6 +23,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Page() {
+  const [isOpen, setIsOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
@@ -48,20 +50,17 @@ export default function Page() {
                   </p>
                 </div>
               </div>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    className="text-base font-light border-[#EBEBEB] bg-transparent rounded-full w-[102px] h-[42px]"
-                    variant="outline"
-                  >
-                    <HiPencil color="#FF4848" />
-                    <span>{t("user_profile.edit")}</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <EditProfileModal />
-                </DialogContent>
-              </Dialog>
+
+              <Button
+                className="text-base font-light border-[#EBEBEB] bg-transparent rounded-full w-[102px] h-[42px]"
+                variant="outline"
+                onClick={() => setIsOpen(true)}
+              >
+                <HiPencil color="#FF4848" />
+                <span>{t("user_profile.edit")}</span>
+              </Button>
+
+              <EditProfileModal open={isOpen} onOpenChange={setIsOpen} />
             </div>
             <div className="flex flex-col lg:flex-row items-center max-lg:justify-center gap-4 lg:gap-0">
               <div className="flex flex-col items-center justify-center px-8 py-4">
@@ -199,6 +198,7 @@ export default function Page() {
                   <Button
                     className="text-base font-light border-[#EBEBEB] bg-transparent rounded-full w-[102px] h-[42px]"
                     variant="outline"
+                    onClick={() => setIsOpen(true)}
                   >
                     <HiPencil color="#FF4848" />
                     <span>{t("user_profile.edit")}</span>
