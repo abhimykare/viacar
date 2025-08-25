@@ -1,37 +1,46 @@
 import { gsap } from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 gsap.registerPlugin(MotionPathPlugin);
 
 const CarAnimation: React.FC = () => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
   useEffect(() => {
+    if (!svgRef.current) return;
+
+    const movingImage = svgRef.current.querySelector<SVGImageElement>("#movingImage");
+    const path = svgRef.current.querySelector<SVGPathElement>("#path");
+
+    if (!movingImage || !path) return;
+
     const tl = gsap.timeline({ repeat: -1 });
 
-    tl.set("#movingImage", { rotation: 0 });
+    tl.set(movingImage, { rotation: 0 });
 
-    tl.to("#movingImage", {
+    tl.to(movingImage, {
       duration: 20,
       motionPath: {
-        path: "#path",
-        align: "#path",
+        path: path,
+        align: path,
         alignOrigin: [0.5, 0.5],
         autoRotate: true,
       },
       ease: "sine.inOut",
     });
 
-    tl.to("#movingImage", {
+    tl.to(movingImage, {
       duration: 1,
       rotation: "+=180",
       ease: "power1.inOut",
     });
 
-    tl.to("#movingImage", {
+    tl.to(movingImage, {
       duration: 20,
       motionPath: {
-        path: "#path",
-        align: "#path",
+        path: path,
+        align: path,
         alignOrigin: [0.5, 0.5],
         autoRotate: true,
         start: 1,
@@ -40,7 +49,7 @@ const CarAnimation: React.FC = () => {
       ease: "sine.inOut",
     });
 
-    tl.to("#movingImage", {
+    tl.to(movingImage, {
       duration: 1,
       rotation: "+=180",
       ease: "power1.inOut",
@@ -49,6 +58,7 @@ const CarAnimation: React.FC = () => {
 
   return (
     <svg
+      ref={svgRef}
       className="w-full"
       width="900"
       height="100"

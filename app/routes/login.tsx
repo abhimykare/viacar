@@ -41,7 +41,7 @@ export default function Login() {
     setIsLoading(true);
     setError(null);
     try {
-      const cleanedPhoneNumber = phoneNumber.replace(/\D/g, ''); // Remove all non-numeric characters
+      const cleanedPhoneNumber = phoneNumber.replace(/\D/g, ""); // Remove all non-numeric characters
 
       if (!cleanedPhoneNumber) {
         setError("Mobile number cannot be empty.");
@@ -76,13 +76,13 @@ export default function Login() {
         device_type: "1",
         fcm_token: "some_fcm_token",
       }); // TODO: Replace 'some_fcm_token' with actual FCM token
-      if (response.data && response.data.token) {
-        // Assuming successful verification and token received
-        // You might want to store the token (e.g., in localStorage or context)
-        console.log("OTP Verified! Token:", response.data.token);
-        setIsOtpModalOpen(false);
-        if (from === "ride-details") {
-          navigate("/profile-details");
+      console.log(response?.data?.type, "response yoyouoy sdyfosdyfosy");
+      if (response?.data) {
+        if (response.data.type === "register") {
+          navigate(`/profile-details?otpId=${otpId}`);
+          setIsOtpModalOpen(false);
+        } else if (response.data.type === "login") {
+          navigate(`/payment?registrationSuccess=true`);
         } else {
           navigate("/book/ride");
         }
