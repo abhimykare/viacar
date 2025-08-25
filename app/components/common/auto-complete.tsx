@@ -57,9 +57,14 @@ export function AutoComplete<T extends string>({
   };
 
   const onInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Only reset if:
+    // 1. We're not clicking on the dropdown list AND
+    // 2. The input is empty AND there was no previously selected value
+    // This prevents clearing the input when clicking elsewhere
     if (
       !e.relatedTarget?.hasAttribute("cmdk-list") &&
-      labels[selectedValue] !== searchValue
+      searchValue === "" &&
+      selectedValue === ""
     ) {
       reset();
     }
