@@ -74,7 +74,7 @@ export default function ProfileDetails() {
 
       if (response.data) {
         console.log("Registration successful! Token:", response.data.token);
-        navigate("/ride-details?registrationSuccess=true");
+        navigate("/payment?registrationSuccess=true");
       } else {
         setError(response.message || "Registration failed.");
       }
