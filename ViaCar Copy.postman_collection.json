@@ -1,0 +1,344 @@
+{
+	"info": {
+		"_postman_id": "73b86848-9132-4fef-a9d5-eb831e0157e3",
+		"name": "ViaCar Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46911284",
+		"_collection_link": "https://mohamedajmal-1218314.postman.co/workspace/Mohamed-Ajmal's-Workspace~3f98846a-1e3f-442c-864f-2da4a599d880/collection/46911284-73b86848-9132-4fef-a9d5-eb831e0157e3?action=share&source=collection_link&creator=46911284"
+	},
+	"item": [
+		{
+			"name": "SendAuthOTP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonResponse = pm.response.json();\r",
+							"if (jsonResponse.data) {\r",
+							"    pm.environment.set(\"otpId\", jsonResponse.data.otpId);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "country_code",
+							"value": "+966",
+							"type": "text"
+						},
+						{
+							"key": "mobile_number",
+							"value": "9746258963",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/send-auth-otp",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"send-auth-otp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "VerifyAuthOTP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "otp_id",
+							"value": "{{otpId}}",
+							"type": "text"
+						},
+						{
+							"key": "otp",
+							"value": "999999",
+							"type": "text"
+						},
+						{
+							"key": "device_type",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "fcm_token",
+							"value": "test",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/verify-auth-otp",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"verify-auth-otp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonResponse = pm.response.json();\r",
+							"if(jsonResponse.status){\r",
+							"        pm.environment.set(\"authToken\",jsonResponse.data.token);\r",
+							"    }"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "otp_id",
+							"value": "{{otpId}}",
+							"type": "text"
+						},
+						{
+							"key": "device_type",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "first_name",
+							"value": "Ramees",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Test",
+							"type": "text"
+						},
+						{
+							"key": "date_of_birth",
+							"value": "2025-01-01",
+							"type": "text"
+						},
+						{
+							"key": "gender",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "fcm_token",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Places",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/places/autocomplete",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"places",
+						"autocomplete"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "New Request",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "input",
+									"value": "hilitemall",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/places/autocomplete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"places",
+								"autocomplete"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.25.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.4.10"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Jul 2025 16:44:58 GMT"
+						},
+						{
+							"key": "phpdebugbar-id",
+							"value": "01K0SGCACXRMZ5ECPQ9RNH1E2A"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"commonData\": null,\n    \"data\": [\n        {\n            \"placeId\": \"ChIJge2cNb5bpjsRAn64ch84fME\",\n            \"text\": \"HiLITE Mall, Kozhikode Bypass, Poovangal, Kozhikode, Kerala, India\",\n            \"mainText\": \"HiLITE Mall\",\n            \"secondaryText\": \"Kozhikode Bypass, Poovangal, Kozhikode, Kerala, India\"\n        },\n        {\n            \"placeId\": \"ChIJ259Hi1bxpzsR7riaqCEzAV4\",\n            \"text\": \"HiLITE Mall Thrissur, Service Road, Hill Gardens Housing Colony, Kuttanellur, Thrissur, Kerala, India\",\n            \"mainText\": \"HiLITE Mall Thrissur\",\n            \"secondaryText\": \"Service Road, Hill Gardens Housing Colony, Kuttanellur, Thrissur, Kerala, India\"\n        },\n        {\n            \"placeId\": \"ChIJo0QXsr9bpjsRV_V1HMutGTw\",\n            \"text\": \"HiLITE MALL, Poovangal, Kozhikode, Pantheeramkavu, Kerala, India\",\n            \"mainText\": \"HiLITE MALL\",\n            \"secondaryText\": \"Poovangal, Kozhikode, Pantheeramkavu, Kerala, India\"\n        },\n        {\n            \"placeId\": \"ChIJgYo7UQDxpzsR3YAkJqWjLw4\",\n            \"text\": \"HiLITE Mall Thrissur Food Court, Hill Gardens Housing Colony, Kuttanellur, Thrissur, Kerala, India\",\n            \"mainText\": \"HiLITE Mall Thrissur Food Court\",\n            \"secondaryText\": \"Hill Gardens Housing Colony, Kuttanellur, Thrissur, Kerala, India\"\n        },\n        {\n            \"placeId\": \"ChIJZ9Ji1VrrpzsRNKyKPdTDffU\",\n            \"text\": \"HiLITE Centre Kunnamkulam, Thrissur - Kunnamkulam Road, opposite KSEB Sub Station, Choondal, Kunnamkulam, Kerala, India\",\n            \"mainText\": \"HiLITE Centre Kunnamkulam\",\n            \"secondaryText\": \"Thrissur - Kunnamkulam Road, opposite KSEB Sub Station, Choondal, Kunnamkulam, Kerala, India\"\n        }\n    ],\n    \"message\": \"Success\"\n}"
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://viacar.test",
+			"disabled": true
+		},
+		{
+			"key": "baseUrl",
+			"value": "https://viacar.conceptiqs.com",
+			"type": "string"
+		},
+		{
+			"key": "otpId",
+			"value": "eyJpdiI6InQvK05wZC9Ba0dsUVFPeVdNcGxGTlE9PSIsInZhbHVlIjoiYkdGZWNmWWcyMGpIKzV5YjhtbVNXQT09IiwibWFjIjoiNDkwMjllMmM4ZGVkN2M5Y2YyZmQ3MWM0MGE3YTEwZTdhNGU4NTQyNjQ4MTllNzgyYzg2OWYyOGFlMWVkYjQ5MyIsInRhZyI6IiJ9"
+		},
+		{
+			"key": "authToken",
+			"value": "4|kh9o6pdo29lSKfpYQJASKLXJQNLDWqI4aSWaoVMod625d043"
+		}
+	]
+}

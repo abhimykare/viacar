@@ -10,10 +10,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Calendar } from "~/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "~/lib/utils";
 
 import { Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 // import { t } from "i18next";
+import React, { useState } from "react";
+import { api } from "~/lib/api";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -24,6 +35,57 @@ export function meta({}: Route.MetaArgs) {
 
 export default function ProfileDetails() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const otpId = searchParams.get("otpId");
+
+  const handleRegister = async () => {
+    if (!otpId) {
+      setError(
+        "OTP ID is missing. Please go back and verify your phone number."
+      );
+      return;
+    }
+
+    if (!firstName || !lastName || !dateOfBirth || !gender) {
+      setError("All fields are mandatory. Please fill in all the details.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await api.register({
+        otp_id: otpId,
+        device_type: "1",
+        first_name: firstName,
+        last_name: lastName,
+        date_of_birth: dateOfBirth,
+        gender: String(gender === "male" ? 1 : gender === "female" ? 2 : 3),
+        fcm_token: "",
+      });
+
+      if (response.data) {
+        console.log("Registration successful! Token:", response.data.token);
+        navigate("/ride-details?registrationSuccess=true");
+      } else {
+        setError(response.message || "Registration failed.");
+      }
+    } catch (err: any) {
+      setError(
+        err.message || "An unexpected error occurred during registration."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
@@ -57,7 +119,10 @@ export default function ProfileDetails() {
                 id="first-name"
                 autoComplete="given-name"
                 placeholder="Enter first name"
-                className="block w-full rounded-full border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-full  rounded-full border-0 py-7 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -76,7 +141,10 @@ export default function ProfileDetails() {
                 id="last-name"
                 autoComplete="family-name"
                 placeholder="Enter last name"
-                className="block w-full rounded-full border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-full rounded-full border-0 py-7 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -89,13 +157,35 @@ export default function ProfileDetails() {
               {t("profile_details.form.date_of_birth")}
             </label>
             <div className="mt-2">
-              <Input
-                type="date"
-                name="date-of-birth"
-                id="date-of-birth"
-                placeholder="Select date of birth"
-                className="block w-full rounded-full border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal rounded-full border-0 py-7 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+                      !dateOfBirth && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateOfBirth ? (
+                      format(new Date(dateOfBirth), "PPP")
+                    ) : (
+                      <span>{t("profile_details.form.date_placeholder")}</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
+                    onSelect={(date) =>
+                      setDateOfBirth(date ? format(date, "yyyy-MM-dd") : "")
+                    }
+                    initialFocus
+                    required
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
@@ -107,8 +197,8 @@ export default function ProfileDetails() {
               {t("profile_details.form.gender")}
             </label>
             <div className="mt-2">
-              <Select>
-                <SelectTrigger className="block w-full rounded-full border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              <Select onValueChange={setGender} value={gender} required>
+                <SelectTrigger className="flex w-full items-center justify-between rounded-full border-0 py-7 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                   <SelectValue
                     placeholder={t(
                       "profile_details.form.select_gender_placeholder"
@@ -129,13 +219,15 @@ export default function ProfileDetails() {
               </Select>
             </div>
           </div>
-
+          {error && <p className="text-red-500 mb-4">{error}</p>}
           <Button
             className="text-white hover:bg-[#FF4848] text-xl bg-[#FF4848] font-normal rounded-full w-full h-[54px] lg:h-14 cursor-pointer mb-5"
-            variant="outline"
-            asChild
+            onClick={handleRegister}
+            disabled={isLoading}
           >
-            <Link to={`/payment`}>{t("profile_details.form.button_text")}</Link>
+            {isLoading
+              ? "Registering..."
+              : t("profile_details.form.button_text")}
           </Button>
         </div>
       </div>

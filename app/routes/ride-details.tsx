@@ -6,7 +6,7 @@ import TimeDirectionIcon from "~/components/icons/time-direction-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { FaAngleRight, FaStar } from "react-icons/fa6";
 import { Button } from "~/components/ui/button";
-import { Link } from "react-router";
+import { Link, useLocation, useSearchParams } from "react-router";
 import { Separator } from "~/components/ui/separator";
 import { IoArrowForward } from "react-icons/io5";
 import { MdKeyboardArrowRight } from "react-icons/md";
@@ -27,6 +27,11 @@ export default function Page() {
     keyPrefix: "ride_details",
   });
   const isRTL = i18n.language === "ar";
+
+  const query = useLocation();
+  const searchParams = new URLSearchParams(query.search);
+  const registrationSuccess =
+    searchParams.get("registrationSuccess") === "true";
 
   return (
     <div className="bg-[#F5F5F5]">
@@ -290,7 +295,13 @@ export default function Page() {
                 className="bg-[#FF4848] rounded-full h-[55px] w-[241px] px-8 cursor-pointer text-xl"
                 asChild
               >
-                <Link to={`/login?from=ride-details`}>
+                <Link
+                  to={
+                    registrationSuccess
+                      ? `/payment`
+                      : `/login?from=ride-details`
+                  }
+                >
                   <BsFillLightningFill className="size-[18px]" />
                   <span>{t("book_now")}</span>
                 </Link>

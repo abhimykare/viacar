@@ -1,37 +1,46 @@
 import { gsap } from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 gsap.registerPlugin(MotionPathPlugin);
 
 const CarAnimation: React.FC = () => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
   useEffect(() => {
+    if (!svgRef.current) return;
+
+    const movingImage = svgRef.current.querySelector<SVGImageElement>("#movingImage");
+    const path = svgRef.current.querySelector<SVGPathElement>("#path");
+
+    if (!movingImage || !path) return;
+
     const tl = gsap.timeline({ repeat: -1 });
 
-    tl.set("#movingImage", { rotation: 0 });
+    tl.set(movingImage, { rotation: 0 });
 
-    tl.to("#movingImage", {
+    tl.to(movingImage, {
       duration: 20,
       motionPath: {
-        path: "#path",
-        align: "#path",
+        path: path,
+        align: path,
         alignOrigin: [0.5, 0.5],
         autoRotate: true,
       },
       ease: "sine.inOut",
     });
 
-    tl.to("#movingImage", {
+    tl.to(movingImage, {
       duration: 1,
       rotation: "+=180",
       ease: "power1.inOut",
     });
 
-    tl.to("#movingImage", {
+    tl.to(movingImage, {
       duration: 20,
       motionPath: {
-        path: "#path",
-        align: "#path",
+        path: path,
+        align: path,
         alignOrigin: [0.5, 0.5],
         autoRotate: true,
         start: 1,
@@ -40,7 +49,7 @@ const CarAnimation: React.FC = () => {
       ease: "sine.inOut",
     });
 
-    tl.to("#movingImage", {
+    tl.to(movingImage, {
       duration: 1,
       rotation: "+=180",
       ease: "power1.inOut",
@@ -49,6 +58,7 @@ const CarAnimation: React.FC = () => {
 
   return (
     <svg
+      ref={svgRef}
       className="w-full"
       width="900"
       height="100"
@@ -57,7 +67,6 @@ const CarAnimation: React.FC = () => {
       fill="none"
     >
       <path
-        style={{ display: "none" }}
         id="path"
         d="M13.5762 46.7641L41.3568 85.9106C49.623 97.5588 64.9551 101.764 78.0071 95.9626L107.67 82.7782L134.883 71.1442C137.635 69.9676 140.548 69.2096 143.524 68.8951L256.692 56.9397L457.409 58.2639L490.458 58.2638L582.748 58.4783C589.495 58.494 596.051 56.2347 601.356 52.0653L601.94 51.6059C607.677 47.0968 614.861 44.8333 622.147 45.2392L757.589 52.7847C765.986 53.2525 773.798 57.2341 779.111 63.7538V63.7538C784.87 70.8227 793.541 74.8777 802.658 74.767L835.987 74.3625C845.573 74.2461 854.526 69.5554 860.078 61.7405L893.024 15.3711"
         stroke="white"

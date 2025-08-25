@@ -32,7 +32,7 @@ import images from "react-payment-inputs/images";
 import { Input } from "~/components/ui/input";
 import { Checkbox } from "~/components/ui/checkbox";
 import ApprovedAnimation from "~/components/animated/approved-animation";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 
 export function meta({}: Route.MetaArgs) {
@@ -56,7 +56,11 @@ export default function Page() {
   const isRTL = i18n.language === "ar";
   const { meta, getCardNumberProps, getExpiryDateProps, getCVCProps } =
     usePaymentInputs();
-  const [step, setStep] = useState<Step>("pre-login");
+  const query = useLocation();
+  const searchParams = new URLSearchParams(query.search);
+  const registrationSuccess =
+    searchParams.get("registrationSuccess") === "true";
+  const [step, setStep] = useState<Step>(registrationSuccess ? "logged-in" : "pre-login");
   const [status, setStatus] = useState<Status>("idle");
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -99,7 +103,7 @@ export default function Page() {
           <CardIcon className="size-[18px] lg:size-[24px]" />
         </Button>
         <Card className="col-start-2 col-end-4 row-start-1 row-end-3 shadow-none border-[#EBEBEB] rounded-2xl px-8 lg:px-10 py-6 lg:py-8 flex flex-col w-full mb-[40px] min-h-[140px]">
-          {step !== "logged-in" && (
+          {step !== "logged-in" && !registrationSuccess && (
             <>
               <div>
                 <p className="text-xl lg:text-2xl text-[#3C3F4E] font-medium">
@@ -190,7 +194,7 @@ export default function Page() {
               </Dialog>
             </>
           )}
-          {step === "logged-in" && (
+          {(step === "logged-in" || registrationSuccess) && (
             <div className="flex flex-col gap-1">
               <div className="text-xl lg:text-2xl text-[#3C3F4E] font-medium flex items-center gap-2">
                 <span>{t("account.logged_in")}</span>
@@ -211,7 +215,7 @@ export default function Page() {
           >
             {t("payment.title")}
           </p>
-          {step === "logged-in" && (
+          {(step === "logged-in" || registrationSuccess) && (
             <Tabs
               orientation="vertical"
               defaultValue={tabs[0].value}

@@ -1083,7 +1083,6 @@
       "swift_code": "SWIFT Code",
       "branch": "Branch",
       "buttonText": "Save"
-
     }
   },
   "profile_details": {
@@ -1097,7 +1096,8 @@
       "gender_male": "Male",
       "gender_female": "Female",
       "gender_other": "Other",
-      "button_text": "Submit"
+      "button_text": "Submit",
+      "date_placeholder": "Select Date"
     }
   }
 }
