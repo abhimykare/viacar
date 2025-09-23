@@ -15,6 +15,7 @@ import { Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { api } from "~/lib/api";
+import { useUserStore } from "~/lib/store/userStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -33,6 +34,7 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otp, setOtp] = useState("");
+  const { setToken } = useUserStore();
 
   const searchParams = new URLSearchParams(window.location.search);
   const from = searchParams.get("from");
@@ -77,6 +79,9 @@ export default function Login() {
         fcm_token: "some_fcm_token",
       }); // TODO: Replace 'some_fcm_token' with actual FCM token
       console.log(response?.data?.type, "response yoyouoy sdyfosdyfosy");
+      if (response?.data?.token) {
+        setToken(response.data.token);
+      }
       if (response?.data) {
         if (response.data.type === "register") {
           navigate(`/profile-details?otpId=${otpId}`);

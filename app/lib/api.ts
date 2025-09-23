@@ -1,4 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { useUserStore } from "./store/userStore";
+
+const getToken = () => useUserStore.getState().token;
 
 async function callApi(endpoint: string, method: string, data: any, contentType: 'json' | 'formdata' = 'json') {
   const url = `${BASE_URL}${endpoint}`;
@@ -11,12 +14,18 @@ async function callApi(endpoint: string, method: string, data: any, contentType:
     options.headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      Authorization: getToken() ? `Bearer ${getToken()}` : '',
     };
     options.body = JSON.stringify(data);
   } else if (contentType === 'formdata') {
     const formData = new FormData();
     for (const key in data) {
       formData.append(key, data[key]);
+    }
+    if (getToken()) {
+      options.headers = {
+        Authorization: `Bearer ${getToken()}`,
+      };
     }
     options.body = formData;
   }

@@ -74,7 +74,7 @@ export default function ProfileDetails() {
 
       if (response.data) {
         console.log("Registration successful! Token:", response.data.token);
-        navigate("/payment?registrationSuccess=true");
+      navigate("/payment?registrationSuccess=true");
       } else {
         setError(response.message || "Registration failed.");
       }
@@ -181,6 +181,9 @@ export default function ProfileDetails() {
                     onSelect={(date) =>
                       setDateOfBirth(date ? format(date, "yyyy-MM-dd") : "")
                     }
+                    captionLayout="dropdown-buttons"
+                    fromYear={1900}
+                    toYear={new Date().getFullYear()}
                     initialFocus
                     required
                   />

@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 
-// Add global declaration for Google Maps
+// Global declaration for Google Maps
 declare global {
   interface Window {
     google: any;
+    initGoogleMaps: () => void;
   }
 }
 
@@ -29,113 +30,126 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   width = "100%",
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<any>(null);
-  const [directionsRenderer, setDirectionsRenderer] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const initializeMap = () => {
+    if (!mapRef.current || !window.google) {
+      setError("Google Maps failed to load");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // Calculate center point
+      const centerLat = (startLocation.lat + endLocation.lat) / 2;
+      const centerLng = (startLocation.lng + endLocation.lng) / 2;
+
+      // Create map
+      const map = new window.google.maps.Map(mapRef.current, {
+        center: { lat: centerLat, lng: centerLng },
+        zoom: 10,
+        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+      });
+
+      // Create directions service and renderer
+      const directionsService = new window.google.maps.DirectionsService();
+      const directionsRenderer = new window.google.maps.DirectionsRenderer({
+        polylineOptions: {
+          strokeColor: "#00665A",
+          strokeWeight: 4,
+          strokeOpacity: 0.8,
+        },
+      });
+
+      directionsRenderer.setMap(map);
+
+      // Request directions
+      const request = {
+        origin: { lat: startLocation.lat, lng: startLocation.lng },
+        destination: { lat: endLocation.lat, lng: endLocation.lng },
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      };
+
+      directionsService.route(request, (result: any, status: string) => {
+        if (status === "OK") {
+          directionsRenderer.setDirections(result);
+        } else {
+          // Show markers if directions fail
+          new window.google.maps.Marker({
+            position: { lat: startLocation.lat, lng: startLocation.lng },
+            map: map,
+            title: startLocation.address,
+            icon: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+          });
+
+          new window.google.maps.Marker({
+            position: { lat: endLocation.lat, lng: endLocation.lng },
+            map: map,
+            title: endLocation.address,
+            icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+          });
+
+          // Fit bounds to show both markers
+          const bounds = new window.google.maps.LatLngBounds();
+          bounds.extend({ lat: startLocation.lat, lng: startLocation.lng });
+          bounds.extend({ lat: endLocation.lat, lng: endLocation.lng });
+          map.fitBounds(bounds);
+        }
+      });
+
+      setIsLoading(false);
+      setError(null);
+    } catch (err) {
+      console.error("Map initialization error:", err);
+      setError("Failed to initialize map");
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const initMap = async () => {
-      try {
-        const { Loader } = await import("@googlemaps/js-api-loader");
+    // Check if Google Maps is already loaded
+    if (window.google && window.google.maps) {
+      initializeMap();
+      return;
+    }
 
-        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-        
-        console.log("🔍 Checking API key:", apiKey ? "Found" : "Missing");
-        console.log("🔍 API key value:", apiKey ? `${apiKey.substring(0, 10)}...` : "No key");
-        
-        if (!apiKey || apiKey === "YOUR_GOOGLE_MAPS_API_KEY" || apiKey === "your_valid_google_maps_api_key_here" || apiKey.length < 20) {
-          throw new Error(`Google Maps API key is invalid: "${apiKey}". Please get a valid key from https://console.cloud.google.com/`);
-        }
+    // Set up callback for when Google Maps loads
+    window.initGoogleMaps = initializeMap;
 
-        const loader = new Loader({
-          apiKey: apiKey,
-          version: "weekly",
-        });
+    // Check if script is already being loaded
+    const existingScript = document.querySelector(
+      'script[src*="maps.googleapis.com"]'
+    );
+    if (existingScript) {
+      return;
+    }
 
-        await loader.load();
+    // Load Google Maps script
+    const script = document.createElement("script");
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-        // Import required libraries
-        const { Map } = await window.google.maps.importLibrary('maps');
-        const { DirectionsService, DirectionsRenderer } = await window.google.maps.importLibrary('routes');
+    if (!apiKey) {
+      setError("Google Maps API key is missing");
+      setIsLoading(false);
+      return;
+    }
 
-        if (mapRef.current) {
-          const mapInstance = new Map(mapRef.current, {
-            center: {
-              lat: (startLocation.lat + endLocation.lat) / 2,
-              lng: (startLocation.lng + endLocation.lng) / 2,
-            },
-            zoom: 10,
-            mapTypeId: 'roadmap',
-            styles: [
-              {
-                featureType: 'poi',
-                elementType: 'labels',
-                stylers: [{ visibility: 'off' }],
-              },
-            ],
-          });
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry&callback=initGoogleMaps`;
+    script.async = true;
+    script.defer = true;
 
-          const renderer = new DirectionsRenderer({
-            suppressMarkers: false,
-            polylineOptions: {
-              strokeColor: '#00665A',
-              strokeWeight: 4,
-              strokeOpacity: 0.8,
-            },
-          });
-
-          const directionsService = new DirectionsService();
-
-          const request = {
-            origin: startLocation,
-            destination: endLocation,
-            travelMode: 'DRIVING',
-            optimizeWaypoints: true,
-          };
-
-          directionsService.route(request, (result: any, status: string) => {
-            if (status === 'OK' && result) {
-              renderer.setDirections(result);
-              renderer.setMap(mapInstance);
-              if (result.routes && result.routes[0]) {
-                const bounds = new window.google.maps.LatLngBounds();
-                result.routes[0].overview_path.forEach((point: any) => {
-                  bounds.extend(point);
-                });
-                mapInstance.fitBounds(bounds);
-              }
-            } else {
-              console.error('Directions request failed:', status);
-              setError(`Directions failed: ${status}`);
-            }
-          });
-
-          setMap(mapInstance);
-          setDirectionsRenderer(renderer);
-        }
-      } catch (error) {
-        console.error("🚨 Google Maps Error:", error);
-        let errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-        
-        // Check for specific API key errors
-        if (errorMessage.includes('InvalidKey') || errorMessage.includes('API key')) {
-          errorMessage = "Invalid Google Maps API key. Please check your .env file and ensure you have a valid API key from Google Cloud Console.";
-        } else if (errorMessage.includes('ApiNotActivated')) {
-          errorMessage = "Google Maps APIs are not enabled. Please enable Maps JavaScript API and Directions API in your Google Cloud Console.";
-        }
-        
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
+    script.onerror = () => {
+      setError("Failed to load Google Maps script");
+      setIsLoading(false);
     };
 
-    initMap();
+    document.head.appendChild(script);
 
+    // Cleanup
     return () => {
-      if (directionsRenderer) {
-        directionsRenderer.setMap(null);
+      if (window.initGoogleMaps) {
+        delete window.initGoogleMaps;
       }
     };
   }, [startLocation, endLocation]);
@@ -146,7 +160,10 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
         className="w-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center"
         style={{ height, width }}
       >
-        <div className="text-gray-500">Loading map...</div>
+        <div className="text-gray-500 flex items-center gap-2">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+          <span>Loading map...</span>
+        </div>
       </div>
     );
   }
@@ -154,10 +171,13 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   if (error) {
     return (
       <div
-        className="w-full bg-gray-100 rounded-lg flex items-center justify-center"
+        className="w-full bg-red-50 border border-red-200 rounded-lg flex flex-col items-center justify-center p-4"
         style={{ height, width }}
       >
-        <div className="text-red-500">{error}</div>
+        <div className="text-red-600 text-sm text-center">
+          <div className="font-medium mb-2">⚠️ Map Error</div>
+          <div className="text-xs">{error}</div>
+        </div>
       </div>
     );
   }
@@ -165,7 +185,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   return (
     <div
       ref={mapRef}
-      className="w-full rounded-lg overflow-hidden"
+      className="w-full rounded-lg overflow-hidden shadow-sm border border-gray-200"
       style={{ height, width }}
     />
   );

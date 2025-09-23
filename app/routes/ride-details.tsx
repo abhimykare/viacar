@@ -13,6 +13,9 @@ import { MdKeyboardArrowRight } from "react-icons/md";
 import { BsFillLightningFill } from "react-icons/bs";
 import { useTranslation } from "react-i18next";
 import { cn } from "~/lib/utils";
+
+import React, { useMemo } from "react";
+// Updated import to use GoogleMap instead of LeafletMap
 import GoogleMap from "~/components/common/google-map";
 
 export function meta({}: Route.MetaArgs) {
@@ -32,6 +35,18 @@ export default function Page() {
   const searchParams = new URLSearchParams(query.search);
   const registrationSuccess =
     searchParams.get("registrationSuccess") === "true";
+
+  const startCoordinates = {
+    lat: 9.981636,
+    lng: 76.299884,
+    address: "Ernakulam, Kerala, India",
+  };
+
+  const endCoordinates = {
+    lat: 9.591754,
+    lng: 76.531907,
+    address: "Kottayam, Kerala, India",
+  };
 
   return (
     <div className="bg-[#F5F5F5]">
@@ -77,22 +92,22 @@ export default function Page() {
                 <p className="text-base lg:text-lg">{t("drop_time_value")}</p>
               </div>
             </div>
+
+            {/* Updated to use GoogleMap component with hardcoded coordinates */}
             <GoogleMap
               startLocation={{
-                lat: 10.0159,
-                lng: 76.3419,
-                address: "Kakkanad, Kerala",
+                lat: 48.8584,
+                lng: 2.2945,
+                address: "Eiffel Tower, Paris, France",
               }}
               endLocation={{
-                lat: 10.0672,
-                lng: 76.3202,
-                address: "Kalamassery, Kerala",
+                lat: 41.8902,
+                lng: 12.4922,
+                address: "Colosseum, Rome, Italy",
               }}
-              height="300px"
-              width="100%"
             />
 
-            <div className="flex flex-col">
+            <div className="flex flex-col mt-5">
               <p className="text-xl lg:text-2xl mb-4">{t("details.title")}</p>
               <div className="flex flex-wrap gap-4 pb-4 lg:pb-10">
                 <div className="flex items-center justify-center rounded-full border border-[#E1DFDF] px-4 h-[30px] lg:h-[36px] text-sm lg:text-[1.06rem] font-light w-max">
@@ -105,7 +120,7 @@ export default function Page() {
                   {t("details.smoking_ok")}
                 </div>
                 <div className="flex items-center justify-center rounded-full border border-[#E1DFDF] px-4 h-[30px] lg:h-[36px] text-sm lg:text-[1.06rem] font-light w-max">
-                  {t("details.smoking_ok")}
+                  {t("details.pets_allowed")}
                 </div>
               </div>
             </div>
