@@ -84,7 +84,7 @@ export default function Login() {
       }
       if (response?.data) {
         if (response.data.type === "register") {
-          navigate(`/profile-details?otpId=${otpId}`);
+          navigate(`/profile-details?otpId=${otpId}&userFrom=publishRide`);
           setIsOtpModalOpen(false);
         } else if (response.data.type === "login") {
           navigate(`/payment?registrationSuccess=true`);

@@ -83,7 +83,7 @@ export default function NavBar({ variant, className = "" }: Props) {
         <SearchGlobal />
         {variant !== "publisher" && (
           <Link
-            to={`/publish`}
+            to={`/login?userFrom=publishRide`}
             className="font-alt text-base lg:text-xl font-normal lg:font-semibold rounded-full flex items-center border border-white px-3 lf:px-6 h-10 lg:h-12 gap-2 text-white cursor-pointer"
           >
             <CirclePlus className="h-[18px] lg:h-[26px]" color="white" />

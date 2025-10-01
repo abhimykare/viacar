@@ -21,7 +21,9 @@ async function callApi(
       Accept: "application/json",
       Authorization: getToken() ? `Bearer ${getToken()}` : "",
     };
-    options.body = JSON.stringify(data);
+    if (method !== "GET") {
+      options.body = JSON.stringify(data);
+    }
   } else if (contentType === "formdata") {
     const formData = new FormData();
     for (const key in data) {
@@ -51,6 +53,7 @@ async function callApi(
 export const api = {
   sendAuthOtp: (data: { country_code: string; mobile_number: string }) =>
     callApi(import.meta.env.VITE_API_SEND_AUTH_OTP, "POST", data, "formdata"),
+
   verifyAuthOtp: (data: {
     otp_id: string;
     otp: string;
@@ -58,6 +61,7 @@ export const api = {
     fcm_token: string;
   }) =>
     callApi(import.meta.env.VITE_API_VERIFY_AUTH_OTP, "POST", data, "formdata"),
+
   register: (data: {
     otp_id: string;
     device_type: string;
@@ -67,6 +71,7 @@ export const api = {
     gender: string;
     fcm_token: string;
   }) => callApi(import.meta.env.VITE_API_REGISTER, "POST", data, "formdata"),
+
   placesAutocomplete: (data: { input: string }) =>
     callApi(
       import.meta.env.VITE_API_PLACES_AUTOCOMPLETE,
@@ -74,6 +79,7 @@ export const api = {
       data,
       "formdata"
     ),
+
   addBankDetails: (data: {
     account_holder_name: string;
     bank_name: string;
@@ -88,6 +94,7 @@ export const api = {
       data,
       "formdata"
     ),
+
   updateBankDetails: (data: {
     id: string;
     account_holder_name: string;
@@ -103,8 +110,10 @@ export const api = {
       data,
       "formdata"
     ),
+
   listBankDetails: () =>
     callApi(import.meta.env.VITE_API_LIST_BANK_DETAILS, "GET", {}),
+
   deleteBankDetails: (data: { id: string }) =>
     callApi(
       import.meta.env.VITE_API_DELETE_BANK_DETAILS,
@@ -112,6 +121,7 @@ export const api = {
       data,
       "formdata"
     ),
+
   updateProfile: (data: {
     first_name: string;
     last_name: string;
@@ -121,7 +131,7 @@ export const api = {
     about?: string;
   }) =>
     callApi(import.meta.env.VITE_API_UPDATE_PROFILE, "POST", data, "formdata"),
-  // New API method for updating profile image
+
   updateProfileImage: (data: { profile_image: File }) =>
     callApi(
       import.meta.env.VITE_API_UPDATE_PROFILE_IMAGE,
@@ -129,6 +139,7 @@ export const api = {
       data,
       "formdata"
     ),
+
   createRide: (data: {
     pickup_lat: number;
     pickup_lng: number;
@@ -141,11 +152,14 @@ export const api = {
     price_per_seat: number;
     notes: string;
     vehicle_id: number;
-  }) =>
-    callApi(
-      import.meta.env.VITE_API_CREATE_RIDE,
-      "POST",
-      data,
-      "json"
-    ),
+  }) => callApi(import.meta.env.VITE_API_CREATE_RIDE, "POST", data, "json"),
+
+  verifyId: (data: {
+    national_id_number: string;
+    sequence_number: string;
+    car_plate_number: string;
+    national_id?: File | string;
+    vehicle_registration?: File | string;
+    driving_license?: File | string;
+  }) => callApi(import.meta.env.VITE_API_VERIFY_ID, "POST", data, "formdata"),
 };

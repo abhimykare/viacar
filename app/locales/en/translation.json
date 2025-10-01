@@ -1099,5 +1099,44 @@
       "button_text": "Submit",
       "date_placeholder": "Select Date"
     }
+  },
+  "documents_added_modal": {
+    "title": "Documents Added Successfully!",
+    "message": "Your Documents has been successfully added. Waiting for Admin Approval",
+    "edit_button": "Edit",
+    "ok_button": "Ok"
+  },
+  "add_bank_details": {
+    "title": "Add Your Bank Details",
+    "subtitle": "Bank account details",
+    "add_bank_account": "Add Bank Account",
+    "table": {
+      "account_holder_name": "Account Holder Name",
+      "bank_name": "Bank Name",
+      "account_number": "Account Number",
+      "iban": "IBAN",
+      "swift_code": "SWIFT Code",
+      "branch": "Branch",
+      "buttonText": "Submit"
+    }
+  },
+  "add_documents": {
+    "title": "Upload Documents",
+    "subtitle": "Upload your documents",
+    "add_documents": "Add Documents",
+    "table": {
+      "national_id": "National ID",
+      "upload_national_id": "Upload National ID",
+      "driver_license": "Driver License",
+      "upload_driver_license": "Upload Driver License",
+      "car_plate_num": "Car Plate Number",
+      "upload_car_plate_num": "Upload Car Plate Number",
+      "sequence_number": "Sequence Number",
+      "upload_sequence_number": "Upload Sequence Number",
+      "upload_vehicle_registration": "Upload Vehicle Registration",
+      "document_type": "Document Type",
+      "upload": "Upload",
+      "buttonText": "Submit"
+    }
   }
 }
