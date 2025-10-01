@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusCircle, Pencil, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -6,44 +6,91 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import Header from "~/components/layouts/header";
 import Footer from "~/components/layouts/footer";
 import { AddBankAccountModal } from "~/components/modals/add-bank-details-modal";
+import { api } from "~/lib/api";
+import { useUserStore } from "~/lib/store/userStore";
 
 interface BankAccount {
   id: string;
-  accountHolderName: string;
-  bankName: string;
-  accountNumber: string;
+  user_id: number;
+  account_holder_name: string;
+  bank_name: string;
+  account_number: string;
   iban: string;
-  swiftCode: string;
-  branch: string;
+  swift_code: string;
+  bank_branch: string;
+  created_at: string;
+  updated_at: string;
 }
-
-const bankAccounts: BankAccount[] = [
-  {
-    id: "bank-1",
-    accountHolderName: "Faisal A. Al Harbi",
-    bankName: "Al Riyadh National Bank",
-    accountNumber: "SA44200000001234567891234",
-    iban: "SA44200000001234567891234",
-    swiftCode: "ARNBSARIXXX",
-    branch: "King Fahd Road Branch, Riyadh",
-  },
-  {
-    id: "bank-2",
-    accountHolderName: "Faisal A. Al Harbi",
-    bankName: "Al Riyadh National Bank",
-    accountNumber: "SA44200000001234567891234",
-    iban: "SA44200000001234567891234",
-    swiftCode: "ARNBSARIXXX",
-    branch: "King Fahd Road Branch, Riyadh",
-  },
-];
 
 const BankDetails: React.FC = () => {
   const { t } = useTranslation();
-  const [selectedBank, setSelectedBank] = useState<string>(
-    bankAccounts[0]?.id || ""
-  );
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [selectedBank, setSelectedBank] = useState<string>("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingBank, setEditingBank] = useState<BankAccount | null>(null);
+  const token = useUserStore((state) => state.token);
+  console.log(token, "token");
+
+  const fetchBankAccounts = useCallback(async () => {
+    try {
+      const response = await api.listBankDetails();
+      if (response.data) {
+        setBankAccounts(response.data);
+        if (response.data.length > 0 && !selectedBank) {
+          setSelectedBank(String(response.data[0].id));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching bank accounts:", error);
+    }
+  }, [selectedBank]);
+
+  useEffect(() => {
+    fetchBankAccounts();
+  }, [fetchBankAccounts]);
+
+  const handleAddBankDetails = async (
+    newBankDetails: Omit<
+      BankAccount,
+      "id" | "user_id" | "created_at" | "updated_at"
+    >
+  ) => {
+    try {
+      await api.addBankDetails(newBankDetails);
+      fetchBankAccounts();
+    } catch (error) {
+      console.error("Error adding bank details:", error);
+    }
+  };
+
+  const handleUpdateBankDetails = async (
+    updatedBankDetails: Omit<
+      BankAccount,
+      "user_id" | "created_at" | "updated_at"
+    >
+  ) => {
+    try {
+      await api.updateBankDetails(updatedBankDetails);
+      fetchBankAccounts();
+    } catch (error) {
+      console.error("Error updating bank details:", error);
+    }
+  };
+
+  const handleDeleteBankDetails = async (id: string) => {
+    try {
+      await api.deleteBankDetails({ id });
+      fetchBankAccounts();
+    } catch (error) {
+      console.error("Error deleting bank details:", error);
+    }
+  };
+
+  const openEditModal = (bank: BankAccount) => {
+    setEditingBank(bank);
+    setIsEditModalOpen(true);
+  };
 
   return (
     <div className="bg-[#F8FAFB]">
@@ -92,6 +139,7 @@ const BankDetails: React.FC = () => {
                     variant="outline"
                     size="sm"
                     className="flex items-center gap-1 text-sm text-[#FF4848] border-[#EBEBEB] shadow-none rounded-full px-3 py-1 h-auto"
+                    onClick={() => openEditModal(bank)}
                   >
                     <Pencil className="size-3" />
                     <span className="text-black">Edit</span>
@@ -100,6 +148,7 @@ const BankDetails: React.FC = () => {
                     variant="outline"
                     size="sm"
                     className="flex items-center gap-1 text-sm text-[#FF4848] border-[#EBEBEB] shadow-none rounded-full px-3 py-1 h-auto"
+                    onClick={() => handleDeleteBankDetails(String(bank.id))}
                   >
                     <Trash2 className="size-3" />
                     <span>Delete</span>
@@ -111,37 +160,56 @@ const BankDetails: React.FC = () => {
                   {t("bank_details.table.account_holder_name")}
                 </p>
                 <p className="font-medium text-[#222222]">
-                  {bank.accountHolderName}
+                  {bank.account_holder_name}
                 </p>
                 <p className="text-[#666666]">
                   {t("bank_details.table.bank_name")}
                 </p>
-                <p className="font-medium text-[#222222]">{bank.bankName}</p>
+                <p className="font-medium text-[#222222]">{bank.bank_name}</p>
                 <p className="text-[#666666]">
                   {t("bank_details.table.account_number")}
                 </p>
                 <p className="font-medium text-[#222222]">
-                  {bank.accountNumber}
+                  {bank.account_number}
                 </p>
                 <p className="text-[#666666]">{t("bank_details.table.iban")}</p>
                 <p className="font-medium text-[#222222]">{bank.iban}</p>
                 <p className="text-[#666666]">
                   {t("bank_details.table.swift_code")}
                 </p>
-                <p className="font-medium text-[#222222]">{bank.swiftCode}</p>
+                <p className="font-medium text-[#222222]">{bank.swift_code}</p>
                 <p className="text-[#666666]">
                   {t("bank_details.table.bank_address")}
                 </p>
-                <p className="font-medium text-[#222222]">{bank.branch}</p>
+                <p className="font-medium text-[#222222]">{bank.bank_branch}</p>
               </div>
             </div>
           ))}
         </RadioGroup>
       </div>
-      <AddBankAccountModal 
-        open={isAddModalOpen} 
-        onOpenChange={setIsAddModalOpen} 
+      <AddBankAccountModal
+        open={isAddModalOpen}
+        onOpenChange={(open) => {
+          setIsAddModalOpen(open);
+          if (!open) fetchBankAccounts();
+        }}
+        onSave={handleAddBankDetails}
       />
+      {editingBank && (
+        <AddBankAccountModal
+          open={isEditModalOpen}
+          onOpenChange={(open) => {
+            setIsEditModalOpen(open);
+            if (!open) {
+              setEditingBank(null);
+              fetchBankAccounts();
+            }
+          }}
+          onSave={handleUpdateBankDetails}
+          initialData={editingBank}
+        />
+      )}
+
       <Footer />
     </div>
   );

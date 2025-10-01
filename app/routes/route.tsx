@@ -6,6 +6,7 @@ import * as RadioGroup from "@radix-ui/react-radio-group";
 import { Button } from "~/components/ui/button";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router";
 
 const routesData = [
   {
@@ -49,6 +50,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Page() {
   const location = useLocation();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
 
   return (
     <div>
@@ -85,7 +87,7 @@ export default function Page() {
               className="bg-[#FF4848] rounded-full w-[208px] h-[55px] cursor-pointer text-xl font-normal"
               asChild
             >
-              <Link state={location.state} to={`/stopovers`}>
+              <Link state={location.state} to={`/stopovers?${searchParams.toString()}`}>
                 {t("route.continue")}
               </Link>
             </Button>

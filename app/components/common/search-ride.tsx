@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import SwapIcon from "../icons/swap-icon";
 import { Button } from "../ui/button";
@@ -13,6 +14,65 @@ export default function SearchRide({ className = "" }) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const [searchParams, setSearchParams] = useSearchParams();
+  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          // Reverse geocoding to get location text
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.address && data.address.city) {
+                setCurrentLocation(data.address.city);
+                if (!searchParams.get("from")) {
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.set("from", data.address.city);
+                  setSearchParams(newParams, { replace: true });
+                }
+              } else if (data.address && data.address.town) {
+                setCurrentLocation(data.address.town);
+                if (!searchParams.get("from")) {
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.set("from", data.address.town);
+                  setSearchParams(newParams, { replace: true });
+                }
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching location name:", error);
+              setCurrentLocation("Kochi"); // Default to Kochi if reverse geocoding fails
+              if (!searchParams.get("from")) {
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set("from", "Kochi");
+                setSearchParams(newParams, { replace: true });
+              }
+            });
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error);
+          setCurrentLocation("Kochi"); // Default to Kochi if permission denied or error
+          if (!searchParams.get("from")) {
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set("from", "Kochi");
+            setSearchParams(newParams, { replace: true });
+          }
+        }
+      );
+    } else {
+      console.log("Geolocation is not supported by this browser.");
+      setCurrentLocation("Kochi"); // Default to Kochi if not supported
+      if (!searchParams.get("from")) {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("from", "Kochi");
+        setSearchParams(newParams, { replace: true });
+      }
+    }
+  }, []);
+
   const handleLocationSwap = () => {
     const fromValue = searchParams.get("from") || "";
     const toValue = searchParams.get("to") || "";
@@ -36,6 +96,7 @@ export default function SearchRide({ className = "" }) {
           label={t("search.ride.leaving_from")}
           name="from"
           placeholder={t("search.ride.select_pickup")}
+          initialLocation={currentLocation}
         />
       </div>
       <div className="py-2 lg:py-5 grid grid-cols-1 grid-rows-1 max-lg:hidden max-w-[36px] w-full h-full">
@@ -57,6 +118,7 @@ export default function SearchRide({ className = "" }) {
           label={t("search.ride.going_to")}
           name="to"
           placeholder={t("search.ride.select_dropoff")}
+          initialLocation={currentLocation}
         />
       </div>
       <div className="py-0 lg:py-5 max-lg:hidden">

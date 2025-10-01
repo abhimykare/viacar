@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import CitySearch from "~/components/common/city-search";
 import type { Route } from "./+types/stopovers";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router";
 
 const initialRoutes = [
   {
@@ -39,6 +40,7 @@ export default function Page() {
   const [cities, setCities] = useState(initialRoutes);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
 
   const handleAddCity = (city: string) => {
     // Only add if the city is not already in the list (optional)
@@ -108,7 +110,7 @@ export default function Page() {
             className="bg-[#FF4848] rounded-full w-full md:w-[208px] h-[55px] cursor-pointer text-xl font-normal"
             asChild
           >
-            <Link state={location.state} to={`/stopovers-preview`}>
+            <Link state={location.state} to={`/stopovers-preview?${searchParams.toString()}`}>
               {t("stopovers.continue")}
             </Link>
           </Button>

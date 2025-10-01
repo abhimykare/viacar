@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router";
-import { locations } from "~/constants/locations";
+import { api } from "~/lib/api";
 import { Input } from "../ui/input";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "../ui/skeleton";
@@ -30,33 +30,74 @@ function LocationSearch({
   const initialValue = searchParams.get(name) || "";
 
   // If a URL param exists, initialize the input with the matching label.
-  const initialLabel =
-    locations.find((loc) => loc.value === initialValue)?.label || "";
+  const initialLabel = ""; // Will be updated by API call or kept empty until selection
 
   const [searchValue, setSearchValue] = useState<string>(initialLabel);
+  const [debouncedSearchValue, setDebouncedSearchValue] =
+    useState<string>(initialLabel);
   const [selectedValue, setSelectedValue] = useState<string>(initialValue);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Create a map for quick lookup of labels.
   const labels = useMemo(() => {
-    return locations.reduce((acc, item) => {
-      acc[item.value] = item.label;
+    return suggestions.reduce((acc, item) => {
+      acc[item.placeId] = item.text;
       return acc;
     }, {} as Record<string, string>);
-  }, []);
+  }, [suggestions]);
 
-  // Update URL search param.
-  const updateSearchParam = (value: string) => {
+  const updateSearchParam = (value: string, lat?: number, lng?: number, address?: string) => {
     setSearchParams(
       (prev) => {
         const newParams = new URLSearchParams(prev as any);
         newParams.set(name, value);
+        if (lat !== undefined) newParams.set(`${name}_lat`, lat.toString());
+        if (lng !== undefined) newParams.set(`${name}_lng`, lng.toString());
+        if (address !== undefined) newParams.set(`${name}_address`, address);
         return newParams;
       },
       { replace: true }
     );
   };
+
+  // Debounce search value
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchValue(searchValue);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchValue]);
+
+  // Fetch suggestions when debouncedSearchValue changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (debouncedSearchValue) {
+        setIsLoading(true);
+        try {
+          const response = await api.placesAutocomplete({
+            input: debouncedSearchValue,
+          });
+          setSuggestions(response.data || []);
+        } catch (error) {
+          console.error(
+            "Error fetching places autocomplete suggestions:",
+            error
+          );
+          setSuggestions([]);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    };
+
+    fetchSuggestions();
+  }, [debouncedSearchValue]);
 
   // When the user types, update the input and clear any previous selection.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,29 +107,19 @@ function LocationSearch({
       setSelectedValue("");
       updateSearchParam("");
     }
+    setOpen(true);
   };
 
-  const filteredLocations = useMemo(() => {
-    if (!searchValue) return locations;
-    return locations.filter((location) =>
-      t(location.label).toLowerCase().includes(searchValue.toLowerCase())
-    );
-  }, [searchValue, t]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [searchValue]);
-
   // When an item is selected, update the selected state and URL.
-  const onSelectItem = (value: string) => {
-    setSelectedValue(value);
-    const labelText = labels[value] || value;
-    setSearchValue(labelText);
-    updateSearchParam(value);
+  const onSelectItem = (
+    placeId: string,
+    text: string,
+    lat: number,
+    lng: number
+  ) => {
+    setSelectedValue(placeId);
+    setSearchValue(text);
+    updateSearchParam(placeId, lat, lng, text);
     setOpen(false);
   };
 
@@ -97,6 +128,17 @@ function LocationSearch({
     setSelectedValue("");
     setSearchValue("");
     updateSearchParam("");
+    // Also clear lat/lng and address params
+    setSearchParams(
+      (prev) => {
+        const newParams = new URLSearchParams(prev as any);
+        newParams.delete(`${name}_lat`);
+        newParams.delete(`${name}_lng`);
+        newParams.delete(`${name}_address`);
+        return newParams;
+      },
+      { replace: true }
+    );
   };
 
   // Hide the list after a short delay (to allow clicks to register).
@@ -111,14 +153,15 @@ function LocationSearch({
     const paramValue = searchParams.get(name) || "";
     if (paramValue !== selectedValue) {
       setSelectedValue(paramValue);
-      const newLabel =
-        locations.find((loc) => loc.value === paramValue)?.label || "";
+      // We need to fetch the label for the paramValue if it's not in suggestions
+      // For now, we'll just set it to the paramValue itself or empty
+      const newLabel = labels[paramValue] || "";
       setSearchValue(newLabel);
     }
-  }, [searchParams, name, selectedValue]);
+  }, [searchParams, name, selectedValue, labels]);
 
   return (
-    <div className="relative">
+    <div className="relative ">
       <span className="text-[17px] text-[#939393] font-light">
         {t(label || "")}
       </span>
@@ -144,18 +187,27 @@ function LocationSearch({
               <div className="p-1">
                 <Skeleton className="h-6 w-full" />
               </div>
-            ) : filteredLocations.length > 0 ? (
-              filteredLocations.map((option) => (
+            ) : suggestions.length > 0 ? (
+              suggestions.map((option) => (
                 <div className="flex flex-col">
                   <div
-                    key={option.value}
+                    key={option.placeId}
                     onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => onSelectItem(option.value)}
+                    onClick={() =>
+                      onSelectItem(
+                        option.placeId,
+                        option.text,
+                        option.lat,
+                        option.lng
+                      )
+                    }
                     className="cursor-pointer px-6 py-5 hover:bg-gray-100 rounded-2xl flex items-center justify-between"
                   >
                     <div className="flex flex-col">
-                      <p className="text-sm">{t(option.label)}</p>
-                      <p className="text-xs font-light">{t(option.desc)}</p>
+                      <p className="text-sm">{option.mainText}</p>
+                      <p className="text-xs font-light">
+                        {option.secondaryText}
+                      </p>
                     </div>
                     <ChevronRight color="#AAAAAA" />
                   </div>

@@ -7,6 +7,7 @@ import { isBefore, startOfDay } from "date-fns";
 import { Button } from "~/components/ui/button";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,6 +20,7 @@ export default function Page() {
   const location = useLocation();
   const [selected, setSelected] = useState<Date | undefined>(new Date());
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   return (
     <div>
@@ -33,9 +35,14 @@ export default function Page() {
             mode="single"
             disabled={(date) => isBefore(date, startOfDay(new Date()))}
             selected={selected}
-            onSelect={(value: SetStateAction<Date | undefined>) =>
-              setSelected(value)
-            }
+            onSelect={(value: SetStateAction<Date | undefined>) => {
+              setSelected(value);
+              if (value) {
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('departure_date', value.toISOString().split('T')[0]);
+                setSearchParams(newParams);
+              }
+            }}
             components={{
               Footer: () => (
                 <tbody>
@@ -46,7 +53,7 @@ export default function Page() {
                           className="bg-[#FF4848] w-[140px] h-[48px] rounded-full"
                           asChild
                         >
-                          <Link state={location.state} to={`/time`}>
+                          <Link state={location.state} to={`/time?${searchParams.toString()}`}>
                             {t("date.apply")}
                           </Link>
                         </Button>

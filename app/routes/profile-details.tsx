@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next";
 // import { t } from "i18next";
 import React, { useState } from "react";
 import { api } from "~/lib/api";
+import { useUserStore } from "~/lib/store/userStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -74,7 +75,8 @@ export default function ProfileDetails() {
 
       if (response.data) {
         console.log("Registration successful! Token:", response.data.token);
-      navigate("/payment?registrationSuccess=true");
+        useUserStore.getState().setToken(response.data.token);
+        navigate("/payment?registrationSuccess=true");
       } else {
         setError(response.message || "Registration failed.");
       }

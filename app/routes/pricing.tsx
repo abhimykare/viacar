@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { useState } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useSearchParams } from "react-router";
 import TimeDirectionIcon from "~/components/icons/time-direction-icon";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
@@ -19,6 +19,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Page() {
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [amount, setAmount] = useState(3000);
   const [amountOne, setAmountOne] = useState(640.0);
   const [amountTwo, setAmountTwo] = useState(120.0);
@@ -55,7 +56,13 @@ export default function Page() {
               variant="ghost"
               size="icon"
               className="size-[50px] shrink-0 rounded-full cursor-pointer"
-              onClick={() => adjustAmount(-500)}
+              onClick={() => {
+                const newAmount = Math.max(1000, amount - 500);
+                setAmount(newAmount);
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('price_per_seat', newAmount.toString());
+                setSearchParams(newParams);
+              }}
               disabled={amount === 1000}
             >
               <img
@@ -74,7 +81,13 @@ export default function Page() {
               variant="ghost"
               size="icon"
               className="size-[50px] shrink-0 rounded-full cursor-pointer"
-              onClick={() => adjustAmount(500)}
+              onClick={() => {
+                const newAmount = Math.min(4000, amount + 500);
+                setAmount(newAmount);
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('price_per_seat', newAmount.toString());
+                setSearchParams(newParams);
+              }}
               disabled={amount >= 4000}
             >
               <img
@@ -316,7 +329,7 @@ export default function Page() {
               asChild
             >
               <Link
-                to={location.state?.isReturn ? `/publish-comment` : `/return`}
+                to={location.state?.isReturn ? `/publish-comment?${searchParams.toString()}` : `/return?${searchParams.toString()}`}
               >
                 {t("pricing.continue")}
               </Link>

@@ -7,6 +7,7 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import { Label } from "~/components/ui/label";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,6 +20,7 @@ export default function Page() {
   const location = useLocation();
   const [passengers, setPassengers] = useState(3);
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   function adjustPassengers(adjustment: number) {
     setPassengers(Math.max(1, Math.min(3, passengers + adjustment)));
@@ -37,7 +39,13 @@ export default function Page() {
               variant="ghost"
               size="icon"
               className="size-[40px] lg:size-[50px] shrink-0 rounded-full cursor-pointer"
-              onClick={() => adjustPassengers(-1)}
+              onClick={() => {
+                const newPassengers = Math.max(1, passengers - 1);
+                setPassengers(newPassengers);
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('available_seats', newPassengers.toString());
+                setSearchParams(newParams);
+              }}
               disabled={passengers === 1}
             >
               <img
@@ -56,7 +64,13 @@ export default function Page() {
               variant="ghost"
               size="icon"
               className="size-[40px] lg:size-[50px] shrink-0 rounded-full cursor-pointer"
-              onClick={() => adjustPassengers(1)}
+              onClick={() => {
+                const newPassengers = Math.min(3, passengers + 1);
+                setPassengers(newPassengers);
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('available_seats', newPassengers.toString());
+                setSearchParams(newParams);
+              }}
               disabled={passengers >= 3}
             >
               <img
@@ -102,7 +116,7 @@ export default function Page() {
               className="bg-[#FF4848] w-[208px] h-[55px] rounded-full text-xl font-normal"
               asChild
             >
-              <Link state={location.state} to={`/pricing`}>
+              <Link state={location.state} to={`/pricing?${searchParams.toString()}`}>
                 {t("passenger_count.continue")}
               </Link>
             </Button>
