@@ -21,6 +21,7 @@ import SearchGlobal from "~/components/common/search-global";
 import RightArrowRounded from "~/components/icons/right-arrow-rounded";
 import { cn } from "~/lib/utils";
 import { useTranslation } from "react-i18next";
+import { useUserStore } from "~/lib/store/userStore";
 
 isoCountries.registerLocale(enLocale);
 
@@ -52,6 +53,9 @@ interface Props {
 
 export default function NavBar({ variant, className = "" }: Props) {
   const { i18n, t } = useTranslation();
+  const token = useUserStore((state) => state.token);
+  const clearUserData = useUserStore((state) => state.clearUserData);
+  console.log(token, "token");
   const [countryCode, setCountryCode] = useState<CountryCode>("SA");
   const selectedCountry = countries.find((c) => c.iso === countryCode);
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,7 +87,7 @@ export default function NavBar({ variant, className = "" }: Props) {
         <SearchGlobal />
         {variant !== "publisher" && (
           <Link
-            to={`/login?userFrom=publishRide`}
+            to={`/login?from=publishRide`}
             className="font-alt text-base lg:text-xl font-normal lg:font-semibold rounded-full flex items-center border border-white px-3 lf:px-6 h-10 lg:h-12 gap-2 text-white cursor-pointer"
           >
             <CirclePlus className="h-[18px] lg:h-[26px]" color="white" />
@@ -134,7 +138,7 @@ export default function NavBar({ variant, className = "" }: Props) {
                 className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
                 asChild
               >
-                <Link to={`/your-rides`}>
+                <Link to={token ? `/your-rides` : `/login?from=curUser`}>
                   <img
                     className="size-[20px]"
                     src="/assets/your-rides.png"
@@ -152,7 +156,7 @@ export default function NavBar({ variant, className = "" }: Props) {
                 className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
                 asChild
               >
-                <Link to={`/booking-request`}>
+                <Link to={token ? `/booking-request` : `/login?from=curUser`}>
                   <img
                     className="size-[20px]"
                     src="/assets/message.svg"
@@ -173,7 +177,7 @@ export default function NavBar({ variant, className = "" }: Props) {
                 className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
                 asChild
               >
-                <Link to={`/inbox`}>
+                <Link to={token ? `/inbox` : `/login?from=curUser`}>
                   <img
                     className="size-[20px]"
                     src="/assets/message.svg"
@@ -191,7 +195,7 @@ export default function NavBar({ variant, className = "" }: Props) {
                 className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
                 asChild
               >
-                <Link to={`/user-profile`}>
+                <Link to={token ? `/user-profile` : `/login?from=curUser`}>
                   <img
                     className="size-[20px]"
                     src="/assets/profile.svg"
@@ -209,7 +213,7 @@ export default function NavBar({ variant, className = "" }: Props) {
                 className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
                 asChild
               >
-                <Link to={`/transactions`}>
+                <Link to={token ? `/transactions` : `/login?from=curUser`}>
                   <img
                     className="size-[20px]"
                     src="/assets/transfer.png"
@@ -227,7 +231,7 @@ export default function NavBar({ variant, className = "" }: Props) {
                 asChild
                 className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
               >
-                <Link to={`/payment-refunds`}>
+                <Link to={token ? `/payment-refunds` : `/login?from=curUser`}>
                   <img
                     className="size-[20px]"
                     src="/assets/payment.png"
@@ -245,7 +249,7 @@ export default function NavBar({ variant, className = "" }: Props) {
                 asChild
                 className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
               >
-                <Link to={`/bank-details`}>
+                <Link to={token ? `/bank-details` : `/login?from=curUser`}>
                   <img
                     className="size-[20px]"
                     src="/assets/bank-account.png"
@@ -281,7 +285,7 @@ export default function NavBar({ variant, className = "" }: Props) {
                 asChild
                 className="flex items-center gap-4 w-full rounded-none px-0 py-2.5 my-2 cursor-pointer focus:bg-transparent"
               >
-                <Link to={`/login`}>
+                <Link to={`/login`} onClick={clearUserData}>
                   <img
                     className="size-[20px]"
                     src="/assets/logout.svg"

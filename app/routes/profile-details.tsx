@@ -76,7 +76,7 @@ export default function ProfileDetails() {
       if (response.data) {
         console.log("Registration successful! Token:", response.data.token);
         useUserStore.getState().setToken(response.data.token);
-        if (searchParams.get("userFrom") === "publishRide") {
+        if (searchParams.get("from") === "publishRide") {
           navigate("/add-bank-details");
         } else {
           navigate("/payment?registrationSuccess=true");

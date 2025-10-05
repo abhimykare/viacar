@@ -13,10 +13,11 @@ import { MdKeyboardArrowRight } from "react-icons/md";
 import { BsFillLightningFill } from "react-icons/bs";
 import { useTranslation } from "react-i18next";
 import { cn } from "~/lib/utils";
+import { createGoogleMap } from "~/lib/googlemap";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useRef } from "react";
+import { useUserStore } from "~/lib/store/userStore";
 // Updated import to use GoogleMap instead of LeafletMap
-import GoogleMap from "~/components/common/google-map";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -30,23 +31,52 @@ export default function Page() {
     keyPrefix: "ride_details",
   });
   const isRTL = i18n.language === "ar";
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const token = useUserStore((state) => state.token);
 
   const query = useLocation();
   const searchParams = new URLSearchParams(query.search);
-  const registrationSuccess =
-    searchParams.get("registrationSuccess") === "true";
 
+  // Kakkanad coordinates
   const startCoordinates = {
-    lat: 9.981636,
-    lng: 76.299884,
-    address: "Ernakulam, Kerala, India",
+    lat: 10.017,
+    lng: 76.344,
+    address: "Kakkanad, Kerala, India - Pincode: 682030",
   };
 
+  // Kalamassery HMT coordinates
   const endCoordinates = {
-    lat: 9.591754,
-    lng: 76.531907,
-    address: "Kottayam, Kerala, India",
+    lat: 10.0550531,
+    lng: 76.3434679,
+    address: "Kalamassery HMT, Kerala, India - Pincode: 683503",
   };
+
+  useEffect(() => {
+    let mapService: any = null;
+
+    const initializeMap = async () => {
+      if (mapContainerRef.current) {
+        try {
+          mapService = await createGoogleMap(
+            startCoordinates,
+            endCoordinates,
+            "ride-map",
+            "300px"
+          );
+        } catch (error) {
+          console.error("Failed to initialize map:", error);
+        }
+      }
+    };
+
+    initializeMap();
+
+    return () => {
+      if (mapService) {
+        mapService.destroy();
+      }
+    };
+  }, []);
 
   return (
     <div className="bg-[#F5F5F5]">
@@ -93,18 +123,12 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Updated to use GoogleMap component with hardcoded coordinates */}
-            <GoogleMap
-              startLocation={{
-                lat: 48.8584,
-                lng: 2.2945,
-                address: "Eiffel Tower, Paris, France",
-              }}
-              endLocation={{
-                lat: 41.8902,
-                lng: 12.4922,
-                address: "Colosseum, Rome, Italy",
-              }}
+            {/* Google Map Integration */}
+            <div
+              ref={mapContainerRef}
+              id="ride-map"
+              className="w-full rounded-lg border border-gray-200 mt-4"
+              style={{ minHeight: "300px" }}
             />
 
             <div className="flex flex-col mt-5">
@@ -310,13 +334,7 @@ export default function Page() {
                 className="bg-[#FF4848] rounded-full h-[55px] w-[241px] px-8 cursor-pointer text-xl"
                 asChild
               >
-                <Link
-                  to={
-                    registrationSuccess
-                      ? `/payment`
-                      : `/login?from=ride-details`
-                  }
-                >
+                <Link to={token ? `/payment` : `/login?from=ride-details`}>
                   <BsFillLightningFill className="size-[18px]" />
                   <span>{t("book_now")}</span>
                 </Link>
