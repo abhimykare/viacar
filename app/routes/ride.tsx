@@ -24,8 +24,10 @@ import {
 } from "~/components/ui/dialog";
 import TimeDirectionIcon from "~/components/icons/time-direction-icon";
 import { Input } from "~/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { api } from "~/lib/api";
+import { useSearchParams } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -34,9 +36,61 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function Page() {
+export default function Page({}: Route.ComponentProps) {
   const { t } = useTranslation("translation", { keyPrefix: "ride" });
   const [notify, setNotify] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [rides, setRides] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch rides based on search parameters
+  useEffect(() => {
+    const fetchRides = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Get search parameters from URL
+        const pickupLat = searchParams.get('pickup_lat');
+        const pickupLng = searchParams.get('pickup_lng');
+        const destinationLat = searchParams.get('destination_lat');
+        const destinationLng = searchParams.get('destination_lng');
+        const date = searchParams.get('date');
+        const passengers = searchParams.get('passengers');
+        
+        // If we have search parameters, fetch rides
+        if (pickupLat && pickupLng && destinationLat && destinationLng && date) {
+          const response = await api.searchRides({
+            user_lat: parseFloat(pickupLat),
+            user_lng: parseFloat(pickupLng),
+            destination_lat: parseFloat(destinationLat),
+            destination_lng: parseFloat(destinationLng),
+            date: date,
+            passengers: passengers ? parseInt(passengers) : 1,
+            max_walking_distance_km: 5
+          });
+          
+          if (response.success && response.data) {
+            setRides(response.data.rides || []);
+          } else {
+            setError(response.message || 'Failed to fetch rides');
+            setRides([]);
+          }
+        } else {
+          // If no search parameters, fetch all rides or show empty state
+          setRides([]);
+        }
+      } catch (err) {
+        setError('Failed to fetch rides');
+        setRides([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRides();
+  }, [searchParams]);
   return (
     <ScrollArea className="h-screen">
       <Header title={t("title")} />
@@ -62,9 +116,17 @@ export default function Page() {
               </DrawerContent>
             </Drawer>
             <div className="grid grid-cols-1 xl:grid-cols-2 p-0 lg:p-5 !pt-0 !pb-0 gap-5">
-              {Array.from({ length: 14 }, (_, index) => (
-                <RideItem key={index + "rideitem"} />
-              ))}
+              {loading ? (
+                <div className="col-span-2 text-center py-8">Loading rides...</div>
+              ) : error ? (
+                <div className="col-span-2 text-center py-8 text-red-500">{error}</div>
+              ) : rides.length === 0 ? (
+                <div className="col-span-2 text-center py-8">No rides found for your search criteria</div>
+              ) : (
+                rides.map((ride) => (
+                  <RideItem key={ride.id} ride={ride} />
+                ))
+              )}
             </div>
             <div className="flex items-center justify-center p-5 pt-0 mb-5">
               {!notify ? (

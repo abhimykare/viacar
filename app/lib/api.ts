@@ -191,4 +191,20 @@ export const api = {
 
   addVehicle: (data: { model_id: number; year: number; color: string }) =>
     callApi(import.meta.env.VITE_API_VEHICLE_ADD, "POST", data, "json"),
+
+  searchRides: (data: {
+    user_lat: number;
+    user_lng: number;
+    destination_lat: number;
+    destination_lng: number;
+    date: string;
+    passengers: number;
+    max_walking_distance_km: number;
+  }) => callApi(import.meta.env.VITE_API_RIDE_SEARCH, "POST", data, "json"),
+
+  getRideDetail: (data: { ride_id: number }) =>
+    callApi(import.meta.env.VITE_API_RIDE_DETAIL, "POST", data, "json"),
+
+  updateRideStatus: (data: { ride_id: number; status: string }) =>
+    callApi(import.meta.env.VITE_API_RIDE_STATUS, "POST", data, "json"),
 };
