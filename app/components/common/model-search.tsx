@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { models } from "~/constants/models";
 import { Input } from "../ui/input";
+import { api } from "~/lib/api";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { BiSearch } from "react-icons/bi";
@@ -26,25 +26,30 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialValue = searchParams.get(name) || "";
+  const brandId = searchParams.get("selectedVehicleId");
+  const categoryId = searchParams.get("selectedCategoryId");
+
+  const [vehicleModels, setVehicleModels] = useState<
+    { id: number; name: string }[]
+  >([]);
 
   // If a URL param exists, initialize the input with the matching label.
   const initialLabel =
-    models.find((loc) => loc.value === initialValue)?.label || "";
+    vehicleModels.find((model) => model.id.toString() === initialValue)?.name || "";
 
   const [searchValue, setSearchValue] = useState<string>(initialLabel);
   const [selectedValue, setSelectedValue] = useState<string>(initialValue);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Create a map for quick lookup of labels.
   const labels = useMemo(() => {
-    return models.reduce((acc, item) => {
-      acc[item.value] = t(
-        `add_vehicles.model.models.${item.value.toLowerCase()}`
-      );
+    return vehicleModels.reduce((acc, item) => {
+      acc[item.id.toString()] = item.name;
       return acc;
     }, {} as Record<string, string>);
-  }, [t]);
+  }, [vehicleModels]);
 
   // Update URL search param.
   const updateSearchParam = (value: string) => {
@@ -64,27 +69,23 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
     setSearchValue(value);
     if (selectedValue) {
       setSelectedValue("");
-      updateSearchParam("");
+      updateSearchParam(value);
     }
   };
 
   // Filter models based on the search value.
-  const filteredLocations = models.filter(
-    (option) =>
-      t(`add_vehicles.model.models.${option.value.toLowerCase()}`)
-        .toLowerCase()
-        .includes(searchValue.toLowerCase()) ||
-      option.value.toLowerCase().includes(searchValue.toLowerCase())
+  const filteredLocations = vehicleModels.filter((option) =>
+    option.name.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   // When an item is selected, update the selected state and URL.
   const onSelectItem = (value: string) => {
-    navigate(`/vehicle-color`);
-    // setSelectedValue(value);
-    // const labelText = labels[value] || value;
-    // setSearchValue(labelText);
-    // updateSearchParam(value);
-    // setOpen(false);
+    setSelectedValue(value);
+    const labelText = labels[value] || value;
+    setSearchValue(labelText);
+    updateSearchParam(value);
+    setOpen(false);
+    navigate(`/vehicle-color?selectedVehicleId=${brandId}&selectedVehicleName=${searchParams.get("selectedVehicleName")}&selectedCategoryId=${categoryId}&selectedModelId=${value}&selectedModelName=${labelText}`);
   };
 
   // Reset selection.
@@ -101,16 +102,40 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
     }, 150);
   };
 
+  // Fetch vehicle models when searchValue, brandId, or categoryId changes
+  useEffect(() => {
+    clearTimeout(debounceTimeoutRef.current);
+
+    debounceTimeoutRef.current = setTimeout(async () => {
+      setIsLoading(true);
+      try {
+        const response = await api.getVehicleModels(
+          searchValue,
+          brandId ? parseInt(brandId) : undefined,
+          categoryId ? parseInt(categoryId) : undefined
+        );
+        setVehicleModels(response.data.models);
+      } catch (error) {
+        console.error("Failed to fetch vehicle models:", error);
+        setVehicleModels([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(debounceTimeoutRef.current);
+  }, [searchValue, brandId, categoryId]);
+
   // Sync state with URL params when they change externally.
   useEffect(() => {
     const paramValue = searchParams.get(name) || "";
     if (paramValue !== selectedValue) {
       setSelectedValue(paramValue);
       const newLabel =
-        models.find((loc) => loc.value === paramValue)?.label || "";
+        vehicleModels.find((model) => model.id.toString() === paramValue)?.name || "";
       setSearchValue(newLabel);
     }
-  }, [searchParams, name, selectedValue]);
+  }, [searchParams, name, selectedValue, vehicleModels]);
 
   return (
     <div className="relative">
@@ -138,18 +163,15 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
             </div>
           ) : filteredLocations.length > 0 ? (
             filteredLocations.map((option) => (
-              <div className="flex flex-col px-4 py-2 gap-2">
+              <div className="flex flex-col px-4 py-2 gap-2" key={option.id}>
                 <div
-                  key={option.value}
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => onSelectItem(option.value)}
+                  onClick={() => onSelectItem(option.id.toString())}
                   className="cursor-pointer px-6 py-5 hover:bg-gray-100 rounded-2xl flex items-center justify-between"
                 >
                   <div className="flex flex-col">
                     <p className="text-sm">
-                      {t(
-                        `add_vehicles.model.models.${option.value.toLowerCase()}`
-                      )}
+                      {option.name}
                     </p>
                   </div>
                   <ChevronRight color="#AAAAAA" />

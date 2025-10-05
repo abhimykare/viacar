@@ -102,6 +102,10 @@
       "see_ride": "See my ride"
     }
   },
+  "vehicle_added_modal": {
+    "title": "Vehicle Added Successfully!",
+    "description": "Your vehicle has been added to your profile.\n You can now publish rides, accept bookings, and start your journey with Via Car."
+  },
   "edit_profile_modal": {
     "save_button": "Save"
   },

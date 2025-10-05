@@ -162,4 +162,33 @@ export const api = {
     vehicle_registration?: File | string;
     driving_license?: File | string;
   }) => callApi(import.meta.env.VITE_API_VERIFY_ID, "POST", data, "formdata"),
+
+  getVehicleBrands: (searchQuery?: string) => {
+    const endpoint = searchQuery
+      ? `${import.meta.env.VITE_API_VEHICLE_BRANDS}?search=${searchQuery}`
+      : import.meta.env.VITE_API_VEHICLE_BRANDS;
+    return callApi(endpoint, "GET", {});
+  },
+
+  getVehicleModels: (searchQuery?: string, brand_id?: number, category_id?: number) => {
+    let endpoint = import.meta.env.VITE_API_LIST_VEHICLE_MODELS;
+    const params = new URLSearchParams();
+    if (searchQuery) {
+      params.append("search", searchQuery);
+    }
+    if (brand_id) {
+      params.append("brand_id", brand_id.toString());
+    }
+    if (category_id) {
+      params.append("category_id", category_id.toString());
+    }
+
+    if (params.toString()) {
+      endpoint = `${endpoint}?${params.toString()}`;
+    }
+    return callApi(endpoint, "GET", {});
+  },
+
+  addVehicle: (data: { model_id: number; year: number; color: string }) =>
+    callApi(import.meta.env.VITE_API_VEHICLE_ADD, "POST", data, "json"),
 };

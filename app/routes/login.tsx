@@ -37,7 +37,8 @@ export default function Login() {
   const { setToken } = useUserStore();
 
   const searchParams = new URLSearchParams(window.location.search);
-  const from = searchParams.get("from");
+  const from = searchParams.get("userFrom");
+  console.log(from, "from");
 
   const handleSendOtp = async () => {
     setIsLoading(true);
@@ -83,7 +84,7 @@ export default function Login() {
         setToken(response.data.token);
       }
       if (response?.data) {
-        if (response.data.type === "register") {
+        if(from === "publishRide") {
           navigate(`/profile-details?otpId=${otpId}&userFrom=publishRide`);
           setIsOtpModalOpen(false);
         } else if (response.data.type === "login") {
