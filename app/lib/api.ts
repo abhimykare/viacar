@@ -1,5 +1,6 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useUserStore } from "./store/userStore";
+import type { RoutesPayload } from "./types";
 
 const getToken = () => useUserStore.getState().token;
 
@@ -207,4 +208,8 @@ export const api = {
 
   updateRideStatus: (data: { ride_id: number; status: string }) =>
     callApi(import.meta.env.VITE_API_RIDE_STATUS, "POST", data, "json"),
+
+  getUserStatus: () =>
+    callApi(import.meta.env.VITE_API_USER_STATUS, "GET", {}),
+  getRoutes: (data: RoutesPayload) => callApi(import.meta.env.VITE_API_PLACES_ROUTES, "POST", data, "json"),
 };

@@ -403,6 +403,9 @@
   "locations": {
     "search_placeholder": "Search for a location",
     "why_exact_location": "Why an exact location?",
+    "click_map_to_select": "Click on the map to select exact location",
+    "drag_marker_to_select": "Drag the red marker to select exact location",
+    "location_updated": "Location updated successfully!",
     "continue": "Continue",
     "no_items": "No items found",
     "al_khobar": {
@@ -1121,7 +1124,9 @@
       "iban": "IBAN",
       "swift_code": "SWIFT Code",
       "branch": "Branch",
-      "buttonText": "Submit"
+      "buttonText": "Submit",
+      "bank_address": "Branch Address",
+      "button_text": "Save"
     }
   },
   "add_documents": {

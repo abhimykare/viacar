@@ -172,7 +172,7 @@ export const AddBankAccountModal: React.FC<AddBankAccountModalProps> = ({
 
               <div>
                 <label className="text-sm font-medium text-[#666666] mb-1 block">
-                  {t("bank_details.table.bank_address")}
+                  {t("add_bank_details.table.bank_address")}
                 </label>
                 <Input
                   value={branch}
@@ -190,11 +190,13 @@ export const AddBankAccountModal: React.FC<AddBankAccountModalProps> = ({
               onClick={handleSubmit}
               className="w-[170px] bg-red-500 hover:bg-red-600 text-white py-3 h-12 text-lg rounded-full"
             >
-              {initialData ? t("common.save_changes") : t("common.save")}
+              {initialData
+                ? t("bank_details.table.button_text")
+                : t("bank_details.table.buttonText")}
             </Button>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
-}
+};

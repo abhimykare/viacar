@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useSearchParams } from "react-router";
 import { api } from "~/lib/api";
 import { Input } from "../ui/input";
@@ -9,6 +9,7 @@ import { ChevronRight, MapPin, Search } from "lucide-react";
 import CloseIcon from "../icons/close-icon";
 import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
+import { createLocationMap, GoogleMapService } from "~/lib/googlemap";
 
 interface Props {
   label?: string;
@@ -28,6 +29,8 @@ function LocationSearch({
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialValue = searchParams.get(name) || "";
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapServiceRef = useRef<GoogleMapService | null>(null);
 
   // If a URL param exists, initialize the input with the matching label.
   const initialLabel = ""; // Will be updated by API call or kept empty until selection
@@ -39,6 +42,7 @@ function LocationSearch({
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExactLocationMode, setIsExactLocationMode] = useState(false);
 
   const labels = useMemo(() => {
     return suggestions.reduce((acc, item) => {
@@ -139,6 +143,11 @@ function LocationSearch({
       },
       { replace: true }
     );
+    // Reset map state
+    if (mapServiceRef.current) {
+      mapServiceRef.current.destroy();
+      mapServiceRef.current = null;
+    }
   };
 
   // Hide the list after a short delay (to allow clicks to register).
@@ -159,6 +168,156 @@ function LocationSearch({
       setSearchValue(newLabel);
     }
   }, [searchParams, name, selectedValue, labels]);
+
+  // Initialize Google Map when location is selected or exact location mode changes
+  useEffect(() => {
+    const initializeMap = async () => {
+      if (selectedValue && mapContainerRef.current) {
+        try {
+          const lat = parseFloat(searchParams.get(`${name}_lat`) || "0");
+          const lng = parseFloat(searchParams.get(`${name}_lng`) || "0");
+          const address = searchParams.get(`${name}_address`) || "";
+
+          if (lat && lng) {
+            // Destroy existing map if any
+            if (mapServiceRef.current) {
+              mapServiceRef.current.destroy();
+            }
+
+            // Create new map with single marker
+            mapServiceRef.current = await createLocationMap(
+              { lat, lng, address },
+              "location-map",
+              isExactLocationMode ? handleMapClick : undefined,
+              "400px"
+            );
+
+            // Add draggable marker for exact location mode
+            if (isExactLocationMode && mapServiceRef.current) {
+              // Remove any existing instruction
+              const existingInstruction = document.getElementById('map-instruction');
+              if (existingInstruction) {
+                existingInstruction.remove();
+              }
+
+              // Add draggable marker
+              mapServiceRef.current.addDraggableMarker(
+                { lat, lng, address },
+                (newLat, newLng) => {
+                  // Handle drag end - update location
+                  handleMarkerDragEnd(newLat, newLng);
+                }
+              );
+
+              // Add instruction overlay
+              if (mapContainerRef.current && !document.getElementById('map-instruction')) {
+                const instructionDiv = document.createElement('div');
+                instructionDiv.className = 'absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm z-10 shadow-lg';
+                instructionDiv.textContent = t('locations.drag_marker_to_select');
+                instructionDiv.id = 'map-instruction';
+                mapContainerRef.current.appendChild(instructionDiv);
+              }
+            } else if (mapServiceRef.current) {
+              // Remove draggable marker if exists
+              mapServiceRef.current.removeDraggableMarker();
+              
+              // Remove instruction if exists
+              const existingInstruction = document.getElementById('map-instruction');
+              if (existingInstruction) {
+                existingInstruction.remove();
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to initialize location map:", error);
+        }
+      }
+    };
+
+    initializeMap();
+
+    return () => {
+      if (mapServiceRef.current) {
+        mapServiceRef.current.destroy();
+        mapServiceRef.current = null;
+      }
+      // Clean up instruction
+      const existingInstruction = document.getElementById('map-instruction');
+      if (existingInstruction) {
+        existingInstruction.remove();
+      }
+    };
+  }, [selectedValue, name, searchParams, isExactLocationMode]);
+
+  // Handle map click to select location
+  const handleMapClick = async (event: google.maps.MapMouseEvent) => {
+    if (!event.latLng) return;
+
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+
+    try {
+      // Reverse geocode to get address
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          const address = results[0].formatted_address;
+          const placeId = results[0].place_id || `${lat},${lng}`;
+          
+          // Update state and URL
+          setSelectedValue(placeId);
+          setSearchValue(address);
+          updateSearchParam(placeId, lat, lng, address);
+          
+          // Reinitialize map with new coordinates
+          if (mapServiceRef.current) {
+            mapServiceRef.current.destroy();
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Failed to handle map click:", error);
+    }
+  };
+
+  // Handle marker drag end to select exact location
+  const handleMarkerDragEnd = async (lat: number, lng: number) => {
+    try {
+      // Reverse geocode to get address
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          const address = results[0].formatted_address;
+          const placeId = results[0].place_id || `${lat},${lng}`;
+          
+          // Update state and URL
+          setSelectedValue(placeId);
+          setSearchValue(address);
+          updateSearchParam(placeId, lat, lng, address);
+          
+          // Show success feedback
+          const successDiv = document.createElement('div');
+          successDiv.className = 'absolute top-4 right-4 bg-green-500 text-white px-3 py-2 rounded-lg text-sm z-10 shadow-lg';
+          successDiv.textContent = t('locations.location_updated');
+          successDiv.id = 'location-success';
+          
+          if (mapContainerRef.current) {
+            mapContainerRef.current.appendChild(successDiv);
+            
+            // Remove success message after 3 seconds
+            setTimeout(() => {
+              const existingSuccess = document.getElementById('location-success');
+              if (existingSuccess) {
+                existingSuccess.remove();
+              }
+            }, 3000);
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Failed to handle marker drag end:", error);
+    }
+  };
 
   return (
     <div className="relative ">
@@ -252,7 +411,12 @@ function LocationSearch({
               <div className="flex flex-col lg:flex-row items-center justify-between gap-4 max-lg:max-w-[500px] max-lg:mx-auto">
                 <Button
                   variant="outline"
-                  className="border-[#EBEBEB] bg-transparent shadow-none rounded-full h-[55px] w-full lg:w-[286px] text-lg text-[#3C3F4E] font-normal"
+                  className={`border-[#EBEBEB] bg-transparent shadow-none rounded-full h-[55px] w-full lg:w-[286px] text-lg font-normal ${
+                    isExactLocationMode 
+                      ? 'bg-blue-50 border-blue-300 text-blue-700' 
+                      : 'text-[#3C3F4E]'
+                  }`}
+                  onClick={() => setIsExactLocationMode(!isExactLocationMode)}
                 >
                   <MapPin />
                   <span>{t("locations.why_exact_location")}</span>
@@ -271,18 +435,15 @@ function LocationSearch({
               alt=""
             />
           </div>
-          <div className="rounded-2xl decoration-0 overflow-hidden w-full h-full">
-            <img
-              className=" w-full h-full"
-              src="/assets/map-select.png"
-              alt=""
+          <div className="rounded-2xl decoration-0 overflow-hidden w-full h-full relative">
+            <div
+              ref={mapContainerRef}
+              id="location-map"
+              className={`w-full h-full rounded-2xl border border-gray-200 ${
+                isExactLocationMode ? 'ring-2 ring-blue-300 ring-opacity-50' : ''
+              }`}
+              style={{ minHeight: "400px" }}
             />
-            {/* <div id="embed-map-display" className="h-full w-full">
-              <iframe
-                className="h-full w-full border-0"
-                src="https://www.google.com/maps/embed/v1/place?q=saudi+aradia&key="
-              ></iframe>
-            </div> */}
           </div>
         </div>
       )}
