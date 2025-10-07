@@ -384,6 +384,9 @@
   "locations": {
     "search_placeholder": "ابحث عن موقع",
     "why_exact_location": "لماذا موقع دقيق؟",
+    "click_map_to_select": "انقر على الخريطة لتحديد الموقع الدقيق",
+    "drag_marker_to_select": "اسحب العلامة الحمراء لتحديد الموقع الدقيق",
+    "location_updated": "تم تحديث الموقع بنجاح!",
     "continue": "متابعة",
     "no_items": "لم يتم العثور على نتائج",
     "al_khobar": {

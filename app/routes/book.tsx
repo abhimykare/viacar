@@ -83,7 +83,7 @@ export default function Book() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 grid-rows-1">
+      <div className="grid grid-cols-1 grid-rows-1 ">
         <img
           className="col-start-1 -col-end-1 row-start-1 -row-end-1 z-0 w-full h-full object-cover"
           src="/assets/hero.png"

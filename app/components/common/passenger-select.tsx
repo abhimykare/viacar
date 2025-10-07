@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 
 function PassengerSelect() {
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();     
 
   const [passengerCount, setPassengerCount] = useState<string>(() => {
     return searchParams.get("passengers") || "1";

@@ -2,7 +2,7 @@ import Footer from "~/components/layouts/footer";
 import Header from "~/components/layouts/header";
 import type { Route } from "./+types/return";
 import { ChevronRight } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 
 export function meta({}: Route.MetaArgs) {
@@ -14,6 +14,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Page() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
 
   return (
     <div>
@@ -26,7 +27,7 @@ export default function Page() {
         </p>
         <div className="flex flex-col max-w-[716px] w-full mx-auto divide-y divide-[#EBEBEB]">
           <Link
-            to={`/route`}
+            to={`/route?${searchParams.toString()}`}
             state={{ isReturn: true }}
             className="group py-6 flex items-center gap-4 cursor-pointer border-b border-[#EBEBEB]"
           >
@@ -43,7 +44,7 @@ export default function Page() {
             </div>
           </Link>
           <Link
-            to={``}
+            to={`/publish-comment?${searchParams.toString()}`}
             className="group py-6 flex items-center gap-4 cursor-pointer border-b border-[#EBEBEB]"
           >
             <div className="flex items-center gap-1">

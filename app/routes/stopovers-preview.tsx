@@ -6,6 +6,7 @@ import { Map } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "~/components/ui/drawer";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -24,6 +25,7 @@ const stops = [
 export default function Page() {
   const location = useLocation();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
 
   return (
     <div className="bg-[#F5F5F5]">
@@ -90,7 +92,7 @@ export default function Page() {
           className="bg-[#FF4848] rounded-full w-[208px] h-[55px] cursor-pointer text-xl font-normal mx-auto"
           asChild
         >
-          <Link state={location.state} to={`/date`}>
+          <Link state={location.state} to={`/date?${searchParams.toString()}`}>
             {t("stopovers_preview.continue")}
           </Link>
         </Button>

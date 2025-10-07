@@ -25,6 +25,9 @@ import { useTranslation } from "react-i18next";
 // import { t } from "i18next";
 import React, { useState } from "react";
 import { api } from "~/lib/api";
+import { useUserStore } from "~/lib/store/userStore";
+import { useUserStatus } from "~/hooks/use-user-status";
+import { toast } from "sonner";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -42,7 +45,12 @@ export default function ProfileDetails() {
   const [gender, setGender] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const {
+    userStatus,
+    loading,
+    error: userStatusError,
+    refetch,
+  } = useUserStatus();
   const searchParams = new URLSearchParams(window.location.search);
   const otpId = searchParams.get("otpId");
 
@@ -74,7 +82,35 @@ export default function ProfileDetails() {
 
       if (response.data) {
         console.log("Registration successful! Token:", response.data.token);
-        navigate("/ride-details?registrationSuccess=true");
+        useUserStore.getState().setToken(response.data.token);
+        if (searchParams.get("from") === "publishRide") {
+          if (userStatus) {
+            if (!userStatus.id_verification.completed) {
+              toast.info("Please complete your ID verification.");
+              navigate("/add-documents");
+              return;
+            }
+            if (!userStatus.bank_details.has_bank_details) {
+              toast.info("Please add your bank details.");
+              navigate("/add-bank-details");
+              return;
+            }
+            if (!userStatus.vehicles.has_vehicles) {
+              toast.info("Please add your vehicle details.");
+              navigate("/add-vehicles");
+              return;
+            }
+            if (!userStatus.account.is_ride_publishable) {
+              toast.error("You are not authorized to publish rides.");
+              return;
+            }
+            navigate("/publish-ride");
+          } else {
+            toast.error("Unable to retrieve user status.");
+          }
+        } else {
+          navigate("/");
+        }
       } else {
         setError(response.message || "Registration failed.");
       }
@@ -181,6 +217,9 @@ export default function ProfileDetails() {
                     onSelect={(date) =>
                       setDateOfBirth(date ? format(date, "yyyy-MM-dd") : "")
                     }
+                    captionLayout="dropdown-buttons"
+                    fromYear={1900}
+                    toYear={new Date().getFullYear()}
                     initialFocus
                     required
                   />

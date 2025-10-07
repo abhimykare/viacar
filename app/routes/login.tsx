@@ -13,8 +13,11 @@ import {
 } from "~/components/ui/input-otp";
 import { Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useUserStatus } from "~/hooks/use-user-status";
+import { toast } from "sonner";
 import React, { useState } from "react";
 import { api } from "~/lib/api";
+import { useUserStore } from "~/lib/store/userStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -33,9 +36,17 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otp, setOtp] = useState("");
+  const { setToken } = useUserStore();
 
   const searchParams = new URLSearchParams(window.location.search);
   const from = searchParams.get("from");
+  const {
+    userStatus,
+    loading,
+    error: userStatusError,
+    refetch,
+  } = useUserStatus();
+  console.log(from, "from");
 
   const handleSendOtp = async () => {
     setIsLoading(true);
@@ -75,19 +86,54 @@ export default function Login() {
         otp: otp,
         device_type: "1",
         fcm_token: "some_fcm_token",
-      }); // TODO: Replace 'some_fcm_token' with actual FCM token
+      });
       console.log(response?.data?.type, "response yoyouoy sdyfosdyfosy");
-      if (response?.data) {
-        if (response.data.type === "register") {
-          navigate(`/profile-details?otpId=${otpId}`);
-          setIsOtpModalOpen(false);
-        } else if (response.data.type === "login") {
-          navigate(`/payment?registrationSuccess=true`);
-        } else {
-          navigate("/book/ride");
+
+      if (response?.data?.token) {
+        setToken(response.data.token);
+      }
+      console.log(response?.data?.type, "response type");
+      if (response?.data?.type === "register") {
+        navigate(`/profile-details?otpId=${otpId}&userFrom=publishRide`);
+        setIsOtpModalOpen(false);
+      }
+      if (response?.data?.type === "login") {
+        navigate("/");
+      } else if (response?.data?.type === "register") {
+        if (loading) {
+          toast.info("Loading user status...");
+          return;
         }
-      } else {
-        setError(response.message || "Failed to verify OTP.");
+
+        if (userStatusError) {
+          toast.error("Error fetching user status. Please try again.");
+          return;
+        }
+
+        if (userStatus) {
+          if (!userStatus.id_verification.completed) {
+            toast.info("Please complete your ID verification.");
+            navigate("/add-documents");
+            return;
+          }
+          if (!userStatus.bank_details.has_bank_details) {
+            toast.info("Please add your bank details.");
+            navigate("/add-bank-details");
+            return;
+          }
+          if (!userStatus.vehicles.has_vehicles) {
+            toast.info("Please add your vehicle details.");
+            navigate("/add-vehicles");
+            return;
+          }
+          if (!userStatus.account.is_ride_publishable) {
+            toast.error("You are not authorized to publish rides.");
+            return;
+          }
+          navigate("/publish-ride");
+        } else {
+          toast.error("Unable to retrieve user status.");
+        }
       }
     } catch (err: any) {
       setError(

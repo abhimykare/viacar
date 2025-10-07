@@ -2,10 +2,10 @@ import Footer from "~/components/layouts/footer";
 import Header from "~/components/layouts/header";
 import type { Route } from "./+types/pricing";
 import { Button } from "~/components/ui/button";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useSearchParams } from "react-router";
 import TimeDirectionIcon from "~/components/icons/time-direction-icon";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
@@ -19,6 +19,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Page() {
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [amount, setAmount] = useState(3000);
   const [amountOne, setAmountOne] = useState(640.0);
   const [amountTwo, setAmountTwo] = useState(120.0);
@@ -26,8 +27,35 @@ export default function Page() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { t } = useTranslation();
 
+  // Initialize prices from URL parameters if available
+  React.useEffect(() => {
+    const pricePerSeat = searchParams.get('price_per_seat');
+    if (pricePerSeat) {
+      setAmount(parseInt(pricePerSeat));
+    }
+    
+    // Initialize other prices from URL or localStorage
+    const savedPrices = localStorage.getItem('ride_prices');
+    if (savedPrices) {
+      try {
+        const prices = JSON.parse(savedPrices);
+        if (prices.length > 0) {
+          setAmountOne(prices[0]?.amount || 640);
+          setAmountTwo(prices[1]?.amount || 120);
+          setAmountThree(prices[2]?.amount || 420);
+        }
+      } catch (e) {
+        console.warn('Failed to parse saved prices:', e);
+      }
+    }
+  }, []);
+
   function adjustAmount(adjustment: number) {
-    setAmount(Math.max(1000, Math.min(4000, amount + adjustment)));
+    const newAmount = Math.max(1000, Math.min(4000, amount + adjustment));
+    setAmount(newAmount);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('price_per_seat', newAmount.toString());
+    setSearchParams(newParams);
   }
 
   function adjustAmountOne(adjustment: number) {
@@ -55,7 +83,13 @@ export default function Page() {
               variant="ghost"
               size="icon"
               className="size-[50px] shrink-0 rounded-full cursor-pointer"
-              onClick={() => adjustAmount(-500)}
+              onClick={() => {
+                const newAmount = Math.max(1000, amount - 500);
+                setAmount(newAmount);
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('price_per_seat', newAmount.toString());
+                setSearchParams(newParams);
+              }}
               disabled={amount === 1000}
             >
               <img
@@ -74,7 +108,13 @@ export default function Page() {
               variant="ghost"
               size="icon"
               className="size-[50px] shrink-0 rounded-full cursor-pointer"
-              onClick={() => adjustAmount(500)}
+              onClick={() => {
+                const newAmount = Math.min(4000, amount + 500);
+                setAmount(newAmount);
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('price_per_seat', newAmount.toString());
+                setSearchParams(newParams);
+              }}
               disabled={amount >= 4000}
             >
               <img
@@ -316,7 +356,16 @@ export default function Page() {
               asChild
             >
               <Link
-                to={location.state?.isReturn ? `/publish-comment` : `/return`}
+                to={location.state?.isReturn ? `/publish-comment?${searchParams.toString()}` : `/return?${searchParams.toString()}`}
+                onClick={() => {
+                  // Save prices structure to localStorage
+                  const prices = [
+                    { pickup_order: 1, drop_order: 2, amount: amountOne },
+                    { pickup_order: 1, drop_order: 3, amount: amountThree },
+                    { pickup_order: 2, drop_order: 3, amount: amountTwo }
+                  ];
+                  localStorage.setItem('ride_prices', JSON.stringify(prices));
+                }}
               >
                 {t("pricing.continue")}
               </Link>

@@ -3,6 +3,7 @@ import Header from "~/components/layouts/header";
 import LocationSearch from "~/components/common/location-search";
 import type { Route } from "./+types/pickup";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,6 +14,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Page() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
 
   return (
     <div>
@@ -24,7 +26,7 @@ export default function Page() {
         </p>
         <LocationSearch
           name="pickup"
-          path="/dropoff"
+          path={`/dropoff?${searchParams.toString()}`}
           sectionName={t("pickup.section_name")}
           sectionTitle={t("pickup.section_title")}
         />

@@ -60,7 +60,7 @@ export default function Page() {
   const searchParams = new URLSearchParams(query.search);
   const registrationSuccess =
     searchParams.get("registrationSuccess") === "true";
-  const [step, setStep] = useState<Step>(registrationSuccess ? "logged-in" : "pre-login");
+  const [step, setStep] = useState<Step>("logged-in");
   const [status, setStatus] = useState<Status>("idle");
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -103,97 +103,7 @@ export default function Page() {
           <CardIcon className="size-[18px] lg:size-[24px]" />
         </Button>
         <Card className="col-start-2 col-end-4 row-start-1 row-end-3 shadow-none border-[#EBEBEB] rounded-2xl px-8 lg:px-10 py-6 lg:py-8 flex flex-col w-full mb-[40px] min-h-[140px]">
-          {step !== "logged-in" && !registrationSuccess && (
-            <>
-              <div>
-                <p className="text-xl lg:text-2xl text-[#3C3F4E] font-medium">
-                  {t("account.title")}
-                </p>
-                <p className="text-base text-[#898989] font-light">
-                  {t("account.description")}
-                </p>
-              </div>
-              <Dialog
-                open={step === "login"}
-                onOpenChange={(open) => !open && setStep("pre-login")}
-              >
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="flex-col h-[50px] rounded-none border-[#3C3F4E] gap-0 w-[165px] mb-4"
-                    onClick={() => setStep("login")}
-                  >
-                    <span className="text-[0.75rem] text-[#3C3F4E] font-light leading-tight">
-                      {t("account.have_account")}
-                    </span>
-                    <span className="text-sm text-[#3C3F4E] leading-tight">
-                      {t("account.login")}
-                    </span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-[516px] w-full">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl lg:text-4xl font-medium">
-                      {t("login.title")}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <PhoneInput
-                    label={t("login.phone_label")}
-                    defaultCountryCode="SA"
-                    className="mb-2"
-                  />
-                  <Button
-                    className="bg-[#FF4848] text-xl font-normal rounded-full w-full h-14 cursor-pointer mb-5"
-                    onClick={() => setStep("otp")}
-                  >
-                    {t("login.button")}
-                  </Button>
-                </DialogContent>
-              </Dialog>
-              <Dialog
-                open={step === "otp"}
-                onOpenChange={(open) => !open && setStep("login")}
-              >
-                <DialogContent className="max-w-[516px] w-full p-8">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl lg:text-4xl font-medium mb-2">
-                      {t("otp.title")}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="flex flex-col">
-                    <Label className="text-lg font-normal mb-2">
-                      {t("otp.enter_label")}
-                    </Label>
-                    <InputOTP
-                      containerClassName="justify-between"
-                      maxLength={6}
-                    >
-                      {[...Array(6)].map((_, i) => (
-                        <InputOTPGroup className="" key={i}>
-                          <InputOTPSlot
-                            className="size-10 lg:size-14 !rounded-xl !border-[#D9D8D8] text-xl font-normal"
-                            index={i}
-                          />
-                        </InputOTPGroup>
-                      ))}
-                    </InputOTP>
-                    <div className="text-sm lg:text-base text-[#666666] text-center font-light max-w-[350px] mx-auto mt-6">
-                      {t("otp.no_code_received")}
-                      <button className="text-[#FF4848] font-normal ml-1">
-                        {t("otp.request_new_code")}
-                      </button>
-                    </div>
-                    <Button
-                      className="bg-[#FF4848] text-xl font-normal rounded-full w-full h-14 cursor-pointer mt-10"
-                      onClick={() => setStep("logged-in")}
-                    >
-                      {t("otp.verify")}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </>
-          )}
+
           {(step === "logged-in" || registrationSuccess) && (
             <div className="flex flex-col gap-1">
               <div className="text-xl lg:text-2xl text-[#3C3F4E] font-medium flex items-center gap-2">
