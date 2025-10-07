@@ -128,7 +128,7 @@ export default function Page() {
             href: "/ride-details",
           },
           { label: t("profile.breadcrumb.profile"), href: "/profile" },
-        ]}s
+        ]}
       />
       <div className="max-w-[1410px] w-full mx-auto px-6 pt-8 lg:pt-[60px] pb-10 lg:pb-[80px] flex flex-col lg:flex-row gap-10 lg:gap-[80px]">
         <div className="flex flex-col items-center justify-center gap-[40px]">

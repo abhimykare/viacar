@@ -91,25 +91,70 @@ export default function Page() {
                 searchParams.get("departure_time") || "00:00:00";
               const departureDateTime = `${departureDate}T${departureTime}`;
 
+              // Get additional parameters
+              const rideRoute = searchParams.get("ride_route") || "";
+              const max2InBack = searchParams.get("max_2_in_back") === "true";
+              
+              // Format stops data if available
+              const stopsParam = searchParams.get("stops");
+              let stops = [];
+              if (stopsParam) {
+                try {
+                  stops = JSON.parse(decodeURIComponent(stopsParam));
+                } catch (e) {
+                  console.warn("Failed to parse stops data:", e);
+                }
+              }
+              
+              // Format prices data if available
+              const pricesParam = searchParams.get("prices");
+              let prices = [];
+              if (pricesParam) {
+                try {
+                  prices = JSON.parse(decodeURIComponent(pricesParam));
+                } catch (e) {
+                  console.warn("Failed to parse prices data:", e);
+                }
+              }
+              
+              // Get vehicle ID from localStorage or use default
+              const vehicleId = parseInt(localStorage.getItem("selected_vehicle_id") || "1");
+
+              // Create ride data according to Swagger API specification
               const rideData = {
+                vehicle_id: vehicleId,
                 pickup_lat: pickupLat,
                 pickup_lng: pickupLng,
                 pickup_address: pickupAddress,
-                destination_lat: destinationLat,
-                destination_lng: destinationLng,
-                destination_address: destinationAddress,
-                departure_time: departureDateTime,
-                available_seats: parseInt(
-                  searchParams.get("available_seats") || "1"
-                ),
-                price_per_seat: pricePerSeat,
-                notes: notes,
-                vehicle_id: 1, // Default vehicle ID, can be updated later
+                drop_lat: destinationLat, // Changed from destination_lat
+                drop_lng: destinationLng, // Changed from destination_lng
+                drop_address: destinationAddress, // Changed from destination_address
+                date: departureDate.split('T')[0], // Changed from departure_time, format as YYYY-MM-DD
+                pickup_time: departureTime, // Format as HH:MM
+                drop_time: searchParams.get("drop_time") || "", // Need to calculate estimated drop time
+                passengers: parseInt(searchParams.get("available_seats") || "1"), // Changed from available_seats
+                ride_route: rideRoute,
+                max_2_in_back: max2InBack,
+                stops: stops.length > 0 ? stops : undefined,
+                prices: prices.length > 0 ? prices : undefined,
+                price_per_seat: pricePerSeat, // Keep for backward compatibility if needed
+                notes: notes // Keep for backward compatibility if needed
               };
+              
+              console.log("Final ride data being sent to API:", rideData);
 
-              await api.createRide(rideData);
+              console.log("Sending ride creation request...");
+              const response = await api.createRide(rideData);
+              console.log("Ride created successfully:", response);
+              
               // Navigate to success page or show success message
-              window.location.href = "/publish-ride";
+              if (response?.data?.ride_id) {
+                // Navigate to ride details page with the new ride ID
+                window.location.href = `/ride-details/${response.data.ride_id}`;
+              } else {
+                // Fallback to generic success page
+                window.location.href = "/publish-ride";
+              }
             } catch (error) {
               console.error("Failed to create ride:", error);
               alert("Failed to publish ride. Please try again.");

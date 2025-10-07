@@ -88,8 +88,14 @@ export default function Login() {
         fcm_token: "some_fcm_token",
       });
       console.log(response?.data?.type, "response yoyouoy sdyfosdyfosy");
+
       if (response?.data?.token) {
         setToken(response.data.token);
+      }
+      console.log(response?.data?.type, "response type");
+      if (response?.data?.type === "register") {
+        navigate(`/profile-details?otpId=${otpId}&userFrom=publishRide`);
+        setIsOtpModalOpen(false);
       }
       if (response?.data?.type === "login") {
         navigate("/");
@@ -129,20 +135,6 @@ export default function Login() {
           toast.error("Unable to retrieve user status.");
         }
       }
-      // if (response?.data) {
-      //   if (from === "publishRide") {
-      //     navigate(`/profile-details?otpId=${otpId}&userFrom=publishRide`);
-      //     setIsOtpModalOpen(false);
-      //   } else if (from === "curUser") {
-      //     navigate("/");
-      //   } else if (response.data.type === "login" && from === "ride-details") {
-      //     navigate(`/payment?registrationSuccess=true`);
-      //   } else if (from === "ride-details") {
-      //     navigate("/book/ride");
-      //   }
-      // } else {
-      //   setError(response.message || "Failed to verify OTP.");
-      // }
     } catch (err: any) {
       setError(
         err.message || "An unexpected error occurred during OTP verification."

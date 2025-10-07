@@ -19,6 +19,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Page() {
   const location = useLocation();
   const [passengers, setPassengers] = useState(3);
+  const [max2InBack, setMax2InBack] = useState(false);
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -84,7 +85,11 @@ export default function Page() {
           <p className="text-xl lg:text-[1.688rem] text-center mb-4">
             {t("passenger_count.passenger_options")}
           </p>
-          <Checkbox.Root className="group px-6 py-4 flex items-center gap-4 w-full cursor-pointer border -border-[#EBEBEB] rounded-2xl">
+          <Checkbox.Root 
+            className="group px-6 py-4 flex items-center gap-4 w-full cursor-pointer border -border-[#EBEBEB] rounded-2xl"
+            checked={max2InBack}
+            onCheckedChange={(checked) => setMax2InBack(checked as boolean)}
+          >
             <img
               className="size-[20px] lg:size-[30px]"
               src="/assets/people.svg"
@@ -116,7 +121,15 @@ export default function Page() {
               className="bg-[#FF4848] w-[208px] h-[55px] rounded-full text-xl font-normal"
               asChild
             >
-              <Link state={location.state} to={`/pricing?${searchParams.toString()}`}>
+              <Link 
+                state={location.state} 
+                to={`/pricing?${searchParams.toString()}&max_2_in_back=${max2InBack}`}
+                onClick={() => {
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.set('max_2_in_back', max2InBack.toString());
+                  setSearchParams(newParams);
+                }}
+              >
                 {t("passenger_count.continue")}
               </Link>
             </Button>

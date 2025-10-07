@@ -142,17 +142,39 @@ export const api = {
     ),
 
   createRide: (data: {
+    vehicle_id: number;
     pickup_lat: number;
     pickup_lng: number;
     pickup_address: string;
-    destination_lat: number;
-    destination_lng: number;
-    destination_address: string;
-    departure_time: string;
-    available_seats: number;
-    price_per_seat: number;
-    notes: string;
-    vehicle_id: number;
+    drop_lat: number;
+    drop_lng: number;
+    drop_address: string;
+    date: string;
+    pickup_time: string;
+    drop_time?: string;
+    passengers: number;
+    ride_route: string;
+    max_2_in_back?: boolean;
+    stops?: Array<{
+      lat: number;
+      lng: number;
+      address: string;
+      order: number;
+      time: string;
+    }>;
+    prices?: Array<{
+      pickup_order: number;
+      drop_order: number;
+      amount: number;
+    }>;
+    // Backward compatibility fields
+    price_per_seat?: number;
+    notes?: string;
+    departure_time?: string;
+    available_seats?: number;
+    destination_lat?: number;
+    destination_lng?: number;
+    destination_address?: string;
   }) => callApi(import.meta.env.VITE_API_CREATE_RIDE, "POST", data, "json"),
 
   verifyId: (data: {
