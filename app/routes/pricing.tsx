@@ -5,10 +5,11 @@ import { Button } from "~/components/ui/button";
 import React, { useState } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import { Link, useLocation, useSearchParams } from "react-router";
+import { Link, useLocation } from "react-router";
 import TimeDirectionIcon from "~/components/icons/time-direction-icon";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,55 +20,115 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Page() {
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [amount, setAmount] = useState(3000);
-  const [amountOne, setAmountOne] = useState(640.0);
-  const [amountTwo, setAmountTwo] = useState(120.0);
-  const [amountThree, setAmountThree] = useState(420.0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { t } = useTranslation();
+  const setPricePerSeat = useRideCreationStore(
+    (state) => state.setPricePerSeat
+  );
+  const pricePerSeat = useRideCreationStore(
+    (state) => state.rideData.pricePerSeat
+  );
+  const pickup = useRideCreationStore((state) => state.rideData.pickup);
+  const dropoff = useRideCreationStore((state) => state.rideData.dropoff);
+  const stops = useRideCreationStore((state) => state.rideData.stops) || [];
+  const setPrices = useRideCreationStore((state) => state.setPrices);
+  
+  // Dynamic pricing segments based on stops
+  const [segmentPrices, setSegmentPrices] = useState<{[key: string]: number}>({});
 
-  // Initialize prices from URL parameters if available
+  // Initialize prices from store
   React.useEffect(() => {
-    const pricePerSeat = searchParams.get('price_per_seat');
     if (pricePerSeat) {
-      setAmount(parseInt(pricePerSeat));
+      setAmount(pricePerSeat);
     }
-    
-    // Initialize other prices from URL or localStorage
-    const savedPrices = localStorage.getItem('ride_prices');
-    if (savedPrices) {
-      try {
-        const prices = JSON.parse(savedPrices);
-        if (prices.length > 0) {
-          setAmountOne(prices[0]?.amount || 640);
-          setAmountTwo(prices[1]?.amount || 120);
-          setAmountThree(prices[2]?.amount || 420);
+
+    // Initialize segment prices based on route segments
+    const initializeSegmentPrices = () => {
+      const allStops = [pickup, ...stops, dropoff].filter(Boolean);
+      const newSegmentPrices: {[key: string]: number} = {};
+      
+      // Generate all possible segments
+      for (let i = 0; i < allStops.length - 1; i++) {
+        for (let j = i + 1; j < allStops.length; j++) {
+          const segmentKey = `${i + 1}-${j + 1}`;
+          // Initialize with reasonable default prices based on distance
+          const basePrice = 300 + (j - i) * 200;
+          newSegmentPrices[segmentKey] = basePrice;
         }
-      } catch (e) {
-        console.warn('Failed to parse saved prices:', e);
       }
+      
+      setSegmentPrices(newSegmentPrices);
+    };
+
+    if (pickup && dropoff) {
+      initializeSegmentPrices();
     }
-  }, []);
+  }, [pricePerSeat, pickup, dropoff, stops]);
+
+  // Clear and regenerate segment prices when stops change significantly
+  React.useEffect(() => {
+    const initializeSegmentPrices = () => {
+      const allStops = [pickup, ...stops, dropoff].filter(Boolean);
+      const newSegmentPrices: {[key: string]: number} = {};
+      
+      // Generate all possible segments
+      for (let i = 0; i < allStops.length - 1; i++) {
+        for (let j = i + 1; j < allStops.length; j++) {
+          const segmentKey = `${i + 1}-${j + 1}`;
+          // Initialize with reasonable default prices based on distance
+          const basePrice = 300 + (j - i) * 200;
+          newSegmentPrices[segmentKey] = basePrice;
+        }
+      }
+      
+      setSegmentPrices(newSegmentPrices);
+    };
+
+    // Only reinitialize if we have the basic route setup
+    if (pickup && dropoff) {
+      initializeSegmentPrices();
+    }
+  }, [stops.length]); // Only watch for stops length changes to avoid excessive re-renders
 
   function adjustAmount(adjustment: number) {
     const newAmount = Math.max(1000, Math.min(4000, amount + adjustment));
     setAmount(newAmount);
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('price_per_seat', newAmount.toString());
-    setSearchParams(newParams);
+    setPricePerSeat(newAmount);
   }
 
-  function adjustAmountOne(adjustment: number) {
-    setAmountOne(Math.max(1000, Math.min(4000, amountOne + adjustment)));
+  function adjustSegmentPrice(segmentKey: string, adjustment: number) {
+    setSegmentPrices(prev => ({
+      ...prev,
+      [segmentKey]: Math.max(1, Math.min(4000, (prev[segmentKey] || 0) + adjustment))
+    }));
   }
 
-  function adjustAmountTwo(adjustment: number) {
-    setAmountTwo(Math.max(1000, Math.min(4000, amountTwo + adjustment)));
+  function setSegmentPrice(segmentKey: string, price: number) {
+    const newPrice = Math.max(1, Math.min(4000, price));
+    setSegmentPrices(prev => ({
+      ...prev,
+      [segmentKey]: newPrice
+    }));
   }
 
-  function adjustAmountThree(adjustment: number) {
-    setAmountThree(Math.max(1000, Math.min(4000, amountThree + adjustment)));
+  // Get all route segments for pricing
+  function getRouteSegments() {
+    const allStops = [pickup, ...stops, dropoff].filter(Boolean);
+    const segments: Array<{pickup_order: number, drop_order: number, pickup_location: LocationData, drop_location: LocationData}> = [];
+    
+    for (let i = 0; i < allStops.length - 1; i++) {
+      for (let j = i + 1; j < allStops.length; j++) {
+        segments.push({
+          pickup_order: i + 1,
+          drop_order: j + 1,
+          pickup_location: allStops[i]!,
+          drop_location: allStops[j]!
+        });
+      }
+    }
+    
+    return segments;
   }
 
   return (
@@ -84,13 +145,11 @@ export default function Page() {
               size="icon"
               className="size-[50px] shrink-0 rounded-full cursor-pointer"
               onClick={() => {
-                const newAmount = Math.max(1000, amount - 500);
+                const newAmount = Math.max(1, amount - 1);
                 setAmount(newAmount);
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set('price_per_seat', newAmount.toString());
-                setSearchParams(newParams);
+                setPricePerSeat(newAmount);
               }}
-              disabled={amount === 1000}
+              disabled={amount <= 1}
             >
               <img
                 className="size-[50px]"
@@ -109,11 +168,9 @@ export default function Page() {
               size="icon"
               className="size-[50px] shrink-0 rounded-full cursor-pointer"
               onClick={() => {
-                const newAmount = Math.min(4000, amount + 500);
+                const newAmount = Math.min(4000, amount + 1);
                 setAmount(newAmount);
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set('price_per_seat', newAmount.toString());
-                setSearchParams(newParams);
+                setPricePerSeat(newAmount);
               }}
               disabled={amount >= 4000}
             >
@@ -145,208 +202,100 @@ export default function Page() {
               <DialogContent className="!max-w-[950px] min-h-[464px] w-full">
                 <ScrollArea className="max-lg:h-screen p-4">
                   <div className="flex flex-col">
-                    <div className="grid grid-cols-[60px_1fr] md:flex items-center gap-4 mb-5 min-h-[167px]">
-                      <TimeDirectionIcon
-                        time="4h 40m"
-                        className="h-[167px] w-[60px]"
-                      />
-                      <div className="flex flex-col justify-between h-full">
-                        <div>
-                          <p className="text-base text-[#939393] font-light">
-                            {t("pricing.pickup")}
-                          </p>
-                          <p className="text-lg">
-                            {t("locations.al_khobar.name")}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-base text-[#939393] font-light">
-                            {t("pricing.drop")}
-                          </p>
-                          <p className="text-lg">
-                            {t("locations.riyadh.name")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col text-end lg:ml-auto max-lg:col-span-2">
-                        <div className="flex items-center justify-center space-x-8 px-6">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-[50px] shrink-0 rounded-full cursor-pointer"
-                            onClick={() => adjustAmountOne(-500)}
-                            disabled={amountOne === 500}
-                          >
-                            <img
-                              className="size-[40px]"
-                              src="/assets/minus-red.svg"
-                              alt=""
-                            />
-                            <span className="sr-only">
-                              {t("pricing.decrease")}
-                            </span>
-                          </Button>
-                          <div className="flex-1 text-center">
-                            <div className="text-[2.188rem] font-semibold font-alpha">
-                              SR{" "}
-                              {amountOne.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
+                    {getRouteSegments().map((segment, index) => {
+                      const segmentKey = `${segment.pickup_order}-${segment.drop_order}`;
+                      const currentPrice = segmentPrices[segmentKey] || 0;
+                      const isFirstSegment = index === 0;
+                      
+                      return (
+                        <React.Fragment key={segmentKey}>
+                          {index > 0 && (
+                            <Separator className="my-4 border-t !border-dashed !border-[#CDCDCD] bg-transparent" />
+                          )}
+                          <div className={`grid grid-cols-[${isFirstSegment ? '60px' : '26px'}_1fr] md:flex items-center gap-4 mb-5 ${isFirstSegment ? 'min-h-[167px]' : 'min-h-[139px]'}`}>
+                            {isFirstSegment ? (
+                              <TimeDirectionIcon
+                                time="4h 40m"
+                                className="h-[167px] w-[60px]"
+                              />
+                            ) : (
+                              <img src="/assets/direction2.svg" />
+                            )}
+                            <div className="flex flex-col justify-between h-full">
+                              <div>
+                                <p className="text-base text-[#939393] font-light">
+                                  {t("pricing.pickup")}
+                                </p>
+                                <p className="text-lg">
+                                  {segment.pickup_location.address}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-base text-[#939393] font-light">
+                                  {t("pricing.drop")}
+                                </p>
+                                <p className="text-lg">
+                                  {segment.drop_location.address}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col text-end lg:ml-auto max-lg:col-span-2">
+                              <div className="flex items-center justify-center space-x-4 px-6">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-[40px] shrink-0 rounded-full cursor-pointer"
+                                  onClick={() => adjustSegmentPrice(segmentKey, -1)}
+                                  disabled={currentPrice <= 1}
+                                >
+                                  <img
+                                    className="size-[30px]"
+                                    src="/assets/minus-red.svg"
+                                    alt=""
+                                  />
+                                  <span className="sr-only">
+                                    {t("pricing.decrease")}
+                                  </span>
+                                </Button>
+                                <div className="flex-1 text-center">
+                                  <div className={`${isFirstSegment ? 'text-[2.188rem]' : 'text-[1.625rem]'} font-semibold font-alpha mb-2`}>
+                                    SR{" "}
+                                    {currentPrice.toLocaleString(undefined, {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    })}
+                                  </div>
+                                  <input
+                                    type="number"
+                                    value={currentPrice}
+                                    onChange={(e) => setSegmentPrice(segmentKey, parseInt(e.target.value) || 0)}
+                                    className="w-20 text-center border border-gray-300 rounded px-2 py-1 text-sm"
+                                    min="1"
+                                    max="4000"
+                                  />
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-[40px] shrink-0 rounded-full cursor-pointer"
+                                  onClick={() => adjustSegmentPrice(segmentKey, 1)}
+                                  disabled={currentPrice >= 4000}
+                                >
+                                  <img
+                                    className="size-[30px]"
+                                    src="/assets/plus-green.svg"
+                                    alt=""
+                                  />
+                                  <span className="sr-only">
+                                    {t("pricing.increase")}
+                                  </span>
+                                </Button>
+                              </div>
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-[50px] shrink-0 rounded-full cursor-pointer"
-                            onClick={() => adjustAmountOne(500)}
-                            disabled={amountOne >= 4000}
-                          >
-                            <img
-                              className="size-[40px]"
-                              src="/assets/plus-green.svg"
-                              alt=""
-                            />
-                            <span className="sr-only">
-                              {t("pricing.increase")}
-                            </span>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    <Separator className="my-4 border-t !border-dashed !border-[#CDCDCD] bg-transparent" />
-                    <div className="grid grid-cols-[26px_1fr] md:flex items-center gap-4 mb-6 min-h-[139px]">
-                      <img src="/assets/direction2.svg" />
-                      <div className="flex flex-col justify-between h-full">
-                        <div>
-                          <p className="text-base text-[#939393] font-light">
-                            {t("pricing.pickup")}
-                          </p>
-                          <p className="text-lg">
-                            {t("locations.al_khobar.name")}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-base text-[#939393] font-light">
-                            {t("pricing.drop")}
-                          </p>
-                          <p className="text-lg">
-                            {t("stopovers_preview.stops.heritage_village.name")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col text-end lg:ml-auto max-lg:col-span-2">
-                        <div className="flex items-center justify-center space-x-8 px-6">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-[50px] shrink-0 rounded-full cursor-pointer"
-                            onClick={() => adjustAmountTwo(-500)}
-                            disabled={amountTwo === 500}
-                          >
-                            <img
-                              className="size-[40px]"
-                              src="/assets/minus-red.svg"
-                              alt=""
-                            />
-                            <span className="sr-only">
-                              {t("pricing.decrease")}
-                            </span>
-                          </Button>
-                          <div className="flex-1 text-center">
-                            <div className="text-[1.625rem] font-semibold font-alpha">
-                              SR{" "}
-                              {amountTwo.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-[50px] shrink-0 rounded-full cursor-pointer"
-                            onClick={() => adjustAmountTwo(500)}
-                            disabled={amountTwo >= 4000}
-                          >
-                            <img
-                              className="size-[40px]"
-                              src="/assets/plus-green.svg"
-                              alt=""
-                            />
-                            <span className="sr-only">
-                              {t("pricing.increase")}
-                            </span>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-[26px_1fr] md:flex items-start lg:items-center gap-4 mb-5 min-h-[139px]">
-                      <img src="/assets/direction2.svg" />
-                      <div className="flex flex-col justify-between h-full">
-                        <div>
-                          <p className="text-base text-[#939393] font-light">
-                            {t("pricing.pickup")}
-                          </p>
-                          <p className="text-lg">
-                            {t("locations.al_khobar.name")}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-base text-[#939393] font-light">
-                            {t("pricing.drop")}
-                          </p>
-                          <p className="text-lg">
-                            {t("locations.riyadh.name")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col text-end lg:ml-auto max-lg:col-span-2">
-                        <div className="flex items-center justify-center space-x-8 px-6">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-[50px] shrink-0 rounded-full cursor-pointer"
-                            onClick={() => adjustAmountThree(-500)}
-                            disabled={amountThree === 500}
-                          >
-                            <img
-                              className="size-[40px]"
-                              src="/assets/minus-red.svg"
-                              alt=""
-                            />
-                            <span className="sr-only">
-                              {t("pricing.decrease")}
-                            </span>
-                          </Button>
-                          <div className="flex-1 text-center">
-                            <div className="text-[1.625rem] font-semibold font-alpha">
-                              SR{" "}
-                              {amountThree.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-[50px] shrink-0 rounded-full cursor-pointer"
-                            onClick={() => adjustAmountThree(500)}
-                            disabled={amountThree >= 4000}
-                          >
-                            <img
-                              className="size-[40px]"
-                              src="/assets/plus-green.svg"
-                              alt=""
-                            />
-                            <span className="sr-only">
-                              {t("pricing.increase")}
-                            </span>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+                        </React.Fragment>
+                      );
+                    })}
                   </div>
                 </ScrollArea>
               </DialogContent>
@@ -356,15 +305,19 @@ export default function Page() {
               asChild
             >
               <Link
-                to={location.state?.isReturn ? `/publish-comment?${searchParams.toString()}` : `/return?${searchParams.toString()}`}
+                to={location.state?.isReturn ? "/publish-comment" : "/return"}
                 onClick={() => {
-                  // Save prices structure to localStorage
-                  const prices = [
-                    { pickup_order: 1, drop_order: 2, amount: amountOne },
-                    { pickup_order: 1, drop_order: 3, amount: amountThree },
-                    { pickup_order: 2, drop_order: 3, amount: amountTwo }
-                  ];
-                  localStorage.setItem('ride_prices', JSON.stringify(prices));
+                  // Convert segment prices to the required format for createRide API
+                  const prices = Object.entries(segmentPrices).map(([segmentKey, amount]) => {
+                    const [pickup_order, drop_order] = segmentKey.split('-').map(Number);
+                    return { pickup_order, drop_order, amount };
+                  });
+                  
+                  // Save to store
+                  setPrices(prices);
+                  
+                  // Also save to localStorage for persistence
+                  localStorage.setItem("ride_prices", JSON.stringify(prices));
                 }}
               >
                 {t("pricing.continue")}

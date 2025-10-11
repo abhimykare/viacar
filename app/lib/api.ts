@@ -223,6 +223,16 @@ export const api = {
     date: string;
     passengers: number;
     max_walking_distance_km: number;
+    sort_by?: number;
+    stops_filter?: string;
+    verified_drivers_only?: boolean;
+    max_2_in_back?: boolean;
+    instant_booking?: boolean;
+    smoking_allowed?: boolean;
+    pets_allowed?: boolean;
+    power_outlets?: boolean;
+    air_conditioning?: boolean;
+    accessible_for_disabled?: boolean;
   }) => callApi(import.meta.env.VITE_API_RIDE_SEARCH, "POST", data, "json"),
 
   getRideDetail: (data: { ride_id: number }) =>
@@ -234,4 +244,50 @@ export const api = {
   getUserStatus: () =>
     callApi(import.meta.env.VITE_API_USER_STATUS, "GET", {}),
   getRoutes: (data: RoutesPayload) => callApi(import.meta.env.VITE_API_PLACES_ROUTES, "POST", data, "json"),
+
+  getPopularPlacesNearby: (data: {
+    lat: number;
+    lng: number;
+    radius: number;
+    limit: number;
+  }) => callApi(import.meta.env.VITE_API_POPULAR_PLACES_NEARBY, "POST", data, "json"),
+
+  getPopularPlaces: (data: {
+    pickup_lat: number;
+    pickup_lng: number;
+    dropoff_lat: number;
+    dropoff_lng: number;
+    encoded_polyline?: string;
+    type: string;
+  }) => callApi(import.meta.env.VITE_API_POPULAR_PLACES, "POST", data, "json"),
+
+  createRideAlert: (data: {
+    ride_id: number;
+    email: string;
+  }) => callApi(import.meta.env.VITE_API_RIDE_ALERT_CREATE, "POST", data, "json"),
+
+  listRides: (params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    date_from?: string;
+    date_to?: string;
+  }) => {
+    let endpoint = import.meta.env.VITE_API_RIDE_LIST;
+    const queryParams = new URLSearchParams();
+    
+    if (params) {
+      if (params.page) queryParams.append("page", params.page.toString());
+      if (params.per_page) queryParams.append("per_page", params.per_page.toString());
+      if (params.status) queryParams.append("status", params.status);
+      if (params.date_from) queryParams.append("date_from", params.date_from);
+      if (params.date_to) queryParams.append("date_to", params.date_to);
+    }
+    
+    if (queryParams.toString()) {
+      endpoint = `${endpoint}?${queryParams.toString()}`;
+    }
+    
+    return callApi(endpoint, "GET", {});
+  },
 };

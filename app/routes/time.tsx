@@ -7,7 +7,7 @@ import * as RadioGroup from "@radix-ui/react-radio-group";
 import { Button } from "~/components/ui/button";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -22,7 +22,8 @@ export default function Page() {
   const [minute, setMinute] = useState<number>(0);
   const [period, setPeriod] = useState<"AM" | "PM">("AM");
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const setDepartureTime = useRideCreationStore((state) => state.setDepartureTime);
+  const departureTime = useRideCreationStore((state) => state.rideData.departureTime);
 
   const incrementHour = () => setHour((prev) => (prev === 12 ? 1 : prev + 1));
   const decrementHour = () => setHour((prev) => (prev === 1 ? 12 : prev - 1));
@@ -130,12 +131,10 @@ export default function Page() {
             onClick={() => {
               const hour24 = period === 'PM' && hour !== 12 ? hour + 12 : period === 'AM' && hour === 12 ? 0 : hour;
               const timeString = `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
-              const newParams = new URLSearchParams(searchParams);
-              newParams.set('departure_time', timeString);
-              setSearchParams(newParams);
+              setDepartureTime(timeString);
             }}
           >
-            <Link state={location.state} to={`/passenger-count?${searchParams.toString()}`}>
+            <Link state={location.state} to="/passenger-count">
               {t("time.apply")}
             </Link>
           </Button>

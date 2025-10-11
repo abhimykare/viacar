@@ -2,11 +2,12 @@ import Footer from "~/components/layouts/footer";
 import Header from "~/components/layouts/header";
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import type { Route } from "./+types/publish-comment";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { api } from "~/lib/api";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,9 +18,10 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Page() {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
   const [notes, setNotes] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const rideData = useRideCreationStore((state) => state.rideData);
+  const storeSetNotes = useRideCreationStore((state) => state.setNotes);
 
   return (
     <div>
@@ -36,7 +38,11 @@ export default function Page() {
             className="text-sm font-light placeholder:text-[#999999] bg-[#F5F5F5] rounded-2xl !border-0 !ring-0 min-h-[228px] p-6"
             placeholder={t("publish_comment.placeholder")}
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => {
+              const newNotes = e.target.value;
+              setNotes(newNotes);
+              storeSetNotes(newNotes);
+            }}
           />
         </div>
         <Button
@@ -44,109 +50,118 @@ export default function Page() {
           onClick={async () => {
             setIsPublishing(true);
             try {
-              // Debug: Log all URL parameters
-              console.log("URL Parameters received:", Object.fromEntries(searchParams.entries()));
-              
-              // Debug: Log specific parameters we're looking for
-              console.log("Pickup params:", {
-                lat: searchParams.get("pickup_lat"),
-                lng: searchParams.get("pickup_lng"),
-                address: searchParams.get("pickup_address")
-              });
-              
-              console.log("Dropoff params:", {
-                lat: searchParams.get("dropoff_lat"),
-                lng: searchParams.get("dropoff_lng"),
-                address: searchParams.get("dropoff_address")
-              });
-              
-              console.log("Other params:", {
-                departure_date: searchParams.get("departure_date"),
-                departure_time: searchParams.get("departure_time"),
-                available_seats: searchParams.get("available_seats"),
-                price_per_seat: searchParams.get("price_per_seat")
-              });
-              // Get all required parameters with validation
-              const pickupLat = parseFloat(searchParams.get("pickup_lat") || "0");
-              const pickupLng = parseFloat(searchParams.get("pickup_lng") || "0");
-              const pickupAddress = searchParams.get("pickup_address") || "";
-              const destinationLat = parseFloat(searchParams.get("dropoff_lat") || "0");
-              const destinationLng = parseFloat(searchParams.get("dropoff_lng") || "0");
-              const destinationAddress = searchParams.get("dropoff_address") || "";
-              const pricePerSeat = parseInt(searchParams.get("price_per_seat") || "0");
-              
+              // Debug: Log store data
+              console.log("Store data:", rideData);
+
               // Validate required location parameters
-              if (pickupLat === 0 || pickupLng === 0 || destinationLat === 0 || destinationLng === 0) {
-                throw new Error("Missing location data. Please complete the pickup and dropoff steps.");
+              if (!rideData.pickup || !rideData.dropoff) {
+                throw new Error(
+                  "Missing location data. Please complete the pickup and dropoff steps."
+                );
               }
-              
-              if (!pickupAddress || !destinationAddress) {
-                throw new Error("Missing address data. Please complete the pickup and dropoff steps.");
+
+              if (!rideData.pickup.placeId || !rideData.dropoff.placeId) {
+                throw new Error(
+                  "Missing location data. Please complete the pickup and dropoff steps."
+                );
+              }
+
+              // Validate stops data if present
+              if (rideData.stops && rideData.stops.length > 0) {
+                rideData.stops.forEach((stop, index) => {
+                  if (!stop.placeId || !stop.lat || !stop.lng || !stop.address) {
+                    throw new Error(
+                      `Invalid stop data at position ${index + 1}. Please check your stopovers.`
+                    );
+                  }
+                });
+              }
+
+              // Validate prices data if present
+              if (rideData.prices && rideData.prices.length > 0) {
+                rideData.prices.forEach((price, index) => {
+                  if (!price.pickup_order || !price.drop_order || price.amount === undefined) {
+                    throw new Error(
+                      `Invalid price data at position ${index + 1}. Please check your pricing.`
+                    );
+                  }
+                });
               }
 
               const departureDate =
-                searchParams.get("departure_date") ||
+                rideData.departureDate ||
                 new Date().toISOString().split("T")[0];
-              const departureTime =
-                searchParams.get("departure_time") || "00:00:00";
-              const departureDateTime = `${departureDate}T${departureTime}`;
+              
+              // Convert HH:MM:SS to HH:MM format for API
+              let pickupTime = rideData.departureTime || "00:00";
+              if (pickupTime.includes(':') && pickupTime.split(':').length === 3) {
+                // Convert HH:MM:SS to HH:MM
+                pickupTime = pickupTime.substring(0, 5);
+              }
+              
+              // Calculate drop time if not provided (add 1 hour to pickup time as default)
+              let dropTime = rideData.drop_time;
+              if (!dropTime && pickupTime) {
+                const [hours, minutes] = pickupTime.split(':').map(Number);
+                const dropHours = (hours + 1) % 24;
+                dropTime = `${dropHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+              }
 
-              // Get additional parameters
-              const rideRoute = searchParams.get("ride_route") || "";
-              const max2InBack = searchParams.get("max_2_in_back") === "true";
-              
-              // Format stops data if available
-              const stopsParam = searchParams.get("stops");
-              let stops = [];
-              if (stopsParam) {
-                try {
-                  stops = JSON.parse(decodeURIComponent(stopsParam));
-                } catch (e) {
-                  console.warn("Failed to parse stops data:", e);
-                }
-              }
-              
-              // Format prices data if available
-              const pricesParam = searchParams.get("prices");
-              let prices = [];
-              if (pricesParam) {
-                try {
-                  prices = JSON.parse(decodeURIComponent(pricesParam));
-                } catch (e) {
-                  console.warn("Failed to parse prices data:", e);
-                }
-              }
-              
               // Get vehicle ID from localStorage or use default
-              const vehicleId = parseInt(localStorage.getItem("selected_vehicle_id") || "1");
+              const vehicleId = parseInt(
+                localStorage.getItem("selected_vehicle_id") || "1"
+              );
+
+              // Prepare stops data with proper ordering and time format
+              const stopsWithOrder = rideData.stops?.map((stop, index) => {
+                let stopTime = stop.time || pickupTime;
+                // Convert stop time to HH:MM format if it's in HH:MM:SS
+                if (stopTime && stopTime.includes(':') && stopTime.split(':').length === 3) {
+                  stopTime = stopTime.substring(0, 5);
+                }
+                return {
+                  ...stop,
+                  order: index + 1,
+                  time: stopTime
+                };
+              }) || [];
+
+              // Prepare prices data from store
+              const prices = rideData.prices?.map(price => ({
+                pickup_order: price.pickup_order,
+                drop_order: price.drop_order,
+                amount: price.amount
+              })) || [];
 
               // Create ride data according to Swagger API specification
-              const rideData = {
+              const rideDataToSend = {
                 vehicle_id: vehicleId,
-                pickup_lat: pickupLat,
-                pickup_lng: pickupLng,
-                pickup_address: pickupAddress,
-                drop_lat: destinationLat, // Changed from destination_lat
-                drop_lng: destinationLng, // Changed from destination_lng
-                drop_address: destinationAddress, // Changed from destination_address
-                date: departureDate.split('T')[0], // Changed from departure_time, format as YYYY-MM-DD
-                pickup_time: departureTime, // Format as HH:MM
-                drop_time: searchParams.get("drop_time") || "", // Need to calculate estimated drop time
-                passengers: parseInt(searchParams.get("available_seats") || "1"), // Changed from available_seats
-                ride_route: rideRoute,
-                max_2_in_back: max2InBack,
-                stops: stops.length > 0 ? stops : undefined,
+                pickup_lat: rideData.pickup.lat,
+                pickup_lng: rideData.pickup.lng,
+                pickup_address: rideData.pickup.address,
+                drop_lat: rideData.dropoff.lat,
+                drop_lng: rideData.dropoff.lng,
+                drop_address: rideData.dropoff.address,
+                date: departureDate,
+                pickup_time: pickupTime,
+                drop_time: dropTime || pickupTime, // Ensure drop_time is provided
+                passengers: rideData.availableSeats || 1,
+                ride_route: rideData.ride_route || "main_route", // Provide default route name
+                max_2_in_back: rideData.max_2_in_back || false,
+                stops: stopsWithOrder.length > 0 ? stopsWithOrder : undefined,
                 prices: prices.length > 0 ? prices : undefined,
-                price_per_seat: pricePerSeat, // Keep for backward compatibility if needed
-                notes: notes // Keep for backward compatibility if needed
+                price_per_seat: rideData.pricePerSeat || 0,
+                notes: rideData.notes || "",
               };
-              
-              console.log("Final ride data being sent to API:", rideData);
+
+              console.log("Final ride data being sent to API:", rideDataToSend);
+              console.log("Stops data:", rideDataToSend.stops);
+              console.log("Prices data:", rideDataToSend.prices);
 
               console.log("Sending ride creation request...");
-              const response = await api.createRide(rideData);
+              const response = await api.createRide(rideDataToSend);
               console.log("Ride created successfully:", response);
-              
+
               // Navigate to success page or show success message
               if (response?.data?.ride_id) {
                 // Navigate to ride details page with the new ride ID

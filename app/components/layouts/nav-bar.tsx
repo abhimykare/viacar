@@ -24,6 +24,7 @@ import RightArrowRounded from "~/components/icons/right-arrow-rounded";
 import { cn } from "~/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useUserStore } from "~/lib/store/userStore";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
 isoCountries.registerLocale(enLocale);
 
@@ -57,10 +58,9 @@ export default function NavBar({ variant, className = "" }: Props) {
   const { i18n, t } = useTranslation();
   const token = useUserStore((state) => state.token);
   const clearUserData = useUserStore((state) => state.clearUserData);
+  const clearRideData = useRideCreationStore((state) => state.clearRideData);
   const navigate = useNavigate();
   const { userStatus, loading, error, refetch } = useUserStatus();
-
-  console.log(token, "token");
   const [countryCode, setCountryCode] = useState<CountryCode>("SA");
   const selectedCountry = countries.find((c) => c.iso === countryCode);
   const [searchTerm, setSearchTerm] = useState("");
@@ -91,7 +91,10 @@ export default function NavBar({ variant, className = "" }: Props) {
     }
 
     if (userStatus) {
-      if (!userStatus.id_verification.completed && !userStatus.id_verification.submitted_at) {
+      if (
+        !userStatus.id_verification.completed &&
+        !userStatus.id_verification.submitted_at
+      ) {
         toast.info("Please complete your ID verification.");
         navigate("/add-documents");
         return;
@@ -110,6 +113,7 @@ export default function NavBar({ variant, className = "" }: Props) {
         toast.error("You are not authorized to publish rides.");
         return;
       }
+      clearRideData();
       navigate("/pickup");
     } else {
       toast.error("Unable to retrieve user status.");
