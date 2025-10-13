@@ -28,6 +28,7 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
   const initialValue = searchParams.get(name) || "";
   const brandId = searchParams.get("selectedVehicleId");
   const categoryId = searchParams.get("selectedCategoryId");
+  const returnTo = searchParams.get("returnTo");
 
   const [vehicleModels, setVehicleModels] = useState<
     { id: number; name: string }[]
@@ -85,7 +86,7 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
     setSearchValue(labelText);
     updateSearchParam(value);
     setOpen(false);
-    navigate(`/vehicle-color?selectedVehicleId=${brandId}&selectedVehicleName=${searchParams.get("selectedVehicleName")}&selectedCategoryId=${categoryId}&selectedModelId=${value}&selectedModelName=${labelText}`);
+    navigate(`/vehicle-color?selectedVehicleId=${brandId}&selectedVehicleName=${searchParams.get("selectedVehicleName")}&selectedCategoryId=${categoryId}&selectedModelId=${value}&selectedModelName=${labelText}${returnTo ? `&returnTo=${returnTo}` : ''}`);
   };
 
   // Reset selection.

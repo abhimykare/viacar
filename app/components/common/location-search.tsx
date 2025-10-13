@@ -17,6 +17,7 @@ interface Props {
   path: string;
   sectionName: string;
   sectionTitle: string;
+  onLocationSelect?: (location: { placeId: string; address: string; lat: number; lng: number }) => void;
 }
 
 function LocationSearch({
@@ -25,6 +26,7 @@ function LocationSearch({
   path,
   sectionName,
   sectionTitle,
+  onLocationSelect,
 }: Props) {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -125,6 +127,16 @@ function LocationSearch({
     setSearchValue(text);
     updateSearchParam(placeId, lat, lng, text);
     setOpen(false);
+    
+    // Call the onLocationSelect callback if provided
+    if (onLocationSelect) {
+      onLocationSelect({
+        placeId,
+        address: text,
+        lat,
+        lng
+      });
+    }
   };
 
   // Reset selection.
@@ -269,6 +281,16 @@ function LocationSearch({
           setSearchValue(address);
           updateSearchParam(placeId, lat, lng, address);
           
+          // Call the onLocationSelect callback if provided
+          if (onLocationSelect) {
+            onLocationSelect({
+              placeId,
+              address,
+              lat,
+              lng
+            });
+          }
+          
           // Reinitialize map with new coordinates
           if (mapServiceRef.current) {
             mapServiceRef.current.destroy();
@@ -294,6 +316,16 @@ function LocationSearch({
           setSelectedValue(placeId);
           setSearchValue(address);
           updateSearchParam(placeId, lat, lng, address);
+          
+          // Call the onLocationSelect callback if provided
+          if (onLocationSelect) {
+            onLocationSelect({
+              placeId,
+              address,
+              lat,
+              lng
+            });
+          }
           
           // Show success feedback
           const successDiv = document.createElement('div');

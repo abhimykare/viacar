@@ -46,4 +46,5 @@ export default [
   route("/transactions", "./routes/transaction-list.tsx"),
   route("/payment-refunds", "./routes/payment-refunds.tsx"),
   route("/bank-details", "./routes/bank-details.tsx"),
+  route("/test-date-store", "./routes/test-date-store.tsx"),
 ] satisfies RouteConfig;

@@ -147,9 +147,20 @@ export const useRideCreationStore = create<RideCreationStore>()(
         rideData: { ...state.rideData, selected_route_polyline }
       })),
       
-      setDepartureDate: (departure_date) => set((state) => ({
-        rideData: { ...state.rideData, departure_date }
-      })),
+      setDepartureDate: (departure_date) => {
+        console.log("setDepartureDate called with:", departure_date);
+        set((state) => {
+          console.log("Setting departure_date from:", state.rideData.departure_date, "to:", departure_date);
+          return {
+            rideData: { ...state.rideData, departure_date }
+          };
+        });
+        // Debug: Check localStorage after setting
+        setTimeout(() => {
+          const stored = localStorage.getItem('ride-creation-storage');
+          console.log("localStorage after setDepartureDate:", stored);
+        }, 100);
+      },
       
       setDepartureTime: (departure_time) => set((state) => ({
         rideData: { ...state.rideData, departure_time }

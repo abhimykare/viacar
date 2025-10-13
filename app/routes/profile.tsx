@@ -11,6 +11,8 @@ import { FiCheckSquare } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { EditProfileModal } from "~/components/modals/edit-profile-modal";
+import { useUserStore } from "~/lib/store/userStore";
+import { api } from "~/lib/api";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -44,13 +46,35 @@ export default function Page() {
   const { t } = useTranslation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user: currentUser } = useUserStore(); // Assuming you have user data in your store
 
   useEffect(() => {
-    // Initialize user data from your store or fetch from API
-    if (currentUser) {
-      setUser(currentUser);
-    }
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch user profile from API
+        const response = await api.getProfile();
+        if (response.data) {
+          setUser(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching user profile:', err);
+        setError('Failed to load profile data');
+        
+        // Fallback to store data if API fails
+        if (currentUser) {
+          setUser(currentUser as User);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
   }, [currentUser]);
 
   const handleProfileUpdate = (updatedUser: User) => {
@@ -106,11 +130,34 @@ export default function Page() {
     return stars;
   };
 
-  if (!user) {
+  if (loading) {
     return (
       <div className="bg-[#F8FAFB] min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-xl">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !user) {
+    return (
+      <div className="bg-[#F8FAFB] min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl text-red-600">{error}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="bg-[#F8FAFB] min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl">No profile data available</p>
         </div>
       </div>
     );
@@ -134,7 +181,7 @@ export default function Page() {
         <div className="flex flex-col items-center justify-center gap-[40px]">
           <div className="relative">
             <img
-              src={currentUser?.profile_image_url || "/assets/profile-img.png"}
+              src={user.profile_image_url || "/assets/profile-img.png"}
               alt="Profile"
               className="w-48 h-48 lg:w-64 lg:h-64 object-cover rounded-lg"
             />

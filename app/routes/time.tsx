@@ -23,7 +23,7 @@ export default function Page() {
   const [period, setPeriod] = useState<"AM" | "PM">("AM");
   const { t } = useTranslation();
   const setDepartureTime = useRideCreationStore((state) => state.setDepartureTime);
-  const departureTime = useRideCreationStore((state) => state.rideData.departureTime);
+  const departureTime = useRideCreationStore((state) => state.rideData.departure_time);
 
   const incrementHour = () => setHour((prev) => (prev === 12 ? 1 : prev + 1));
   const decrementHour = () => setHour((prev) => (prev === 1 ? 12 : prev - 1));

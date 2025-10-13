@@ -32,8 +32,18 @@ export default function Page() {
         </p>
         <div className="border border-[#EBEBEB] rounded-2xl p-6">
           <p className="text-base lg:text-xl text-center mb-6">
-            {t("publish_comment.section_title")}
-          </p>
+          {t("publish_comment.section_title")}
+        </p>
+        
+        {/* Debug: Show current date from store */}
+        <div className="text-center mb-4">
+          <div className="text-sm text-gray-600">
+            Departure Date: {rideData.departure_date || 'Not set'}
+          </div>
+          <div className="text-sm text-gray-600">
+            Departure Time: {rideData.departure_time || 'Not set'}
+          </div>
+        </div>
           <Textarea
             className="text-sm font-light placeholder:text-[#999999] bg-[#F5F5F5] rounded-2xl !border-0 !ring-0 min-h-[228px] p-6"
             placeholder={t("publish_comment.placeholder")}
@@ -52,6 +62,17 @@ export default function Page() {
             try {
               // Debug: Log store data
               console.log("Store data:", rideData);
+              console.log("departureDate from store:", rideData.departure_date);
+              console.log("departureTime from store:", rideData.departure_time);
+              
+              // Debug: Check localStorage
+              const storedData = localStorage.getItem('ride-creation-storage');
+              console.log("Raw localStorage data:", storedData);
+              if (storedData) {
+                const parsedData = JSON.parse(storedData);
+                console.log("Parsed localStorage data:", parsedData);
+                console.log("departureDate from localStorage:", parsedData.state?.rideData?.departure_date);
+              }
 
               // Validate required location parameters
               if (!rideData.pickup || !rideData.dropoff) {
@@ -89,7 +110,7 @@ export default function Page() {
               }
 
               const departureDate =
-                rideData.departureDate ||
+                rideData.departure_date ||
                 new Date().toISOString().split("T")[0];
               
               // Convert HH:MM:SS to HH:MM format for API

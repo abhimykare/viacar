@@ -32,28 +32,36 @@ export default function Page() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const pickupLocation = useRideCreationStore((state) => state.rideData.pickup);
-  const dropoffLocation = useRideCreationStore((state) => state.rideData.dropoff);
+  const dropoffLocation = useRideCreationStore(
+    (state) => state.rideData.dropoff
+  );
 
   console.log(
     pickupLocation,
     dropoffLocation,
     "pickupLocation, dropoffLocation"
   );
-  
+
   // Debug: Check the entire store state
   const rideData = useRideCreationStore((state) => state.rideData);
   console.log("Full store state:", rideData);
 
   // Debug: Check localStorage directly
   useEffect(() => {
-    const storedData = localStorage.getItem('ride-creation-storage');
+    const storedData = localStorage.getItem("ride-creation-storage");
     console.log("Raw localStorage data:", storedData);
     if (storedData) {
       try {
         const parsed = JSON.parse(storedData);
         console.log("Parsed localStorage data:", parsed);
-        console.log("Pickup from localStorage:", parsed.state?.rideData?.pickup);
-        console.log("Dropoff from localStorage:", parsed.state?.rideData?.dropoff);
+        console.log(
+          "Pickup from localStorage:",
+          parsed.state?.rideData?.pickup
+        );
+        console.log(
+          "Dropoff from localStorage:",
+          parsed.state?.rideData?.dropoff
+        );
       } catch (e) {
         console.error("Failed to parse localStorage data:", e);
       }
@@ -99,7 +107,7 @@ export default function Page() {
             } else if (route.encoded_polyline) {
               polyline = route.encoded_polyline;
             }
-            
+
             return {
               id: route.route_index?.toString() || "0",
               duration: Math.floor(route.duration_minutes / 60), // hours
@@ -145,7 +153,7 @@ export default function Page() {
       // Store the selected route's polyline in the store
       const rideCreationStore = useRideCreationStore.getState();
       rideCreationStore.setSelectedRoutePolyline(selectedRoute.polyline);
-      
+
       // Navigate to stopovers page
       navigate("/stopovers", {
         state: location.state,

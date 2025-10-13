@@ -123,6 +123,8 @@ export const api = {
       "formdata"
     ),
 
+  getProfile: () =>
+    callApi(import.meta.env.VITE_API_GET_PROFILE, "GET", {}),
   updateProfile: (data: {
     first_name: string;
     last_name: string;
