@@ -292,4 +292,29 @@ export const api = {
     
     return callApi(endpoint, "GET", {});
   },
+
+  getPaymentTransactions: (params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    date_from?: string;
+    date_to?: string;
+  }) => {
+    let endpoint = import.meta.env.VITE_API_PAYMENT_TRANSACTIONS;
+    const queryParams = new URLSearchParams();
+    
+    if (params) {
+      if (params.page) queryParams.append("page", params.page.toString());
+      if (params.per_page) queryParams.append("per_page", params.per_page.toString());
+      if (params.status) queryParams.append("status", params.status);
+      if (params.date_from) queryParams.append("date_from", params.date_from);
+      if (params.date_to) queryParams.append("date_to", params.date_to);
+    }
+    
+    if (queryParams.toString()) {
+      endpoint = `${endpoint}?${queryParams.toString()}`;
+    }
+    
+    return callApi(endpoint, "GET", {});
+  },
 };

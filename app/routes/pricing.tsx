@@ -199,8 +199,8 @@ export default function Page() {
                   <span>{t("pricing.show_prices")}</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="!max-w-[950px] min-h-[464px] w-full">
-                <ScrollArea className="max-lg:h-screen p-4">
+              <DialogContent className="!max-w-[950px] w-[95vw] max-h-[80vh] p-0">
+                <ScrollArea className="h-[70vh] max-h-[600px] p-6">
                   <div className="flex flex-col">
                     {getRouteSegments().map((segment, index) => {
                       const segmentKey = `${segment.pickup_order}-${segment.drop_order}`;
