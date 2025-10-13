@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { colors } from "~/constants/colors";
 import { Input } from "../ui/input";
 import { cn } from "~/lib/utils";
+import { api } from "~/lib/api";
 import { Skeleton } from "../ui/skeleton";
 import { BiSearch } from "react-icons/bi";
 import { Label } from "../ui/label";
@@ -12,6 +13,14 @@ import { ChevronRight, MapPin } from "lucide-react";
 import CloseIcon from "../icons/close-icon";
 import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 
 interface Props {
   label?: string;
@@ -21,13 +30,7 @@ interface Props {
   sectionTitle: string;
 }
 
-function ColorSearch({
-  label,
-  name,
-  path,
-  sectionName,
-  sectionTitle,
-}: Props) {
+function ColorSearch({ label, name, path, sectionName, sectionTitle }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,8 +42,10 @@ function ColorSearch({
 
   const [searchValue, setSearchValue] = useState<string>(initialLabel);
   const [selectedValue, setSelectedValue] = useState<string>(initialValue);
+  const [selectedColorObject, setSelectedColorObject] = useState<{ value: string; label: string; code: string } | null>(null);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
   // Create a map for quick lookup of labels.
   const labels = useMemo(() => {
@@ -75,18 +80,55 @@ function ColorSearch({
   // Filter colors based on the search value.
   const filteredLocations = colors.filter(
     (option) =>
-      t(`vehicle_color.colors.${option.value.toLowerCase()}`).toLowerCase().includes(searchValue.toLowerCase()) ||
+      t(`vehicle_color.colors.${option.value.toLowerCase()}`)
+        .toLowerCase()
+        .includes(searchValue.toLowerCase()) ||
       option.value.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   // When an item is selected, update the selected state and URL.
   const onSelectItem = (value: string) => {
-    navigate(`/passenger-profile`)
-    // setSelectedValue(value);
-    // const labelText = labels[value] || value;
-    // setSearchValue(labelText);
-    // updateSearchParam(value);
-    // setOpen(false);
+    const selected = colors.find((color) => color.value === value);
+    if (selected) {
+      setSelectedColorObject(selected);
+      setSelectedValue(value);
+      const labelText = labels[value] || value;
+      setSearchValue(labelText);
+      updateSearchParam(value);
+      setOpen(false);
+      setShowDialog(true);
+    }
+  };
+
+  const handleDialogOk = async () => {
+    const modelId = searchParams.get("selectedModelId");
+    const returnTo = searchParams.get("returnTo");
+    
+    if (!modelId || !selectedColorObject?.code) {
+      console.error("Missing modelId or selectedColorCode");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await api.addVehicle({
+        model_id: parseInt(modelId),
+        year: 2020,
+        color: selectedColorObject.code,
+      });
+      
+      // Navigate based on returnTo parameter
+      if (returnTo === 'profile') {
+        navigate("/user-profile");
+      } else {
+        navigate("/pickup");
+      }
+    } catch (error) {
+      console.error("Failed to add vehicle:", error);
+      // Optionally, show an error message to the user
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Reset selection.
@@ -111,6 +153,8 @@ function ColorSearch({
       const newLabel =
         colors.find((loc) => loc.value === paramValue)?.label || "";
       setSearchValue(newLabel);
+      const selected = colors.find((color) => color.value === paramValue);
+      setSelectedColorObject(selected || null);
     }
   }, [searchParams, name, selectedValue]);
 
@@ -131,6 +175,16 @@ function ColorSearch({
             "text-lg font-light placeholder:text-[#666666] bg-white border-0 h-[60px] rounded-full !ring-0 pl-16"
           )}
         />
+        {selectedValue && ( // Only show clear button if an item is selected
+          <Button
+            type="button"
+            onClick={reset}
+            variant="ghost"
+            className="absolute right-2 px-3 hover:bg-transparent"
+          >
+            <CloseIcon className="w-4 h-4 text-gray-500" />
+          </Button>
+        )}
       </div>
       {open && !selectedValue && (
         <ScrollArea className="max-w-[827px] mx-auto z-10 bg-white w-full mt-1 h-[400px] rounded-lg">
@@ -140,15 +194,16 @@ function ColorSearch({
             </div>
           ) : filteredLocations.length > 0 ? (
             filteredLocations.map((option) => (
-              <div className="flex flex-col px-4 py-2 gap-2">
+              <div className="flex flex-col px-4 py-2 gap-2" key={option.value}>
                 <div
-                  key={option.value}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => onSelectItem(option.value)}
                   className="cursor-pointer px-6 py-5 hover:bg-gray-100 rounded-2xl flex items-center justify-between"
                 >
                   <div className="flex flex-col">
-                    <p className="text-sm">{t(`vehicle_color.colors.${option.value.toLowerCase()}`)}</p>
+                    <p className="text-sm">
+                      {t(`vehicle_color.colors.${option.value.toLowerCase()}`)}
+                    </p>
                   </div>
                   <ChevronRight color="#AAAAAA" />
                 </div>
@@ -156,10 +211,29 @@ function ColorSearch({
               </div>
             ))
           ) : (
-            <div className="px-6 py-4 text-sm text-gray-500">{t("vehicle_color.no_items")}</div>
+            <div className="px-6 py-4 text-sm text-gray-500">
+              {t("vehicle_color.no_items")}
+            </div>
           )}
         </ScrollArea>
       )}
+
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("vehicle_added_modal.title")}</DialogTitle>
+            <DialogDescription>
+              {t("vehicle_added_modal.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDialog(false)}>
+              {t("vehicle_modal.edit_button")}
+            </Button>
+            <Button onClick={handleDialogOk}>{t("vehicle_modal.ok_button")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

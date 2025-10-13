@@ -384,6 +384,9 @@
   "locations": {
     "search_placeholder": "ابحث عن موقع",
     "why_exact_location": "لماذا موقع دقيق؟",
+    "click_map_to_select": "انقر على الخريطة لتحديد الموقع الدقيق",
+    "drag_marker_to_select": "اسحب العلامة الحمراء لتحديد الموقع الدقيق",
+    "location_updated": "تم تحديث الموقع بنجاح!",
     "continue": "متابعة",
     "no_items": "لم يتم العثور على نتائج",
     "al_khobar": {
@@ -442,6 +445,8 @@
     "header_title": "أضف توقفات للحصول على المزيد من الركاب",
     "add_city": "إضافة مدينة",
     "continue": "متابعة",
+    "loading_cities": "جاري تحميل المدن...",
+    "no_cities_available": "لا توجد مدن متاحة. يرجى إضافة مدن يدويًا.",
     "cities": {
       "dammam": "الدمام",
       "sedra_resort": "منتجع سدرة",

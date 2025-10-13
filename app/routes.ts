@@ -32,6 +32,9 @@ export default [
   route("/passenger-profile", "./routes/passenger-profile.tsx"),
   route("/your-rides", "./routes/your-rides.tsx"),
   route("/add-vehicles", "./routes/add-vehicles.tsx"),
+  route("/add-bank-details", "./routes/add-bank-details.tsx"),
+  route("/add-documents", "./routes/add-documents.tsx"),
+
   route("/vehicle-category", "./routes/vehicle-category.tsx"),
   route("/vehicle-model", "./routes/vehicle-model.tsx"),
   route("/vehicle-color", "./routes/vehicle-color.tsx"),
@@ -43,4 +46,5 @@ export default [
   route("/transactions", "./routes/transaction-list.tsx"),
   route("/payment-refunds", "./routes/payment-refunds.tsx"),
   route("/bank-details", "./routes/bank-details.tsx"),
+  route("/test-date-store", "./routes/test-date-store.tsx"),
 ] satisfies RouteConfig;

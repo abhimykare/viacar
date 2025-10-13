@@ -17,7 +17,7 @@ export default function Page() {
   const { t } = useTranslation();
 
   return (
-    <div>
+    <div className="bg-red-600">
       <Header
         title={t("itinerary.title")}
         breadcrumb={[

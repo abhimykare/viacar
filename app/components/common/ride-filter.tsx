@@ -7,6 +7,8 @@ import { Separator } from "~/components/ui/separator";
 import { SwitchGreen } from "~/components/ui/switch-green";
 import CheckboxCard from "~/components/ui/checkbox-card";
 import { useTranslation } from "react-i18next";
+import { useRideSearchStore } from "~/lib/store/rideSearchStore";
+import { useEffect } from "react";
 
 interface Props {
   className?: string;
@@ -17,6 +19,50 @@ export default function RideFilters({ className }: Props) {
     keyPrefix: "components.ride_filter",
   });
 
+  const {
+    filters,
+    setSortBy,
+    setStopsFilter,
+    setVerifiedDriversOnly,
+    setMax2InBack,
+    setInstantBooking,
+    setSmokingAllowed,
+    setPetsAllowed,
+    setPowerOutlets,
+    setAirConditioning,
+    setAccessibleForDisabled,
+    setCarModelYear,
+    triggerSearch,
+    clearFilters
+  } = useRideSearchStore();
+
+  // Trigger search when filters change
+  useEffect(() => {
+    triggerSearch();
+  }, [filters, triggerSearch]);
+
+  const handleClearSort = () => {
+    setSortBy("earliest");
+  };
+
+  const handleClearStops = () => {
+    setStopsFilter("direct");
+  };
+
+  const handleClearAmenities = () => {
+    setMax2InBack(false);
+    setInstantBooking(false);
+    setSmokingAllowed(false);
+    setPetsAllowed(false);
+    setPowerOutlets(false);
+    setAirConditioning(false);
+    setAccessibleForDisabled(false);
+  };
+
+  const handleClearCarModel = () => {
+    setCarModelYear("all");
+  };
+
   return (
     <ScrollArea className={className}>
       <div className="flex flex-col w-full h-screen lg:h-full p-6 lg:p-12">
@@ -25,6 +71,7 @@ export default function RideFilters({ className }: Props) {
           <Button
             className="text-[#898787] font-light cursor-pointer !px-0"
             variant="link"
+            onClick={clearFilters}
           >
             {t("reset_all")} <X />
           </Button>
@@ -34,16 +81,21 @@ export default function RideFilters({ className }: Props) {
           <Button
             className="text-sm text-[#898787] font-light cursor-pointer p-0"
             variant="link"
+            onClick={handleClearSort}
           >
             {t("clear_all")}
           </Button>
         </div>
-        <RadioGroup className="gap-6" defaultValue="Earliest departure">
+        <RadioGroup 
+          className="gap-6" 
+          value={filters.sortBy}
+          onValueChange={(value) => setSortBy(value)}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="Earliest departure"
+                value="earliest"
                 id="s1"
               />
               <Label
@@ -59,7 +111,7 @@ export default function RideFilters({ className }: Props) {
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="Lowest price"
+                value="cheapest"
                 id="s2"
               />
               <Label
@@ -75,7 +127,7 @@ export default function RideFilters({ className }: Props) {
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="Close to departure point"
+                value="closest_departure"
                 id="s3"
               />
               <Label
@@ -91,7 +143,7 @@ export default function RideFilters({ className }: Props) {
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="Close to arrival point"
+                value="closest_arrival"
                 id="s4"
               />
               <Label
@@ -107,7 +159,7 @@ export default function RideFilters({ className }: Props) {
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="Shortest ride"
+                value="shortest"
                 id="s5"
               />
               <Label
@@ -123,13 +175,24 @@ export default function RideFilters({ className }: Props) {
         <Separator className="my-10 border-t !border-dashed !border-[#CDCDCD] bg-transparent" />
         <div className="flex items-center justify-between pb-4">
           <p className="text-lg font-medium">{t("stops.title")}</p>
+          <Button
+            className="text-sm text-[#898787] font-light cursor-pointer p-0"
+            variant="link"
+            onClick={handleClearStops}
+          >
+            {t("clear_all")}
+          </Button>
         </div>
-        <RadioGroup className="gap-6" defaultValue="0">
+        <RadioGroup 
+          className="gap-6" 
+          value={filters.stops}
+          onValueChange={(value) => setStopsFilter(value)}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="0"
+                value="direct"
                 id="n1"
               />
               <Label
@@ -145,7 +208,7 @@ export default function RideFilters({ className }: Props) {
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="1"
+                value="one"
                 id="n2"
               />
               <Label
@@ -161,7 +224,7 @@ export default function RideFilters({ className }: Props) {
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="2+"
+                value="two_plus"
                 id="n3"
               />
               <Label
@@ -186,7 +249,11 @@ export default function RideFilters({ className }: Props) {
           </div>
           <div className="flex items-center gap-4">
             <p className="text-sm text-[#999999] font-normal">35</p>
-            <SwitchGreen defaultChecked id="vp" />
+            <SwitchGreen 
+              checked={filters.verifiedProfile} 
+              onCheckedChange={setVerifiedDriversOnly}
+              id="vp" 
+            />
           </div>
         </div>
         <Separator className="my-10 border-t !border-dashed !border-[#CDCDCD] bg-transparent" />
@@ -195,6 +262,7 @@ export default function RideFilters({ className }: Props) {
           <Button
             className="text-sm text-[#898787] font-light cursor-pointer p-0"
             variant="link"
+            onClick={handleClearAmenities}
           >
             {t("clear_all")}
           </Button>
@@ -206,16 +274,21 @@ export default function RideFilters({ className }: Props) {
           <Button
             className="text-sm text-[#898787] font-light cursor-pointer p-0"
             variant="link"
+            onClick={handleClearCarModel}
           >
             {t("clear_all")}
           </Button>
         </div>
-        <RadioGroup className="gap-6" defaultValue="Last 3 years">
+        <RadioGroup 
+          className="gap-6" 
+          value={filters.carModel}
+          onValueChange={(value) => setCarModelYear(value)}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="Last 3 years"
+                value="3_years"
                 id="s1"
               />
               <Label
@@ -231,7 +304,7 @@ export default function RideFilters({ className }: Props) {
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="Last 5 years"
+                value="5_years"
                 id="s2"
               />
               <Label
@@ -247,7 +320,7 @@ export default function RideFilters({ className }: Props) {
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="[&_svg]:fill-[#FF4848] [&_svg]:stroke-[#FF4848] [&_svg]:!size-[11px] size-[22px] border-2 border-[#999999]"
-                value="All"
+                value="all"
                 id="s3"
               />
               <Label

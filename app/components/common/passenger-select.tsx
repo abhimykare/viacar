@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router";
 import {
   Select,
   SelectTrigger,
@@ -11,32 +10,26 @@ import {
 } from "../ui/select";
 import UserIcon from "../icons/user-icon";
 import { useTranslation } from "react-i18next";
+import { useRideSearchStore } from "~/lib/store/rideSearchStore";
 
 function PassengerSelect() {
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { passengers, setPassengers } = useRideSearchStore();
 
-  const [passengerCount, setPassengerCount] = useState<string>(() => {
-    return searchParams.get("passengers") || "1";
-  });
+  const [passengerCount, setPassengerCount] = useState<string>(
+    passengers.toString()
+  );
 
   useEffect(() => {
-    const paramValue = searchParams.get("passengers") || "1";
-    if (paramValue !== passengerCount) {
-      setPassengerCount(paramValue);
+    const storeValue = passengers.toString();
+    if (storeValue !== passengerCount) {
+      setPassengerCount(storeValue);
     }
-  }, [searchParams, passengerCount]);
+  }, [passengers, passengerCount]);
 
   const handleValueChange = (value: string) => {
     setPassengerCount(value);
-    setSearchParams(
-      (prev) => {
-        const newParams = new URLSearchParams(prev);
-        newParams.set("passengers", value);
-        return newParams;
-      },
-      { replace: true }
-    );
+    setPassengers(parseInt(value));
   };
 
   return (

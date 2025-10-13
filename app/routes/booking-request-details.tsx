@@ -5,9 +5,11 @@ import TimeDirectionIcon from "~/components/icons/time-direction-icon";
 import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { api } from "~/lib/api";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,11 +18,78 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function Page() {
+export default function Page({}: Route.ComponentProps) {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const rideId = searchParams.get("rideId");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleApprove = async () => {
+    if (!rideId) {
+      setError("Ride ID not found");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.updateRideStatus({
+        ride_id: rideId,
+        status: "approved"
+      });
+
+      if (response.success) {
+        // Handle success - could redirect or show success message
+        console.log("Ride approved successfully");
+      } else {
+        setError(response.error || "Failed to approve ride");
+      }
+    } catch (err) {
+      setError("An error occurred while approving the ride");
+      console.error("Approve error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDecline = async () => {
+    if (!rideId) {
+      setError("Ride ID not found");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.updateRideStatus({
+        ride_id: rideId,
+        status: "declined"
+      });
+
+      if (response.success) {
+        // Handle success - could redirect or show success message
+        console.log("Ride declined successfully");
+      } else {
+        setError(response.error || "Failed to decline ride");
+      }
+    } catch (err) {
+      setError("An error occurred while declining the ride");
+      console.error("Decline error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
       <Header
         title={t("booking_request_details.title")}
         breadcrumb={[
@@ -99,14 +168,17 @@ export default function Page() {
               <Button
                 variant="outline"
                 className="border-[#EBEBEB] rounded-full w-full lg:w-[208px] h-[55px] cursor-pointer text-xl font-normal shadow-none"
+                onClick={handleDecline}
+                disabled={loading}
               >
                 <span>{t("booking_request_details.actions.decline")}</span>
               </Button>
               <Button
                 className="bg-[#FF4848] rounded-full w-full lg:w-[208px] h-[55px] cursor-pointer text-xl font-normal"
-                asChild
+                onClick={handleApprove}
+                disabled={loading}
               >
-                <Link to={`/return`}>{t("booking_request_details.actions.approve")}</Link>
+                <span>{t("booking_request_details.actions.approve")}</span>
               </Button>
             </div>
           </div>

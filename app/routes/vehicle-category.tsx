@@ -4,7 +4,8 @@ import * as RadioGroup from "@radix-ui/react-radio-group";
 import type { Route } from "./+types/vehicle-category";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 export function meta({}: Route.MetaArgs) {
@@ -42,6 +43,12 @@ const routesData = [
 
 export default function Page() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const selectedVehicleId = searchParams.get("selectedVehicleId");
+  const selectedVehicleName = searchParams.get("selectedVehicleName");
+  const returnTo = searchParams.get("returnTo");
+
+  const [selectedCategory, setSelectedCategory] = React.useState("1");
 
   return (
     <div>
@@ -52,6 +59,7 @@ export default function Page() {
         </p>
         <RadioGroup.Root
           defaultValue="1"
+          onValueChange={setSelectedCategory}
           className="grid grid-cols-1 lg:grid-cols-3 gap-5"
         >
           {routesData.map(({ id, title, img }) => (
@@ -82,7 +90,11 @@ export default function Page() {
             className="bg-[#FF4848] rounded-full w-[208px] h-[55px] cursor-pointer text-xl font-normal"
             asChild
           >
-            <Link to={`/vehicle-model`}>{t("vehicle_category.continue")}</Link>
+            <Link
+              to={`/vehicle-model?selectedVehicleId=${selectedVehicleId}&selectedVehicleName=${selectedVehicleName}&selectedCategoryId=${selectedCategory}${returnTo ? `&returnTo=${returnTo}` : ''}`}
+            >
+              {t("vehicle_category.continue")}
+            </Link>
           </Button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { vehicles } from "~/constants/vehicles";
 import { Input } from "../ui/input";
+import { api } from "~/lib/api";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { BiSearch } from "react-icons/bi";
@@ -31,24 +31,49 @@ function VehicleSearch({
   const [searchParams, setSearchParams] = useSearchParams();
   const initialValue = searchParams.get(name) || "";
 
+  const [vehicleBrands, setVehicleBrands] = useState<any[]>([]);
+
   // If a URL param exists, initialize the input with the matching label.
   const initialLabel =
-    vehicles.find((loc) => loc.value === initialValue)?.label || "";
+    vehicleBrands.find((loc) => loc.id.toString() === initialValue)?.name || "";
 
   const [searchValue, setSearchValue] = useState<string>(initialLabel);
   const [selectedValue, setSelectedValue] = useState<string>(initialValue);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Create a map for quick lookup of labels.
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      const fetchVehicleBrands = async () => {
+        setIsLoading(true);
+        try {
+          const response = await api.getVehicleBrands(searchValue);
+          setVehicleBrands(response.data.brands);
+        } catch (error) {
+          console.error("Failed to fetch vehicle brands:", error);
+          setVehicleBrands([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      if (searchValue) {
+        fetchVehicleBrands();
+      } else {
+        setVehicleBrands([]);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchValue]);
+
   const labels = useMemo(() => {
-    return vehicles.reduce((acc, item) => {
-      acc[item.value] = item.label;
+    return vehicleBrands.reduce((acc, item) => {
+      acc[item.id] = item.name;
       return acc;
     }, {} as Record<string, string>);
-  }, []);
+  }, [vehicleBrands]);
 
-  // Update URL search param.
   const updateSearchParam = (value: string) => {
     setSearchParams(
       (prev) => {
@@ -71,20 +96,20 @@ function VehicleSearch({
   };
 
   // Filter vehicles based on the search value.
-  const filteredLocations = vehicles.filter(
-    (option) =>
-      option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
-      option.value.toLowerCase().includes(searchValue.toLowerCase())
+  const filteredLocations = vehicleBrands.filter((option) =>
+    option.name.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   // When an item is selected, update the selected state and URL.
   const onSelectItem = (value: string) => {
-    navigate(`/vehicle-category`);
-    // setSelectedValue(value);
-    // const labelText = labels[value] || value;
-    // setSearchValue(labelText);
-    // updateSearchParam(value);
-    // setOpen(false);
+    setSelectedValue(value);
+    const labelText = labels[value] || value;
+    setSearchValue(labelText);
+    updateSearchParam(value);
+    setOpen(false);
+    navigate(
+      `/vehicle-category?selectedVehicleId=${value}&selectedVehicleName=${labelText}`
+    );
   };
 
   // Reset selection.
@@ -107,10 +132,11 @@ function VehicleSearch({
     if (paramValue !== selectedValue) {
       setSelectedValue(paramValue);
       const newLabel =
-        vehicles.find((loc) => loc.value === paramValue)?.label || "";
+        vehicleBrands.find((loc) => loc.id.toString() === paramValue)?.name ||
+        "";
       setSearchValue(newLabel);
     }
-  }, [searchParams, name, selectedValue]);
+  }, [searchParams, name, selectedValue, vehicleBrands]);
 
   return (
     <div className="relative">
@@ -140,13 +166,13 @@ function VehicleSearch({
             filteredLocations.map((option) => (
               <div className="flex flex-col px-4 py-2 gap-2">
                 <div
-                  key={option.value}
+                  key={option.id}
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => onSelectItem(option.value)}
+                  onClick={() => onSelectItem(option.id.toString())}
                   className="cursor-pointer px-6 py-5 hover:bg-gray-100 rounded-2xl flex items-center justify-between"
                 >
                   <div className="flex flex-col">
-                    <p className="text-sm">{option.label}</p>
+                    <p className="text-sm">{option.name}</p>
                   </div>
                   <ChevronRight color="#AAAAAA" />
                 </div>

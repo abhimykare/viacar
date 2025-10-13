@@ -7,6 +7,8 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import { Label } from "~/components/ui/label";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
+
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,7 +20,10 @@ export function meta({}: Route.MetaArgs) {
 export default function Page() {
   const location = useLocation();
   const [passengers, setPassengers] = useState(3);
+  const [max2InBack, setMax2InBack] = useState(false);
   const { t } = useTranslation();
+  const setAvailableSeats = useRideCreationStore((state) => state.setAvailableSeats);
+  const availableSeats = useRideCreationStore((state) => state.rideData.availableSeats);
 
   function adjustPassengers(adjustment: number) {
     setPassengers(Math.max(1, Math.min(3, passengers + adjustment)));
@@ -37,7 +42,11 @@ export default function Page() {
               variant="ghost"
               size="icon"
               className="size-[40px] lg:size-[50px] shrink-0 rounded-full cursor-pointer"
-              onClick={() => adjustPassengers(-1)}
+              onClick={() => {
+                const newPassengers = Math.max(1, passengers - 1);
+                setPassengers(newPassengers);
+                setAvailableSeats(newPassengers);
+              }}
               disabled={passengers === 1}
             >
               <img
@@ -56,7 +65,11 @@ export default function Page() {
               variant="ghost"
               size="icon"
               className="size-[40px] lg:size-[50px] shrink-0 rounded-full cursor-pointer"
-              onClick={() => adjustPassengers(1)}
+              onClick={() => {
+                const newPassengers = Math.min(3, passengers + 1);
+                setPassengers(newPassengers);
+                setAvailableSeats(newPassengers);
+              }}
               disabled={passengers >= 3}
             >
               <img
@@ -70,7 +83,11 @@ export default function Page() {
           <p className="text-xl lg:text-[1.688rem] text-center mb-4">
             {t("passenger_count.passenger_options")}
           </p>
-          <Checkbox.Root className="group px-6 py-4 flex items-center gap-4 w-full cursor-pointer border -border-[#EBEBEB] rounded-2xl">
+          <Checkbox.Root 
+            className="group px-6 py-4 flex items-center gap-4 w-full cursor-pointer border -border-[#EBEBEB] rounded-2xl"
+            checked={max2InBack}
+            onCheckedChange={(checked) => setMax2InBack(checked as boolean)}
+          >
             <img
               className="size-[20px] lg:size-[30px]"
               src="/assets/people.svg"
@@ -102,7 +119,10 @@ export default function Page() {
               className="bg-[#FF4848] w-[208px] h-[55px] rounded-full text-xl font-normal"
               asChild
             >
-              <Link state={location.state} to={`/pricing`}>
+              <Link 
+                state={location.state} 
+                to="/pricing"
+              >
                 {t("passenger_count.continue")}
               </Link>
             </Button>

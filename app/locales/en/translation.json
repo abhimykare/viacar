@@ -102,6 +102,10 @@
       "see_ride": "See my ride"
     }
   },
+  "vehicle_added_modal": {
+    "title": "Vehicle Added Successfully!",
+    "description": "Your vehicle has been added to your profile.\n You can now publish rides, accept bookings, and start your journey with Via Car."
+  },
   "edit_profile_modal": {
     "save_button": "Save"
   },
@@ -399,6 +403,9 @@
   "locations": {
     "search_placeholder": "Search for a location",
     "why_exact_location": "Why an exact location?",
+    "click_map_to_select": "Click on the map to select exact location",
+    "drag_marker_to_select": "Drag the red marker to select exact location",
+    "location_updated": "Location updated successfully!",
     "continue": "Continue",
     "no_items": "No items found",
     "al_khobar": {
@@ -458,6 +465,8 @@
     "header_title": "Add stopovers to get more passengers",
     "add_city": "Add city",
     "continue": "Continue",
+    "loading_cities": "Loading cities...",
+    "no_cities_available": "No cities available. Please add cities manually.",
     "cities": {
       "dammam": "Dammam",
       "sedra_resort": "Sedra Resort",
@@ -1098,6 +1107,47 @@
       "gender_other": "Other",
       "button_text": "Submit",
       "date_placeholder": "Select Date"
+    }
+  },
+  "documents_added_modal": {
+    "title": "Documents Added Successfully!",
+    "message": "Your Documents has been successfully added. Waiting for Admin Approval",
+    "edit_button": "Edit",
+    "ok_button": "Ok"
+  },
+  "add_bank_details": {
+    "title": "Add Your Bank Details",
+    "subtitle": "Bank account details",
+    "add_bank_account": "Add Bank Account",
+    "table": {
+      "account_holder_name": "Account Holder Name",
+      "bank_name": "Bank Name",
+      "account_number": "Account Number",
+      "iban": "IBAN",
+      "swift_code": "SWIFT Code",
+      "branch": "Branch",
+      "buttonText": "Submit",
+      "bank_address": "Branch Address",
+      "button_text": "Save"
+    }
+  },
+  "add_documents": {
+    "title": "Upload Documents",
+    "subtitle": "Upload your documents",
+    "add_documents": "Add Documents",
+    "table": {
+      "national_id": "National ID",
+      "upload_national_id": "Upload National ID",
+      "driver_license": "Driver License",
+      "upload_driver_license": "Upload Driver License",
+      "car_plate_num": "Car Plate Number",
+      "upload_car_plate_num": "Upload Car Plate Number",
+      "sequence_number": "Sequence Number",
+      "upload_sequence_number": "Upload Sequence Number",
+      "upload_vehicle_registration": "Upload Vehicle Registration",
+      "document_type": "Document Type",
+      "upload": "Upload",
+      "buttonText": "Submit"
     }
   }
 }

@@ -13,7 +13,9 @@ import { EditProfileModal } from "~/components/modals/edit-profile-modal";
 import { BiSolidPencil } from "react-icons/bi";
 import { useTranslation } from "react-i18next";
 import { cn } from "~/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { api } from "~/lib/api";
+import { useUserStore } from "~/lib/store/userStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -22,10 +24,95 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  email: string | null;
+  country_code: string;
+  mobile_number: string;
+  phone_number: string;
+  gender: string | null;
+  gender_name: string;
+  date_of_birth: string;
+  profile_image_url: string;
+  about: string | null;
+  age: number | null;
+  avg_rating: string;
+  is_verified: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function Page() {
   const [isOpen, setIsOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch user profile from API
+        const response = await api.getProfile();
+        if (response.data) {
+          setUser(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching user profile:', err);
+        setError('Failed to load profile data');
+        
+        // Fallback to store data if API fails
+        const currentUser = useUserStore.getState().userData;
+        if (currentUser) {
+          setUser(currentUser as User);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl text-red-600">{error}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl">No profile data available</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -34,19 +121,19 @@ export default function Page() {
         <div className="max-w-[1384px] w-full mx-auto px-6 pt-10 lg:pt-[80px] pb-12 lg:pb-[100px] flex flex-col lg:flex-row gap-12 lg:gap-[100px]">
           <img
             className="w-[265px] h-[230px] rounded-2xl object-cover max-lg:mx-auto"
-            src="/assets/profile-img2.png"
-            alt=""
+            src={user.profile_image_url || "/assets/profile-img2.png"}
+            alt="Profile"
           />
           <div className="flex flex-col w-full gap-12">
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="flex items-center gap-6">
                 <p className="text-3xl lg:text-[3.438rem]">
-                  {t("user_profile.name")}
+                  {user.full_name || `${user.first_name} ${user.last_name}`}
                 </p>
                 <div className="flex items-center gap-2">
                   <FaStar className="fill-[#FF9C00]" />
                   <p className="text-2xl text-[#666666]">
-                    {t("user_profile.rating")}
+                    {user.avg_rating}
                   </p>
                 </div>
               </div>
@@ -68,7 +155,7 @@ export default function Page() {
                   {t("user_profile.personal_info.mail")}
                 </p>
                 <p className="text-lg">
-                  {t("user_profile.personal_info.mail_value")}
+                  {user.email || t("user_profile.personal_info.mail_value")}
                 </p>
               </div>
               <div
@@ -82,7 +169,7 @@ export default function Page() {
                   {t("user_profile.personal_info.number")}
                 </p>
                 <p className="text-lg">
-                  {t("user_profile.personal_info.number_value")}
+                  {user.phone_number || t("user_profile.personal_info.number_value")}
                 </p>
               </div>
               <div
@@ -96,7 +183,7 @@ export default function Page() {
                   {t("user_profile.personal_info.age")}
                 </p>
                 <p className="text-lg">
-                  {t("user_profile.personal_info.age_value")}
+                  {user.age || t("user_profile.personal_info.age_value")}
                 </p>
               </div>
               <div
@@ -110,7 +197,7 @@ export default function Page() {
                   {t("user_profile.personal_info.gender")}
                 </p>
                 <p className="text-lg">
-                  {t("user_profile.personal_info.gender_value")}
+                  {user.gender_name || t("user_profile.personal_info.gender_value")}
                 </p>
               </div>
             </div>
@@ -205,7 +292,7 @@ export default function Page() {
                   </Button>
                 </div>
                 <div className="bg-[#F5F5F5] rounded-2xl px-8 py-8 text-base font-light">
-                  {t("user_profile.about_you.description")}
+                  {user.about || t("user_profile.about_you.description")}
                 </div>
                 <Separator className="my-6 border-t !border-dashed !border-[#CDCDCD] bg-transparent" />
                 <div className="flex flex-wrap items-center gap-4">
@@ -282,7 +369,7 @@ export default function Page() {
                   className="bg-[#FF4848] shadow-none rounded-full w-[220px] h-[55px] cursor-pointer text-xl font-normal mx-auto mt-4"
                   asChild
                 >
-                  <Link to={`/your-ride`}>
+                  <Link to={`/add-vehicles?returnTo=profile`}>
                     <CirclePlus />
                     {t("user_profile.vehicles.add_vehicle")}
                   </Link>

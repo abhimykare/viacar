@@ -4,6 +4,7 @@ import type { Route } from "./+types/return";
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,6 +15,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Page() {
   const { t } = useTranslation();
+  const setIsReturn = useRideCreationStore((state) => state.setIsReturn);
 
   return (
     <div>
@@ -26,9 +28,10 @@ export default function Page() {
         </p>
         <div className="flex flex-col max-w-[716px] w-full mx-auto divide-y divide-[#EBEBEB]">
           <Link
-            to={`/route`}
+            to="/route"
             state={{ isReturn: true }}
             className="group py-6 flex items-center gap-4 cursor-pointer border-b border-[#EBEBEB]"
+            onClick={() => setIsReturn(true)}
           >
             <div className="flex items-center gap-1">
               <span className="text-base font-normal">
@@ -43,8 +46,9 @@ export default function Page() {
             </div>
           </Link>
           <Link
-            to={``}
+            to="/publish-comment"
             className="group py-6 flex items-center gap-4 cursor-pointer border-b border-[#EBEBEB]"
+            onClick={() => setIsReturn(false)}
           >
             <div className="flex items-center gap-1">
               <span className="text-base font-normal">
