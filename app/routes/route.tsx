@@ -5,10 +5,12 @@ import type { Route } from "./+types/route";
 import { Label } from "~/components/ui/label";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { Button } from "~/components/ui/button";
-import { Link, useLocation, useSearchParams, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
+
 import { useTranslation } from "react-i18next";
 import { api } from "~/lib/api";
 import { GoogleMapService } from "~/lib/googlemap";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
 const CheckIcon = () => (
   <img
@@ -29,7 +31,42 @@ export default function Page() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const pickupLocation = useRideCreationStore((state) => state.rideData.pickup);
+  const dropoffLocation = useRideCreationStore(
+    (state) => state.rideData.dropoff
+  );
+
+  console.log(
+    pickupLocation,
+    dropoffLocation,
+    "pickupLocation, dropoffLocation"
+  );
+
+  // Debug: Check the entire store state
+  const rideData = useRideCreationStore((state) => state.rideData);
+  console.log("Full store state:", rideData);
+
+  // Debug: Check localStorage directly
+  useEffect(() => {
+    const storedData = localStorage.getItem("ride-creation-storage");
+    console.log("Raw localStorage data:", storedData);
+    if (storedData) {
+      try {
+        const parsed = JSON.parse(storedData);
+        console.log("Parsed localStorage data:", parsed);
+        console.log(
+          "Pickup from localStorage:",
+          parsed.state?.rideData?.pickup
+        );
+        console.log(
+          "Dropoff from localStorage:",
+          parsed.state?.rideData?.dropoff
+        );
+      } catch (e) {
+        console.error("Failed to parse localStorage data:", e);
+      }
+    }
+  }, []);
 
   const [routes, setRoutes] = useState([]);
   const [selectedRouteId, setSelectedRouteId] = useState("0");
@@ -38,11 +75,11 @@ export default function Page() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapServiceRef = useRef<GoogleMapService | null>(null);
 
-  // Get coordinates from URL params
-  const pickupLat = parseFloat(searchParams.get("pickup_lat") || "0");
-  const pickupLng = parseFloat(searchParams.get("pickup_lng") || "0");
-  const dropoffLat = parseFloat(searchParams.get("dropoff_lat") || "0");
-  const dropoffLng = parseFloat(searchParams.get("dropoff_lng") || "0");
+  // Get coordinates from store
+  const pickupLat = pickupLocation?.lat || 0;
+  const pickupLng = pickupLocation?.lng || 0;
+  const dropoffLat = dropoffLocation?.lat || 0;
+  const dropoffLng = dropoffLocation?.lng || 0;
 
   useEffect(() => {
     const fetchRoutes = async () => {
@@ -60,18 +97,30 @@ export default function Page() {
         console.log("API Response:", response);
 
         if (response.data?.routes && Array.isArray(response.data.routes)) {
-          const formattedRoutes = response.data.routes.map((route) => ({
-            id: route.route_index.toString(),
-            duration: Math.floor(route.duration_minutes / 60), // hours
-            minutes: route.duration_minutes % 60, // remaining minutes
-            distance: route.distance_km,
-            road: route.route_description || "Route",
-            polyline: route.polyline,
-            isRecommended: route.is_recommended,
-            durationText: route.duration_text,
-            distanceText: route.distance_text,
-            durationInTraffic: route.duration_in_traffic_text,
-          }));
+          const formattedRoutes = response.data.routes.map((route) => {
+            // Extract polyline from different possible structures
+            let polyline = "";
+            if (route.overview_polyline && route.overview_polyline.points) {
+              polyline = route.overview_polyline.points;
+            } else if (route.polyline) {
+              polyline = route.polyline;
+            } else if (route.encoded_polyline) {
+              polyline = route.encoded_polyline;
+            }
+
+            return {
+              id: route.route_index?.toString() || "0",
+              duration: Math.floor(route.duration_minutes / 60), // hours
+              minutes: route.duration_minutes % 60, // remaining minutes
+              distance: route.distance_km,
+              road: route.route_description || "Route",
+              polyline: polyline,
+              isRecommended: route.is_recommended,
+              durationText: route.duration_text,
+              distanceText: route.distance_text,
+              durationInTraffic: route.duration_in_traffic_text,
+            };
+          });
 
           console.log("Formatted Routes:", formattedRoutes);
           setRoutes(formattedRoutes);
@@ -94,27 +143,21 @@ export default function Page() {
       fetchRoutes();
     } else {
       setLoading(false);
-      setError("Missing coordinates in URL");
+      setError("Missing pickup or dropoff coordinates in store");
     }
   }, [pickupLat, pickupLng, dropoffLat, dropoffLng]);
 
   const handleContinue = () => {
     const selectedRoute = routes.find((route) => route.id === selectedRouteId);
     if (selectedRoute) {
-      // Create new URLSearchParams with existing params plus the ride_route
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set("ride_route", selectedRoute.polyline);
+      // Store the selected route's polyline in the store
+      const rideCreationStore = useRideCreationStore.getState();
+      rideCreationStore.setSelectedRoutePolyline(selectedRoute.polyline);
 
-      // Navigate to stopovers page with updated params
-      navigate(
-        {
-          pathname: "/stopovers",
-          search: newParams.toString(),
-        },
-        {
-          state: location.state,
-        }
-      );
+      // Navigate to stopovers page
+      navigate("/stopovers", {
+        state: location.state,
+      });
     }
   };
 
@@ -143,7 +186,7 @@ export default function Page() {
           startCoordinates: { lat: pickupLat, lng: pickupLng },
           endCoordinates: { lat: dropoffLat, lng: dropoffLng },
           mapContainerId: "route-map",
-          height: "500px"
+          height: "500px",
         });
 
         // Display all route polylines
@@ -152,7 +195,7 @@ export default function Page() {
             const isSelected = route.id === selectedRouteId;
             const color = isSelected ? "#FF4848" : "#666666"; // Red for selected, gray for others
             const strokeWeight = isSelected ? 6 : 3;
-            
+
             mapServiceRef.current?.displayRoute(
               route.polyline,
               color,
@@ -161,7 +204,6 @@ export default function Page() {
             );
           }
         });
-
       } catch (error) {
         console.error("Failed to initialize route map:", error);
       }
@@ -187,7 +229,7 @@ export default function Page() {
         const isSelected = route.id === selectedRouteId;
         const color = isSelected ? "#FF4848" : "#666666";
         const strokeWeight = isSelected ? 6 : 3;
-        
+
         // Remove and re-add route with new styling
         mapServiceRef.current?.removeRoute(route.id);
         mapServiceRef.current?.displayRoute(

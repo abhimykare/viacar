@@ -102,6 +102,8 @@ function ColorSearch({ label, name, path, sectionName, sectionTitle }: Props) {
 
   const handleDialogOk = async () => {
     const modelId = searchParams.get("selectedModelId");
+    const returnTo = searchParams.get("returnTo");
+    
     if (!modelId || !selectedColorObject?.code) {
       console.error("Missing modelId or selectedColorCode");
       return;
@@ -114,7 +116,13 @@ function ColorSearch({ label, name, path, sectionName, sectionTitle }: Props) {
         year: 2020,
         color: selectedColorObject.code,
       });
-      navigate("/pickup");
+      
+      // Navigate based on returnTo parameter
+      if (returnTo === 'profile') {
+        navigate("/user-profile");
+      } else {
+        navigate("/pickup");
+      }
     } catch (error) {
       console.error("Failed to add vehicle:", error);
       // Optionally, show an error message to the user

@@ -5,27 +5,25 @@ import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import CalendarIcon from "../icons/calendar-icon";
 import { Calendar } from "../ui/calendar-pricing";
-import { useSearchParams } from "react-router";
+import { useRideSearchStore } from "~/lib/store/rideSearchStore";
 import { useTranslation } from "react-i18next";
 
 function DatePicker() {
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { date, setDate } = useRideSearchStore();
 
   const defaultDate = new Date();
-  const dateParam = searchParams.get("date");
-  const initialDate = dateParam ? new Date(dateParam) : defaultDate;
+  const storeDate = date ? new Date(date) : defaultDate;
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    initialDate
+    storeDate
   );
-  const [tempDate, setTempDate] = useState<Date | undefined>(initialDate);
+  const [tempDate, setTempDate] = useState<Date | undefined>(storeDate);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const param = searchParams.get("date");
-    if (param) {
-      const newDate = new Date(param);
+    if (date) {
+      const newDate = new Date(date);
       if (
         !selectedDate ||
         format(newDate, "yyyy-MM-dd") !== format(selectedDate, "yyyy-MM-dd")
@@ -34,7 +32,7 @@ function DatePicker() {
         setTempDate(newDate);
       }
     }
-  }, [searchParams, selectedDate]);
+  }, [date, selectedDate]);
 
   const getDisplayDate = (date: Date | undefined) => {
     if (!date) return t("search.ride.date.placeholder");
@@ -80,22 +78,12 @@ function DatePicker() {
                         onClick={() => {
                           setSelectedDate(tempDate);
                           setIsOpen(false);
-                          setSearchParams(
-                            (prev) => {
-                              const newParams = new URLSearchParams(prev);
-                              if (tempDate) {
-                                const formattedDate = format(
-                                  tempDate,
-                                  "yyyy-MM-dd"
-                                );
-                                newParams.set("date", formattedDate);
-                              } else {
-                                newParams.delete("date");
-                              }
-                              return newParams;
-                            },
-                            { replace: true }
-                          );
+                          if (tempDate) {
+                            const formattedDate = format(tempDate, "yyyy-MM-dd");
+                            setDate(formattedDate);
+                          } else {
+                            setDate(null);
+                          }
                         }}
                       >
                         {t("search.ride.date.apply")}

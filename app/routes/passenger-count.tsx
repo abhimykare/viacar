@@ -7,7 +7,8 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import { Label } from "~/components/ui/label";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
+
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,7 +22,8 @@ export default function Page() {
   const [passengers, setPassengers] = useState(3);
   const [max2InBack, setMax2InBack] = useState(false);
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const setAvailableSeats = useRideCreationStore((state) => state.setAvailableSeats);
+  const availableSeats = useRideCreationStore((state) => state.rideData.availableSeats);
 
   function adjustPassengers(adjustment: number) {
     setPassengers(Math.max(1, Math.min(3, passengers + adjustment)));
@@ -43,9 +45,7 @@ export default function Page() {
               onClick={() => {
                 const newPassengers = Math.max(1, passengers - 1);
                 setPassengers(newPassengers);
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set('available_seats', newPassengers.toString());
-                setSearchParams(newParams);
+                setAvailableSeats(newPassengers);
               }}
               disabled={passengers === 1}
             >
@@ -68,9 +68,7 @@ export default function Page() {
               onClick={() => {
                 const newPassengers = Math.min(3, passengers + 1);
                 setPassengers(newPassengers);
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set('available_seats', newPassengers.toString());
-                setSearchParams(newParams);
+                setAvailableSeats(newPassengers);
               }}
               disabled={passengers >= 3}
             >
@@ -123,12 +121,7 @@ export default function Page() {
             >
               <Link 
                 state={location.state} 
-                to={`/pricing?${searchParams.toString()}&max_2_in_back=${max2InBack}`}
-                onClick={() => {
-                  const newParams = new URLSearchParams(searchParams);
-                  newParams.set('max_2_in_back', max2InBack.toString());
-                  setSearchParams(newParams);
-                }}
+                to="/pricing"
               >
                 {t("passenger_count.continue")}
               </Link>

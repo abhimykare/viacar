@@ -465,6 +465,8 @@
     "header_title": "Add stopovers to get more passengers",
     "add_city": "Add city",
     "continue": "Continue",
+    "loading_cities": "Loading cities...",
+    "no_cities_available": "No cities available. Please add cities manually.",
     "cities": {
       "dammam": "Dammam",
       "sedra_resort": "Sedra Resort",

@@ -3,7 +3,7 @@ import Header from "~/components/layouts/header";
 import type { Route } from "./+types/pickup";
 import LocationSearch from "~/components/common/location-search";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,7 +14,11 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Page() {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const setDropoff = useRideCreationStore((state) => state.setDropoff);
+  
+  // Debug: Check current store state
+  const currentDropoff = useRideCreationStore((state) => state.rideData.dropoff);
+  console.log("Current dropoff in store:", currentDropoff);
 
   return (
     <div>
@@ -26,9 +30,14 @@ export default function Page() {
         </p>
         <LocationSearch
           name="dropoff"
-          path={`/route?${searchParams.toString()}`}
+          path="/route"
           sectionName={t("dropoff.section_name")}
           sectionTitle={t("dropoff.section_title")}
+          onLocationSelect={(location) => {
+            console.log("Location selected in dropoff:", location);
+            setDropoff(location);
+            console.log("Dropoff set in store");
+          }}
         />
       </div>
       <Footer />

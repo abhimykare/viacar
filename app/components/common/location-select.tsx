@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router";
 import { AutoComplete } from "./auto-complete";
 import { Search } from "lucide-react";
 import { api } from "~/lib/api";
+import { useRideSearchStore } from "~/lib/store/rideSearchStore";
 
 interface PlacePrediction {
   placeId: string;
@@ -26,42 +26,44 @@ function LocationSelect({
   placeholder = "Search location...",
   initialLocation,
 }: Props) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const paramValue = searchParams.get(name) || "";
-
-  // Initialize both states based on the URL.
-  const [selectedValue, setSelectedValue] = useState<string>(paramValue);
-  const [searchValue, setSearchValue] = useState<string>(paramValue);
+  // Get store actions and state
+  const { setLeavingFrom, setGoingTo, leavingFrom, goingTo } = useRideSearchStore();
+  
+  // Get current location data from store based on name prop
+  const currentLocation = name === "from" ? leavingFrom : goingTo;
+  const currentText = currentLocation?.text || "";
+  
+  // Initialize both states based on the store.
+  const [selectedValue, setSelectedValue] = useState<string>(currentText);
+  const [searchValue, setSearchValue] = useState<string>(currentText);
   const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
 
   useEffect(() => {
-    if (initialLocation && !paramValue) {
+    if (initialLocation && !currentText) {
       setSelectedValue(initialLocation);
       setSearchValue(initialLocation);
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set(name, initialLocation);
-      setSearchParams(newParams, { replace: true });
     }
   }, [initialLocation]);
 
-  // Sync both states if the URL param changes externally.
+  // Sync both states if the store changes externally.
   useEffect(() => {
-    const newParamValue = searchParams.get(name) || "";
-    if (newParamValue !== selectedValue || newParamValue !== searchValue) {
-      setSelectedValue(newParamValue);
-      setSearchValue(newParamValue);
+    if (currentText !== selectedValue || currentText !== searchValue) {
+      setSelectedValue(currentText);
+      setSearchValue(currentText);
     }
-  }, [searchParams, name]);
+  }, [currentText]);
 
-  // When the search input is cleared, remove the selection and URL param.
+  // When the search input is cleared, remove the selection from store.
   useEffect(() => {
     if (searchValue === "" && selectedValue !== "") {
       setSelectedValue("");
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete(name);
-      setSearchParams(newParams, { replace: true });
+      if (name === "from") {
+        setLeavingFrom(null);
+      } else {
+        setGoingTo(null);
+      }
     }
-  }, [searchValue, selectedValue, name, searchParams, setSearchParams]);
+  }, [searchValue, selectedValue, name, setLeavingFrom, setGoingTo]);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -95,15 +97,33 @@ function LocationSelect({
       const textToSet = selectedItem ? selectedItem.text : value;
       setSelectedValue(textToSet);
       setSearchValue(textToSet);
-      const newParams = new URLSearchParams(searchParams);
+      
       if (value === "") {
-        newParams.delete(name);
-      } else {
-        newParams.set(name, textToSet); // Set the text instead of placeId
+        // Clear selection
+        if (name === "from") {
+          setLeavingFrom(null);
+        } else {
+          setGoingTo(null);
+        }
+      } else if (selectedItem) {
+        // Store full location data in store
+        const locationData = {
+          placeId: selectedItem.placeId,
+          text: selectedItem.text,
+          mainText: selectedItem.mainText,
+          secondaryText: selectedItem.secondaryText,
+          lat: selectedItem.lat,
+          lng: selectedItem.lng,
+        };
+        
+        if (name === "from") {
+          setLeavingFrom(locationData);
+        } else {
+          setGoingTo(locationData);
+        }
       }
-      setSearchParams(newParams, { replace: true });
     },
-    [suggestions, name, searchParams, setSearchParams]
+    [suggestions, name, setLeavingFrom, setGoingTo]
   );
 
   return (

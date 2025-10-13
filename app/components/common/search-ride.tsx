@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+
+import { useRideSearchStore } from "~/lib/store/rideSearchStore";
 import SwapIcon from "../icons/swap-icon";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -9,11 +10,15 @@ import SearchIcon from "../icons/share-icon";
 import DatePicker from "./date-picker";
 import { cn } from "~/lib/utils";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useLocation } from "react-router";
 
 export default function SearchRide({ className = "" }) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setLeavingFrom, setGoingTo, leavingFrom, goingTo, triggerSearch } =
+    useRideSearchStore();
   const [currentLocation, setCurrentLocation] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,65 +28,95 @@ export default function SearchRide({ className = "" }) {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
           // Reverse geocoding to get location text
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+          fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          )
             .then((res) => res.json())
             .then((data) => {
               if (data.address && data.address.city) {
                 setCurrentLocation(data.address.city);
-                if (!searchParams.get("from")) {
-                  const newParams = new URLSearchParams(searchParams);
-                  newParams.set("from", data.address.city);
-                  setSearchParams(newParams, { replace: true });
+                // Only set if no location is already selected
+                if (!leavingFrom) {
+                  // Create a basic location object for the current city
+                  const currentCityData = {
+                    placeId: `current_${data.address.city}`,
+                    text: data.address.city,
+                    mainText: data.address.city,
+                    secondaryText: "Current Location",
+                    lat: latitude,
+                    lng: longitude,
+                  };
+                  setLeavingFrom(currentCityData);
                 }
               } else if (data.address && data.address.town) {
                 setCurrentLocation(data.address.town);
-                if (!searchParams.get("from")) {
-                  const newParams = new URLSearchParams(searchParams);
-                  newParams.set("from", data.address.town);
-                  setSearchParams(newParams, { replace: true });
+                if (!leavingFrom) {
+                  const currentTownData = {
+                    placeId: `current_${data.address.town}`,
+                    text: data.address.town,
+                    mainText: data.address.town,
+                    secondaryText: "Current Location",
+                    lat: latitude,
+                    lng: longitude,
+                  };
+                  setLeavingFrom(currentTownData);
                 }
               }
             })
             .catch((error) => {
               console.error("Error fetching location name:", error);
-              setCurrentLocation("Kochi"); // Default to Kochi if reverse geocoding fails
-              if (!searchParams.get("from")) {
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set("from", "Kochi");
-                setSearchParams(newParams, { replace: true });
+              setCurrentLocation("Kochi");
+              if (!leavingFrom) {
+                const kochiData = {
+                  placeId: "current_kochi",
+                  text: "Kochi",
+                  mainText: "Kochi",
+                  secondaryText: "Current Location",
+                  lat: 9.9312328,
+                  lng: 76.26730409999999,
+                };
+                setLeavingFrom(kochiData);
               }
             });
         },
         (error) => {
           console.error("Error getting geolocation:", error);
-          setCurrentLocation("Kochi"); // Default to Kochi if permission denied or error
-          if (!searchParams.get("from")) {
-            const newParams = new URLSearchParams(searchParams);
-            newParams.set("from", "Kochi");
-            setSearchParams(newParams, { replace: true });
+          setCurrentLocation("Kochi");
+          if (!leavingFrom) {
+            const kochiData = {
+              placeId: "current_kochi",
+              text: "Kochi",
+              mainText: "Kochi",
+              secondaryText: "Current Location",
+              lat: 9.9312328,
+              lng: 76.26730409999999,
+            };
+            setLeavingFrom(kochiData);
           }
         }
       );
     } else {
       console.log("Geolocation is not supported by this browser.");
-      setCurrentLocation("Kochi"); // Default to Kochi if not supported
-      if (!searchParams.get("from")) {
-        const newParams = new URLSearchParams(searchParams);
-        newParams.set("from", "Kochi");
-        setSearchParams(newParams, { replace: true });
+      setCurrentLocation("Kochi");
+      if (!leavingFrom) {
+        const kochiData = {
+          placeId: "current_kochi",
+          text: "Kochi",
+          mainText: "Kochi",
+          secondaryText: "Current Location",
+          lat: 9.9312328,
+          lng: 76.26730409999999,
+        };
+        setLeavingFrom(kochiData);
       }
     }
-  }, []);
+  }, [leavingFrom, setLeavingFrom]);
 
   const handleLocationSwap = () => {
-    const fromValue = searchParams.get("from") || "";
-    const toValue = searchParams.get("to") || "";
-
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("from", toValue);
-    newParams.set("to", fromValue);
-
-    setSearchParams(newParams, { replace: true });
+    if (leavingFrom && goingTo) {
+      setLeavingFrom(goingTo);
+      setGoingTo(leavingFrom);
+    }
   };
   return (
     <div
@@ -144,15 +179,20 @@ export default function SearchRide({ className = "" }) {
           className="bg-[#FF4848] rounded-full h-[58px] lg:h-[50px] lg:size-[71px] cursor-pointer max-lg:w-full max-lg:text-xl max-lg:font-normal"
           asChild
         >
-          <Link
-            to={{
-              pathname: `/book/ride`,
-              search: searchParams.toString(),
+          <button
+            onClick={() => {
+              // Always trigger search when button is clicked
+              triggerSearch();
+
+              // Only navigate if not already on the ride page
+              if (location.pathname !== "/book/ride") {
+                navigate("/book/ride");
+              }
             }}
           >
             <SearchIcon className="size-[20px] lg:size-[26px] hidden lg:block" />
             <span className="lg:hidden">{t("search.ride.search")}</span>
-          </Link>
+          </button>
         </Button>
       </div>
     </div>

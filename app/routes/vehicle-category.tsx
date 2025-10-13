@@ -46,6 +46,7 @@ export default function Page() {
   const [searchParams] = useSearchParams();
   const selectedVehicleId = searchParams.get("selectedVehicleId");
   const selectedVehicleName = searchParams.get("selectedVehicleName");
+  const returnTo = searchParams.get("returnTo");
 
   const [selectedCategory, setSelectedCategory] = React.useState("1");
 
@@ -90,7 +91,7 @@ export default function Page() {
             asChild
           >
             <Link
-              to={`/vehicle-model?selectedVehicleId=${selectedVehicleId}&selectedVehicleName=${selectedVehicleName}&selectedCategoryId=${selectedCategory}`}
+              to={`/vehicle-model?selectedVehicleId=${selectedVehicleId}&selectedVehicleName=${selectedVehicleName}&selectedCategoryId=${selectedCategory}${returnTo ? `&returnTo=${returnTo}` : ''}`}
             >
               {t("vehicle_category.continue")}
             </Link>

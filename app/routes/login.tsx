@@ -205,7 +205,7 @@ export default function Login() {
                 <p className="text-sm lg:text-base text-[#666666] font-light mb-7">
                   {t("login.modal_subtitle")}
                   <span className="text-[#FF4848]">
-                    {t("login.modal_subtitle_suffix")}
+                    {phoneNumber.slice(-3) || "***"}
                   </span>
                 </p>
                 <InputOTP
@@ -244,7 +244,7 @@ export default function Login() {
             variant="outline"
             asChild
           >
-            <Link to={`/book`}>{t("login.skip_button")}</Link>
+            <Link to={`/`}>{t("login.skip_button")}</Link>
           </Button>
         </div>
       </div>

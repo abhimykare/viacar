@@ -27,7 +27,7 @@ import { Input } from "~/components/ui/input";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "~/lib/api";
-import { useSearchParams } from "react-router";
+import { useRideSearchStore } from "~/lib/store/rideSearchStore";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -39,37 +39,27 @@ export function meta({}: Route.MetaArgs) {
 export default function Page({}: Route.ComponentProps) {
   const { t } = useTranslation("translation", { keyPrefix: "ride" });
   const [notify, setNotify] = useState(false);
-  const [searchParams] = useSearchParams();
+  const { getSearchPayload, searchTrigger, leavingFrom, goingTo, date, triggerSearch } = useRideSearchStore();
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch rides based on search parameters
+  // Fetch rides based on store data
   useEffect(() => {
     const fetchRides = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // Get search parameters from URL
-        const pickupLat = searchParams.get('pickup_lat');
-        const pickupLng = searchParams.get('pickup_lng');
-        const destinationLat = searchParams.get('destination_lat');
-        const destinationLng = searchParams.get('destination_lng');
-        const date = searchParams.get('date');
-        const passengers = searchParams.get('passengers');
+        // Get search payload from store
+        const searchPayload = getSearchPayload();
         
-        // If we have search parameters, fetch rides
-        if (pickupLat && pickupLng && destinationLat && destinationLng && date) {
-          const response = await api.searchRides({
-            user_lat: parseFloat(pickupLat),
-            user_lng: parseFloat(pickupLng),
-            destination_lat: parseFloat(destinationLat),
-            destination_lng: parseFloat(destinationLng),
-            date: date,
-            passengers: passengers ? parseInt(passengers) : 1,
-            max_walking_distance_km: 5
-          });
+        console.log("Checking search payload:", searchPayload);
+        
+        // If we have valid search data, fetch rides
+        if (searchPayload) {
+          console.log("Fetching rides with payload:", searchPayload);
+          const response = await api.searchRides(searchPayload);
           
           if (response.success && response.data) {
             setRides(response.data.rides || []);
@@ -78,10 +68,12 @@ export default function Page({}: Route.ComponentProps) {
             setRides([]);
           }
         } else {
-          // If no search parameters, fetch all rides or show empty state
+          // If no valid search data, show empty state
+          console.log("No valid search payload, clearing rides");
           setRides([]);
         }
       } catch (err) {
+        console.error("Error fetching rides:", err);
         setError('Failed to fetch rides');
         setRides([]);
       } finally {
@@ -90,7 +82,25 @@ export default function Page({}: Route.ComponentProps) {
     };
     
     fetchRides();
-  }, [searchParams]);
+  }, [getSearchPayload, searchTrigger, leavingFrom, goingTo, date]); // Add direct field dependencies to trigger search when fields change
+
+  // Auto-trigger search when all required fields are set
+  useEffect(() => {
+    if (leavingFrom && goingTo && date) {
+      console.log("All fields set, auto-triggering search");
+      // Small delay to ensure all state updates are complete
+      const timeoutId = setTimeout(() => {
+        const searchPayload = getSearchPayload();
+        if (searchPayload) {
+          console.log("Auto-triggering search with payload:", searchPayload);
+          // Manually trigger the search by incrementing the trigger
+           triggerSearch();
+        }
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [leavingFrom, goingTo, date]);
   return (
     <ScrollArea className="h-screen">
       <Header title={t("title")} />
