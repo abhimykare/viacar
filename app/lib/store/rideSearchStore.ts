@@ -307,25 +307,25 @@ export const useRideSearchStore = create<RideSearchStore>()(
           destination_lng: state.goingTo.lng,
           date: state.date,
           passengers: state.passengers,
-          max_walking_distance_km: 5,
-          sort_by:
-            sortByMapping[state.filters.sortBy as keyof typeof sortByMapping] ||
-            1,
-          stops_filter:
-            stopsMapping[state.filters.stops as keyof typeof stopsMapping] ||
-            "",
-          verified_drivers_only: state.filters.verifiedProfile,
-          max_2_in_back: state.filters.max2,
-          instant_booking: state.filters.instantBooking,
-          smoking_allowed: state.filters.smoking,
-          pets_allowed: state.filters.pets,
-          power_outlets: state.filters.power,
-          air_conditioning: state.filters.ac,
-          accessible_for_disabled: state.filters.disability,
-          car_model_year:
-            carModelMapping[
-              state.filters.carModel as keyof typeof carModelMapping
-            ] || "all",
+          // max_walking_distance_km: 5,
+          // sort_by:
+          //   sortByMapping[state.filters.sortBy as keyof typeof sortByMapping] ||
+          //   1,
+          // stops_filter:
+          //   stopsMapping[state.filters.stops as keyof typeof stopsMapping] ||
+          //   "",
+          // verified_drivers_only: state.filters.verifiedProfile,
+          // max_2_in_back: state.filters.max2,
+          // instant_booking: state.filters.instantBooking,
+          // smoking_allowed: state.filters.smoking,
+          // pets_allowed: state.filters.pets,
+          // power_outlets: state.filters.power,
+          // air_conditioning: state.filters.ac,
+          // accessible_for_disabled: state.filters.disability,
+          // car_model_year:
+          //   carModelMapping[
+          //     state.filters.carModel as keyof typeof carModelMapping
+          //   ] || "all",
         };
       },
     }),
