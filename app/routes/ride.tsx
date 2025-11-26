@@ -39,7 +39,14 @@ export function meta({}: Route.MetaArgs) {
 export default function Page({}: Route.ComponentProps) {
   const { t } = useTranslation("translation", { keyPrefix: "ride" });
   const [notify, setNotify] = useState(false);
-  const { getSearchPayload, searchTrigger, leavingFrom, goingTo, date, triggerSearch } = useRideSearchStore();
+  const {
+    getSearchPayload,
+    searchTrigger,
+    leavingFrom,
+    goingTo,
+    date,
+    triggerSearch,
+  } = useRideSearchStore();
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -50,21 +57,21 @@ export default function Page({}: Route.ComponentProps) {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Get search payload from store
         const searchPayload = getSearchPayload();
-        
+
         console.log("Checking search payload:", searchPayload);
-        
+
         // If we have valid search data, fetch rides
         if (searchPayload) {
           console.log("Fetching rides with payload:", searchPayload);
           const response = await api.searchRides(searchPayload);
-          
+
           if (response.success && response.data) {
             setRides(response.data.rides || []);
           } else {
-            setError(response.message || 'Failed to fetch rides');
+            setError(response.message || "Failed to fetch rides");
             setRides([]);
           }
         } else {
@@ -74,15 +81,15 @@ export default function Page({}: Route.ComponentProps) {
         }
       } catch (err) {
         console.error("Error fetching rides:", err);
-        setError('Failed to fetch rides');
+        setError("Failed to fetch rides");
         setRides([]);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchRides();
-  }, [getSearchPayload, searchTrigger, leavingFrom, goingTo, date]); // Add direct field dependencies to trigger search when fields change
+  }, [getSearchPayload, searchTrigger, leavingFrom, goingTo, date]);
 
   // Auto-trigger search when all required fields are set
   useEffect(() => {
@@ -94,10 +101,10 @@ export default function Page({}: Route.ComponentProps) {
         if (searchPayload) {
           console.log("Auto-triggering search with payload:", searchPayload);
           // Manually trigger the search by incrementing the trigger
-           triggerSearch();
+          triggerSearch();
         }
       }, 100);
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [leavingFrom, goingTo, date]);
@@ -127,15 +134,19 @@ export default function Page({}: Route.ComponentProps) {
             </Drawer>
             <div className="grid grid-cols-1 xl:grid-cols-2 p-0 lg:p-5 !pt-0 !pb-0 gap-5">
               {loading ? (
-                <div className="col-span-2 text-center py-8">Loading rides...</div>
+                <div className="col-span-2 text-center py-8">
+                  Loading rides...
+                </div>
               ) : error ? (
-                <div className="col-span-2 text-center py-8 text-red-500">{error}</div>
+                <div className="col-span-2 text-center py-8 text-red-500">
+                  {error}
+                </div>
               ) : rides.length === 0 ? (
-                <div className="col-span-2 text-center py-8">No rides found for your search criteria</div>
+                <div className="col-span-2 text-center py-8">
+                  No rides found for your search criteria
+                </div>
               ) : (
-                rides.map((ride) => (
-                  <RideItem key={ride.id} ride={ride} />
-                ))
+                rides.map((ride) => <RideItem key={ride.id} ride={ride} />)
               )}
             </div>
             <div className="flex items-center justify-center p-5 pt-0 mb-5">

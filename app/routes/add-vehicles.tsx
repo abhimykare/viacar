@@ -19,7 +19,7 @@ export default function Page() {
       <Header title={t("add_vehicles.title")} />
       <div className="max-w-[1379px] w-full mx-auto px-6 py-10 lg:py-[100px] min-h-[800px]">
         <p className="text-3xl lg:text-[2.188rem] text-[#0A2033] text-center font-medium max-w-[478px] mx-auto leading-tight mb-6">
-          {t("add_vehicles.vehicles_title")}
+          {t("add_vehicles.title")}
         </p>
         <VehicleSearch
           name="pickup"

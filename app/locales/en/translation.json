@@ -861,7 +861,7 @@
         "section_name": "Pick-up",
         "section_title": "Please specify the location where you would like to pick up passengers."
       },
-      "search_placeholder": "Enter the full address",
+      "search_placeholder": "Enter the vehicle model",
       "no_items": "No items.",
       "models": {
         "530i": "BMW 530i",

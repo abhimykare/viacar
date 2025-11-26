@@ -24,7 +24,7 @@ interface AddBankAccountModalProps {
   onOpenChange: (open: boolean) => void;
   onSave: (
     bankDetails: Omit<BankAccount, "user_id" | "created_at" | "updated_at">
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   initialData?: BankAccount | null;
 }
 
@@ -80,8 +80,10 @@ export const AddBankAccountModal: React.FC<AddBankAccountModalProps> = ({
       bankDetails.id = initialData.id;
     }
     try {
-      await onSave(bankDetails);
-      onOpenChange(false);
+      const success = await onSave(bankDetails);
+      if (success) {
+        onOpenChange(false);
+      }
     } catch (error) {
       console.error("Error saving bank details:", error);
     }

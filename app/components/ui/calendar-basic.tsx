@@ -21,12 +21,20 @@ function CalendarBasic({
         formatWeekdayName: (date, options) =>
           date.toLocaleDateString("en-US", { weekday: "short" }),
         formatDay: (date, options) => {
+          // Normalize dates to compare without timezone issues
+          const normalizeDate = (d: Date) => {
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+          };
+          
+          const normalizedSelected = selected ? normalizeDate(selected as Date) : null;
+          const normalizedDate = normalizeDate(date);
+          
           return (
             <div className="relative">
               <div
                 className={cn(
                   "size-9 text-base flex items-center justify-center",
-                  selected && (selected as Date)?.getDate() == date.getDate()
+                  normalizedSelected && normalizedSelected.getTime() === normalizedDate.getTime()
                     ? "bg-[#2DA771] text-white rounded-full"
                     : ""
                 )}

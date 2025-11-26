@@ -32,18 +32,18 @@ export default function Page() {
         </p>
         <div className="border border-[#EBEBEB] rounded-2xl p-6">
           <p className="text-base lg:text-xl text-center mb-6">
-          {t("publish_comment.section_title")}
-        </p>
-        
-        {/* Debug: Show current date from store */}
-        <div className="text-center mb-4">
-          <div className="text-sm text-gray-600">
-            Departure Date: {rideData.departure_date || 'Not set'}
+            {t("publish_comment.section_title")}
+          </p>
+
+          {/* Debug: Show current date from store */}
+          <div className="text-center mb-4">
+            <div className="text-sm text-gray-600">
+              Departure Date: {rideData.departure_date || "Not set"}
+            </div>
+            <div className="text-sm text-gray-600">
+              Departure Time: {rideData.departure_time || "Not set"}
+            </div>
           </div>
-          <div className="text-sm text-gray-600">
-            Departure Time: {rideData.departure_time || 'Not set'}
-          </div>
-        </div>
           <Textarea
             className="text-sm font-light placeholder:text-[#999999] bg-[#F5F5F5] rounded-2xl !border-0 !ring-0 min-h-[228px] p-6"
             placeholder={t("publish_comment.placeholder")}
@@ -64,14 +64,17 @@ export default function Page() {
               console.log("Store data:", rideData);
               console.log("departureDate from store:", rideData.departure_date);
               console.log("departureTime from store:", rideData.departure_time);
-              
+
               // Debug: Check localStorage
-              const storedData = localStorage.getItem('ride-creation-storage');
+              const storedData = localStorage.getItem("ride-creation-storage");
               console.log("Raw localStorage data:", storedData);
               if (storedData) {
                 const parsedData = JSON.parse(storedData);
                 console.log("Parsed localStorage data:", parsedData);
-                console.log("departureDate from localStorage:", parsedData.state?.rideData?.departure_date);
+                console.log(
+                  "departureDate from localStorage:",
+                  parsedData.state?.rideData?.departure_date
+                );
               }
 
               // Validate required location parameters
@@ -90,9 +93,16 @@ export default function Page() {
               // Validate stops data if present
               if (rideData.stops && rideData.stops.length > 0) {
                 rideData.stops.forEach((stop, index) => {
-                  if (!stop.placeId || !stop.lat || !stop.lng || !stop.address) {
+                  if (
+                    !stop.placeId ||
+                    !stop.lat ||
+                    !stop.lng ||
+                    !stop.address
+                  ) {
                     throw new Error(
-                      `Invalid stop data at position ${index + 1}. Please check your stopovers.`
+                      `Invalid stop data at position ${
+                        index + 1
+                      }. Please check your stopovers.`
                     );
                   }
                 });
@@ -101,9 +111,15 @@ export default function Page() {
               // Validate prices data if present
               if (rideData.prices && rideData.prices.length > 0) {
                 rideData.prices.forEach((price, index) => {
-                  if (!price.pickup_order || !price.drop_order || price.amount === undefined) {
+                  if (
+                    !price.pickup_order ||
+                    !price.drop_order ||
+                    price.amount === undefined
+                  ) {
                     throw new Error(
-                      `Invalid price data at position ${index + 1}. Please check your pricing.`
+                      `Invalid price data at position ${
+                        index + 1
+                      }. Please check your pricing.`
                     );
                   }
                 });
@@ -112,20 +128,25 @@ export default function Page() {
               const departureDate =
                 rideData.departure_date ||
                 new Date().toISOString().split("T")[0];
-              
+
               // Convert HH:MM:SS to HH:MM format for API
               let pickupTime = rideData.departureTime || "00:00";
-              if (pickupTime.includes(':') && pickupTime.split(':').length === 3) {
+              if (
+                pickupTime.includes(":") &&
+                pickupTime.split(":").length === 3
+              ) {
                 // Convert HH:MM:SS to HH:MM
                 pickupTime = pickupTime.substring(0, 5);
               }
-              
+
               // Calculate drop time if not provided (add 1 hour to pickup time as default)
               let dropTime = rideData.drop_time;
               if (!dropTime && pickupTime) {
-                const [hours, minutes] = pickupTime.split(':').map(Number);
+                const [hours, minutes] = pickupTime.split(":").map(Number);
                 const dropHours = (hours + 1) % 24;
-                dropTime = `${dropHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                dropTime = `${dropHours.toString().padStart(2, "0")}:${minutes
+                  .toString()
+                  .padStart(2, "0")}`;
               }
 
               // Get vehicle ID from localStorage or use default
@@ -134,25 +155,31 @@ export default function Page() {
               );
 
               // Prepare stops data with proper ordering and time format
-              const stopsWithOrder = rideData.stops?.map((stop, index) => {
-                let stopTime = stop.time || pickupTime;
-                // Convert stop time to HH:MM format if it's in HH:MM:SS
-                if (stopTime && stopTime.includes(':') && stopTime.split(':').length === 3) {
-                  stopTime = stopTime.substring(0, 5);
-                }
-                return {
-                  ...stop,
-                  order: index + 1,
-                  time: stopTime
-                };
-              }) || [];
+              const stopsWithOrder =
+                rideData.stops?.map((stop, index) => {
+                  let stopTime = stop.time || pickupTime;
+                  // Convert stop time to HH:MM format if it's in HH:MM:SS
+                  if (
+                    stopTime &&
+                    stopTime.includes(":") &&
+                    stopTime.split(":").length === 3
+                  ) {
+                    stopTime = stopTime.substring(0, 5);
+                  }
+                  return {
+                    ...stop,
+                    order: index + 1,
+                    time: stopTime,
+                  };
+                }) || [];
 
               // Prepare prices data from store
-              const prices = rideData.prices?.map(price => ({
-                pickup_order: price.pickup_order,
-                drop_order: price.drop_order,
-                amount: price.amount
-              })) || [];
+              const prices =
+                rideData.prices?.map((price) => ({
+                  pickup_order: price.pickup_order,
+                  drop_order: price.drop_order,
+                  amount: price.amount,
+                })) || [];
 
               // Create ride data according to Swagger API specification
               const rideDataToSend = {
@@ -186,10 +213,10 @@ export default function Page() {
               // Navigate to success page or show success message
               if (response?.data?.ride_id) {
                 // Navigate to ride details page with the new ride ID
-                window.location.href = `/ride-details/${response.data.ride_id}`;
+                // window.location.href = `/ride-details/${response.data.ride_id}`;
               } else {
                 // Fallback to generic success page
-                window.location.href = "/publish-ride";
+                // window.location.href = "/publish-ride";
               }
             } catch (error) {
               console.error("Failed to create ride:", error);

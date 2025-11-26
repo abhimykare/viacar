@@ -48,7 +48,7 @@ export default function ProfileDetails() {
   const [error, setError] = useState<string | null>(null);
 
   const handleRegister = async () => {
-    console.log("registing ")
+    console.log("registing ");
     setIsLoading(true);
     setError(null);
     try {
@@ -61,16 +61,12 @@ export default function ProfileDetails() {
         swift_code: swiftCode,
       });
 
-      if (
-        (response.status === 200 && response.data?.message === "Success") ||
-        (response.status === 201 && response.data?.message === "Success")
-      ) {
-        console.log("API Response Data:", response.data);
-
+      if (response.message === "Success") {
+        console.log("API Response:", response);
         console.log("Bank details added successfully!");
         navigate("/add-documents");
       } else {
-        const errorMessage = response.data?.message || "Failed to add bank details.";
+        const errorMessage = response.message || "Failed to add bank details.";
         setError(errorMessage);
         console.log("Error message set:", errorMessage);
       }

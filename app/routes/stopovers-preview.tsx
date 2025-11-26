@@ -25,15 +25,15 @@ export default function Page() {
   // Get all stops including pickup and dropoff for the route display
   const getRouteStops = () => {
     const routeStops = [];
-    
+
     // Add pickup as first stop
     if (pickup) {
       routeStops.push({
-        type: 'pickup',
+        type: "pickup",
         name: pickup.address,
         placeId: pickup.placeId,
         lat: pickup.lat,
-        lng: pickup.lng
+        lng: pickup.lng,
       });
     }
 
@@ -41,12 +41,12 @@ export default function Page() {
     if (stops && stops.length > 0) {
       stops.forEach((stop, index) => {
         routeStops.push({
-          type: 'stop',
+          type: "stop",
           name: stop.address,
           placeId: stop.placeId,
           lat: stop.lat,
           lng: stop.lng,
-          order: stop.order
+          order: stop.order,
         });
       });
     }
@@ -54,11 +54,11 @@ export default function Page() {
     // Add dropoff as last stop
     if (dropoff) {
       routeStops.push({
-        type: 'dropoff',
+        type: "dropoff",
         name: dropoff.address,
         placeId: dropoff.placeId,
         lat: dropoff.lat,
-        lng: dropoff.lng
+        lng: dropoff.lng,
       });
     }
 
@@ -76,17 +76,17 @@ export default function Page() {
         </p>
         <div className="grid grid-cols-[32px_1fr] items-center gap-8 max-w-[576px] w-full mx-auto bg-white rounded-2xl px-6 py-4 relative">
           <div className="absolute top-6 bottom-6 start-6 w-[32px] flex items-center bg-[url(/assets/path.svg)] bg-center bg-repeat-y z-0"></div>
-          
+
           {routeStops.map((stop, index) => {
             // Determine which icon to use based on position and type
             const isFirst = index === 0;
             const isLast = index === routeStops.length - 1;
-            const iconSrc = isFirst 
-              ? "/assets/car-green.svg" 
-              : isLast 
+            const iconSrc = isFirst
+              ? "/assets/car-green.svg"
+              : isLast
               ? "/assets/flag-red.svg"
               : "/assets/location-pin-green.svg";
-            
+
             return (
               <>
                 <img
@@ -95,10 +95,13 @@ export default function Page() {
                   src={iconSrc}
                   alt=""
                 />
-                <div key={`content-${index}`} className="flex items-center justify-between gap-4">
+                <div
+                  key={`content-${index}`}
+                  className="flex items-center justify-between gap-4"
+                >
                   <div>
                     <p className="text-lg">{stop.name}</p>
-                    {stop.type === 'stop' && (
+                    {stop.type === "stop" && (
                       <p className="text-base text-[#666666] font-light">
                         Stop {stop.order}
                       </p>

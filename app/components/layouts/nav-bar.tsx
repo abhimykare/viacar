@@ -106,7 +106,7 @@ export default function NavBar({ variant, className = "" }: Props) {
       }
       if (!userStatus.vehicles.has_vehicles) {
         toast.info("Please add your vehicle details.");
-        navigate("/add-vehicle");
+        navigate("/add-vehicles");
         return;
       }
       if (!userStatus.account.is_ride_publishable) {

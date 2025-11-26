@@ -284,7 +284,7 @@ export const useRideSearchStore = create<RideSearchStore>()(
           earliest: 1,
           lowest: 2,
           closest_dep: 3,
-        closest_arr: 4,
+          closest_arr: 4,
           shortest: 5,
         };
 
@@ -307,7 +307,8 @@ export const useRideSearchStore = create<RideSearchStore>()(
           destination_lng: state.goingTo.lng,
           date: state.date,
           passengers: state.passengers,
-          // max_walking_distance_km: 5,
+          max_walking_distance_km: 10,
+          verified_drivers_only: false,
           // sort_by:
           //   sortByMapping[state.filters.sortBy as keyof typeof sortByMapping] ||
           //   1,
