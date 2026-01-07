@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { api } from "~/lib/api";
 import { useRideCreationStore } from "~/lib/store/rideCreationStore";
+import { formatApiDateToYYYYMMDD, formatTimeToHHMM } from "~/lib/utils";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -22,6 +23,7 @@ export default function Page() {
   const [isPublishing, setIsPublishing] = useState(false);
   const rideData = useRideCreationStore((state) => state.rideData);
   const storeSetNotes = useRideCreationStore((state) => state.setNotes);
+  console.log("rideData", rideData);
 
   return (
     <div>
@@ -129,15 +131,9 @@ export default function Page() {
                 rideData.departure_date ||
                 new Date().toISOString().split("T")[0];
 
-              // Convert HH:MM:SS to HH:MM format for API
+              // Format pickup time to HH:MM format
               let pickupTime = rideData.departureTime || "00:00";
-              if (
-                pickupTime.includes(":") &&
-                pickupTime.split(":").length === 3
-              ) {
-                // Convert HH:MM:SS to HH:MM
-                pickupTime = pickupTime.substring(0, 5);
-              }
+              pickupTime = formatTimeToHHMM(pickupTime);
 
               // Calculate drop time if not provided (add 1 hour to pickup time as default)
               let dropTime = rideData.drop_time;
@@ -148,24 +144,14 @@ export default function Page() {
                   .toString()
                   .padStart(2, "0")}`;
               }
+              dropTime = formatTimeToHHMM(dropTime || pickupTime);
 
-              // Get vehicle ID from localStorage or use default
-              const vehicleId = parseInt(
-                localStorage.getItem("selected_vehicle_id") || "1"
-              );
-
+              const vehicleId = rideData.vehicle_id;
               // Prepare stops data with proper ordering and time format
               const stopsWithOrder =
                 rideData.stops?.map((stop, index) => {
                   let stopTime = stop.time || pickupTime;
-                  // Convert stop time to HH:MM format if it's in HH:MM:SS
-                  if (
-                    stopTime &&
-                    stopTime.includes(":") &&
-                    stopTime.split(":").length === 3
-                  ) {
-                    stopTime = stopTime.substring(0, 5);
-                  }
+                  stopTime = formatTimeToHHMM(stopTime);
                   return {
                     ...stop,
                     order: index + 1,
@@ -190,7 +176,7 @@ export default function Page() {
                 drop_lat: rideData.dropoff.lat,
                 drop_lng: rideData.dropoff.lng,
                 drop_address: rideData.dropoff.address,
-                date: departureDate,
+                date: formatApiDateToYYYYMMDD(departureDate),
                 pickup_time: pickupTime,
                 drop_time: dropTime || pickupTime, // Ensure drop_time is provided
                 passengers: rideData.availableSeats || 1,

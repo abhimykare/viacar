@@ -91,10 +91,10 @@ export default function Page({}: Route.ComponentProps) {
     fetchRides();
   }, [getSearchPayload, searchTrigger, leavingFrom, goingTo, date]);
 
-  // Auto-trigger search when all required fields are set
+  // Auto-trigger search when basic required fields are set (leavingFrom and goingTo)
   useEffect(() => {
-    if (leavingFrom && goingTo && date) {
-      console.log("All fields set, auto-triggering search");
+    if (leavingFrom && goingTo) {
+      console.log("Basic fields set, auto-triggering search");
       // Small delay to ensure all state updates are complete
       const timeoutId = setTimeout(() => {
         const searchPayload = getSearchPayload();
@@ -107,7 +107,7 @@ export default function Page({}: Route.ComponentProps) {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [leavingFrom, goingTo, date]);
+  }, [leavingFrom, goingTo]);
   return (
     <ScrollArea className="h-screen">
       <Header title={t("title")} />

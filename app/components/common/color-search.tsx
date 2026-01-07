@@ -42,7 +42,11 @@ function ColorSearch({ label, name, path, sectionName, sectionTitle }: Props) {
 
   const [searchValue, setSearchValue] = useState<string>(initialLabel);
   const [selectedValue, setSelectedValue] = useState<string>(initialValue);
-  const [selectedColorObject, setSelectedColorObject] = useState<{ value: string; label: string; code: string } | null>(null);
+  const [selectedColorObject, setSelectedColorObject] = useState<{
+    value: string;
+    label: string;
+    code: string;
+  } | null>(null);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -103,7 +107,20 @@ function ColorSearch({ label, name, path, sectionName, sectionTitle }: Props) {
   const handleDialogOk = async () => {
     const modelId = searchParams.get("selectedModelId");
     const returnTo = searchParams.get("returnTo");
-    
+    const selectedVehicleId = searchParams.get("selectedVehicleId");
+
+    // If we already have a vehicle ID (from vehicle selection), just navigate
+    if (selectedVehicleId) {
+      // Navigate based on returnTo parameter
+      if (returnTo === "profile") {
+        navigate("/user-profile");
+      } else {
+        navigate("/pickup");
+      }
+      return;
+    }
+
+    // Otherwise, create a new vehicle
     if (!modelId || !selectedColorObject?.code) {
       console.error("Missing modelId or selectedColorCode");
       return;
@@ -116,9 +133,9 @@ function ColorSearch({ label, name, path, sectionName, sectionTitle }: Props) {
         year: 2020,
         color: selectedColorObject.code,
       });
-      
+
       // Navigate based on returnTo parameter
-      if (returnTo === 'profile') {
+      if (returnTo === "profile") {
         navigate("/user-profile");
       } else {
         navigate("/pickup");
@@ -230,7 +247,9 @@ function ColorSearch({ label, name, path, sectionName, sectionTitle }: Props) {
             <Button variant="outline" onClick={() => setShowDialog(false)}>
               {t("vehicle_modal.edit_button")}
             </Button>
-            <Button onClick={handleDialogOk}>{t("vehicle_modal.ok_button")}</Button>
+            <Button onClick={handleDialogOk}>
+              {t("vehicle_modal.ok_button")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
