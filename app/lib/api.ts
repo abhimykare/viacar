@@ -250,7 +250,7 @@ export const api = {
     accessible_for_disabled?: boolean;
   }) => callApi(import.meta.env.VITE_API_RIDE_SEARCH, "POST", data, "json"),
 
-  getRideDetail: (data: { ride_id: number }) =>
+  getRideDetail: (data: { ride_id: number; ride_amount_id: number }) =>
     callApi(import.meta.env.VITE_API_RIDE_DETAIL, "POST", data, "json"),
 
   updateRideStatus: (data: { ride_id: number; status: string }) =>

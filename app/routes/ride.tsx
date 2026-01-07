@@ -67,11 +67,19 @@ export default function Page({}: Route.ComponentProps) {
         if (searchPayload) {
           console.log("Fetching rides with payload:", searchPayload);
           const response = await api.searchRides(searchPayload);
+          
+          console.log("API Response:", response);
 
-          if (response.success && response.data) {
-            setRides(response.data.rides || []);
+          // Check if response has data
+          if (response?.data?.rides) {
+            console.log("Found rides:", response.data.rides);
+            setRides(response.data.rides);
+          } else if (response?.message === "No Rides found") {
+            console.log("No rides found");
+            setRides([]);
           } else {
-            setError(response.message || "Failed to fetch rides");
+            console.log("Unexpected response format:", response);
+            setError(response?.message || "Failed to fetch rides");
             setRides([]);
           }
         } else {
