@@ -17,7 +17,7 @@ import { useState, useEffect } from "react";
 import { api } from "~/lib/api";
 import { useUserStore } from "~/lib/store/userStore";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "ViaCar | Profile" },
     { name: "description", content: "ViaCar" },
@@ -30,17 +30,23 @@ interface User {
   last_name: string;
   full_name: string;
   email: string | null;
+  email_verified?: boolean;
   country_code: string;
   mobile_number: string;
   phone_number: string;
   gender: string | null;
   gender_name: string;
   date_of_birth: string;
+  profile_image?: string | null;
   profile_image_url: string;
   about: string | null;
+  travel_preferences?: string[];
   age: number | null;
+  calculated_age?: number;
   avg_rating: string;
   is_verified: number;
+  is_driver?: number;
+  id_verified_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -52,34 +58,80 @@ export default function Page() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [vehiclesLoading, setVehiclesLoading] = useState(false);
+  const [deletingVehicleId, setDeletingVehicleId] = useState<number | null>(null);
+
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await api.getProfile();
+      if (response.data) {
+        setUser(response.data);
+        // Update the user store with fresh data
+        useUserStore.getState().updateUserData(response.data);
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+      setError('Failed to load profile data');
+
+      // Fallback to store data if API fails
+      const currentUser = useUserStore.getState().userData;
+      if (currentUser) {
+        setUser(currentUser as unknown as User);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchVehicles = async () => {
+    try {
+      setVehiclesLoading(true);
+      const response = await api.getVehicleList();
+      if (response.data && response.data.vehicles) {
+        setVehicles(response.data.vehicles);
+      }
+    } catch (err) {
+      console.error('Error fetching vehicles:', err);
+    } finally {
+      setVehiclesLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Fetch user profile from API
-        const response = await api.getProfile();
-        if (response.data) {
-          setUser(response.data);
-        }
-      } catch (err) {
-        console.error('Error fetching user profile:', err);
-        setError('Failed to load profile data');
-        
-        // Fallback to store data if API fails
-        const currentUser = useUserStore.getState().userData;
-        if (currentUser) {
-          setUser(currentUser as User);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUserProfile();
+    fetchVehicles();
   }, []);
+
+  const handleProfileUpdate = (updatedUser: any) => {
+    setUser(updatedUser);
+    // Refresh profile data from API to ensure consistency
+    fetchUserProfile();
+  };
+
+  const handleDeleteVehicle = async (vehicleId: number) => {
+    if (!confirm(t("user_profile.vehicles.confirm_delete") || "Are you sure you want to delete this vehicle?")) {
+      return;
+    }
+
+    try {
+      setDeletingVehicleId(vehicleId);
+      await api.deleteVehicle({ vehicle_id: vehicleId });
+
+      // Refresh vehicles list
+      await fetchVehicles();
+
+      alert(t("user_profile.vehicles.delete_success") || "Vehicle deleted successfully");
+    } catch (err) {
+      console.error('Error deleting vehicle:', err);
+      alert(t("user_profile.vehicles.delete_error") || "Failed to delete vehicle");
+    } finally {
+      setDeletingVehicleId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -147,7 +199,12 @@ export default function Page() {
                 <span>{t("user_profile.edit")}</span>
               </Button>
 
-              <EditProfileModal open={isOpen} onOpenChange={setIsOpen} />
+              <EditProfileModal
+                open={isOpen}
+                onOpenChange={setIsOpen}
+                userData={user}
+                onProfileUpdate={handleProfileUpdate}
+              />
             </div>
             <div className="flex flex-col lg:flex-row items-center max-lg:justify-center gap-4 lg:gap-0">
               <div className="flex flex-col items-center justify-center px-8 py-4">
@@ -227,43 +284,44 @@ export default function Page() {
                   {t("user_profile.verify_profile.title")}
                 </p>
                 <div className="flex flex-col max-w-[716px] w-full mx-auto divide-y divide-[#EBEBEB] divide-dashed">
-                  <Link
-                    to={`/publish-comment`}
-                    className="group py-5 flex items-center gap-4 cursor-pointer"
-                  >
+                  <div className="group py-5 flex items-center gap-4">
                     <div className="flex items-center gap-4">
                       <img
                         className="size-[26px]"
-                        src="/assets/check-green.svg"
+                        src={user.is_verified ? "/assets/check-green.svg" : "/assets/verify.svg"}
                         alt=""
                       />
                       <span className="text-base font-normal">
                         {t("user_profile.verify_profile.id_verified")}
                       </span>
                     </div>
-                  </Link>
+                    {!user.is_verified && (
+                      <div className="size-[30px] flex items-center justify-center ml-auto">
+                        <ChevronRight className="size-[30px]" strokeWidth={1} />
+                      </div>
+                    )}
+                  </div>
                   <Link
-                    to={`/publish-comment`}
+                    to={user.email_verified ? "#" : "/verify-email"}
                     className="group py-5 flex items-center gap-4 cursor-pointer"
                   >
                     <div className="flex items-center gap-4">
                       <img
                         className="size-[26px]"
-                        src="/assets/verify.svg"
+                        src={user.email_verified ? "/assets/check-green.svg" : "/assets/verify.svg"}
                         alt=""
                       />
                       <span className="text-base font-normal">
                         {t("user_profile.verify_profile.confirm_email")}
                       </span>
                     </div>
-                    <div className="size-[30px] flex items-center justify-center ml-auto">
-                      <ChevronRight className="size-[30px]" strokeWidth={1} />
-                    </div>
+                    {!user.email_verified && (
+                      <div className="size-[30px] flex items-center justify-center ml-auto">
+                        <ChevronRight className="size-[30px]" strokeWidth={1} />
+                      </div>
+                    )}
                   </Link>
-                  <Link
-                    to={`/publish-comment`}
-                    className="group py-5 flex items-center gap-4 cursor-pointer border-b border-[#EBEBEB] border-dashed"
-                  >
+                  <div className="group py-5 flex items-center gap-4 border-b border-[#EBEBEB] border-dashed">
                     <div className="flex items-center gap-4">
                       <img
                         className="size-[26px]"
@@ -274,7 +332,7 @@ export default function Page() {
                         {t("user_profile.verify_profile.phone")}
                       </span>
                     </div>
-                  </Link>
+                  </div>
                 </div>
               </div>
               <div className="lg:row-span-2 border border-[#EBEBEB] rounded-2xl flex flex-col px-6 py-8">
@@ -296,46 +354,56 @@ export default function Page() {
                 </div>
                 <Separator className="my-6 border-t !border-dashed !border-[#CDCDCD] bg-transparent" />
                 <div className="flex flex-wrap items-center gap-4">
-                  <div className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
-                    <img
-                      className="size-[28px] object-contain"
-                      src="/assets/chat.svg"
-                      alt=""
-                    />
-                    <p className="text-lg">
-                      {t("user_profile.about_you.preferences.chatty")}
-                    </p>
-                  </div>
-                  <div className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
-                    <img
-                      className="size-[28px] object-contain"
-                      src="/assets/cigarette-light.svg"
-                      alt=""
-                    />
-                    <p className="text-lg">
-                      {t("user_profile.about_you.preferences.smoking")}
-                    </p>
-                  </div>
-                  <div className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
-                    <img
-                      className="size-[28px] object-contain"
-                      src="/assets/music.svg"
-                      alt=""
-                    />
-                    <p className="text-lg">
-                      {t("user_profile.about_you.preferences.music")}
-                    </p>
-                  </div>
-                  <div className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
-                    <img
-                      className="size-[28px] object-contain"
-                      src="/assets/paw.svg"
-                      alt=""
-                    />
-                    <p className="text-lg">
-                      {t("user_profile.about_you.preferences.pets")}
-                    </p>
-                  </div>
+                  {user.travel_preferences && user.travel_preferences.length > 0 ? (
+                    user.travel_preferences.map((pref, index) => (
+                      <div key={index} className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
+                        <p className="text-lg">{pref}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <>
+                      <div className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
+                        <img
+                          className="size-[28px] object-contain"
+                          src="/assets/chat.svg"
+                          alt=""
+                        />
+                        <p className="text-lg">
+                          {t("user_profile.about_you.preferences.chatty")}
+                        </p>
+                      </div>
+                      <div className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
+                        <img
+                          className="size-[28px] object-contain"
+                          src="/assets/cigarette-light.svg"
+                          alt=""
+                        />
+                        <p className="text-lg">
+                          {t("user_profile.about_you.preferences.smoking")}
+                        </p>
+                      </div>
+                      <div className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
+                        <img
+                          className="size-[28px] object-contain"
+                          src="/assets/music.svg"
+                          alt=""
+                        />
+                        <p className="text-lg">
+                          {t("user_profile.about_you.preferences.music")}
+                        </p>
+                      </div>
+                      <div className="border border-[#EBEBEB] min-h-[50px] py-2 rounded-full px-4 flex items-center justify-center gap-4">
+                        <img
+                          className="size-[28px] object-contain"
+                          src="/assets/paw.svg"
+                          alt=""
+                        />
+                        <p className="text-lg">
+                          {t("user_profile.about_you.preferences.pets")}
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <Button
                   className="bg-[#FF4848] shadow-none rounded-full w-[315px] h-[55px] cursor-pointer text-xl font-normal mx-auto mt-12"
@@ -351,19 +419,51 @@ export default function Page() {
                 <p className="text-2xl mb-4">
                   {t("user_profile.vehicles.title")}
                 </p>
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-lg">
-                      {t("user_profile.vehicles.details.model")}
-                    </p>
-                    <p className="text-base text-[#666666] font-light">
-                      {t("user_profile.vehicles.details.type")}
-                    </p>
+
+                {vehiclesLoading ? (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500">Loading vehicles...</p>
                   </div>
-                  <Button variant="ghost" size="icon">
-                    <Trash2 className="size-[22px]" color="#666666" />
-                  </Button>
-                </div>
+                ) : vehicles.length > 0 ? (
+                  <div className="flex flex-col divide-y divide-[#EBEBEB] divide-dashed">
+                    {vehicles.map((vehicle) => (
+                      <div key={vehicle.id} className="flex items-center justify-between gap-4 py-4 first:pt-0">
+                        <div>
+                          <p className="text-lg">
+                            {vehicle.brand?.name} {vehicle.model?.name} ({vehicle.year})
+                          </p>
+                          <p className="text-base text-[#666666] font-light">
+                            {vehicle.model?.category_name || t("user_profile.vehicles.details.type")}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div
+                              className="w-4 h-4 rounded-full border border-gray-300"
+                              style={{ backgroundColor: vehicle.color }}
+                            />
+                            <span className="text-sm text-[#666666]">{vehicle.color}</span>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteVehicle(vehicle.id)}
+                          disabled={deletingVehicleId === vehicle.id}
+                        >
+                          {deletingVehicleId === vehicle.id ? (
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                          ) : (
+                            <Trash2 className="size-[22px]" color="#666666" />
+                          )}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500">{t("user_profile.vehicles.no_vehicles") || "No vehicles added yet"}</p>
+                  </div>
+                )}
+
                 <Separator className="my-6 border-t !border-dashed !border-[#CDCDCD] bg-transparent" />
                 <Button
                   className="bg-[#FF4848] shadow-none rounded-full w-[220px] h-[55px] cursor-pointer text-xl font-normal mx-auto mt-4"

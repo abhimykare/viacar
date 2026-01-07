@@ -22,7 +22,7 @@ async function callApi(
       Accept: "application/json",
       Authorization: getToken() ? `Bearer ${getToken()}` : "",
     };
-    if (method !== "GET") {
+    if (method !== "GET" && method !== "HEAD") {
       options.body = JSON.stringify(data);
     }
   } else if (contentType === "formdata") {
@@ -124,13 +124,18 @@ export const api = {
     ),
 
   getProfile: () => callApi(import.meta.env.VITE_API_GET_PROFILE, "GET", {}),
+  
   updateProfile: (data: {
     first_name: string;
     last_name: string;
-    date_of_birth: string;
-    gender: string;
-    profile_image?: File | string;
+    email?: string;
+    country_code?: string;
+    mobile_number?: string;
+    date_of_birth?: string;
+    gender?: number | null;
     about?: string;
+    travel_preferences?: string[];
+    age?: number;
   }) =>
     callApi(import.meta.env.VITE_API_UPDATE_PROFILE, "POST", data, "formdata"),
 
@@ -141,6 +146,9 @@ export const api = {
       data,
       "formdata"
     ),
+
+  deleteProfileImage: () =>
+    callApi(import.meta.env.VITE_API_DELETE_PROFILE_IMAGE, "DELETE", {}),
 
   createRide: (data: {
     vehicle_id: number;
@@ -229,6 +237,16 @@ export const api = {
 
   getVehicleList: () =>
     callApi(import.meta.env.VITE_API_VEHICLE_LIST, "GET", {}),
+
+  deleteVehicle: (data: { vehicle_id: number }) =>
+    callApi(import.meta.env.VITE_API_VEHICLE_DELETE, "DELETE", data, "json"),
+
+  updateVehicle: (data: {
+    vehicle_id: number;
+    model_id: number;
+    year: number;
+    color: string;
+  }) => callApi(import.meta.env.VITE_API_VEHICLE_UPDATE, "PUT", data, "json"),
 
   searchRides: (data: {
     user_lat: number;

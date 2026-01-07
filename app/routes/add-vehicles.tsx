@@ -45,7 +45,7 @@ interface VehicleListResponse {
   message: string;
 }
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "ViaCar | Add Vehicles" },
     { name: "description", content: "ViaCar" },
@@ -61,6 +61,10 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
   const [showVehicleSearch, setShowVehicleSearch] = useState(false);
+
+  // Get returnTo parameter from URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const returnTo = searchParams.get('returnTo');
 
   useEffect(() => {
     fetchVehicles();
@@ -87,7 +91,13 @@ export default function Page() {
   const handleContinue = () => {
     if (selectedVehicleId) {
       setVehicleId(parseInt(selectedVehicleId));
-      navigate("/pickup");
+
+      // Navigate based on returnTo parameter
+      if (returnTo === 'profile') {
+        navigate("/user-profile");
+      } else {
+        navigate("/route");
+      }
     }
   };
 
@@ -128,15 +138,16 @@ export default function Page() {
         </p>
 
         {!showVehicleSearch && vehicles.length > 0 && (
-          <div className="max-w-md mx-auto mb-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="w-6/12 mx-auto mb-8 ">
+            <label className="block text-sm font-medium text-gray-700 mb-2 px-8">
               Select your vehicle
             </label>
             <Select
+
               value={selectedVehicleId}
               onValueChange={handleVehicleSelect}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full px-6 py-4 h-14 text-base">
                 <SelectValue placeholder="Choose a vehicle" />
               </SelectTrigger>
               <SelectContent>
@@ -147,15 +158,17 @@ export default function Page() {
                 ))}
               </SelectContent>
             </Select>
+            <div className="flex items-center justify-end">
+              {selectedVehicleId && (
+                <Button
+                  onClick={handleContinue}
+                  className=" mt-4 bg-red-500 hover:bg-red-600 px-3 text-white rounded w-[300px] flex"
+                >
+                  Continue with Selected Vehicle
+                </Button>
+              )}
+            </div>
 
-            {selectedVehicleId && (
-              <Button
-                onClick={handleContinue}
-                className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white"
-              >
-                Continue with Selected Vehicle
-              </Button>
-            )}
           </div>
         )}
 

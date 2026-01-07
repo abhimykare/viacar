@@ -5,7 +5,7 @@ import LocationSearch from "~/components/common/location-search";
 import { useTranslation } from "react-i18next";
 import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "ViaCar | Drop-off" },
     { name: "description", content: "ViaCar" },
@@ -15,7 +15,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Page() {
   const { t } = useTranslation();
   const setDropoff = useRideCreationStore((state) => state.setDropoff);
-  
+
   // Debug: Check current store state
   const currentDropoff = useRideCreationStore((state) => state.rideData.dropoff);
   console.log("Current dropoff in store:", currentDropoff);
@@ -30,7 +30,7 @@ export default function Page() {
         </p>
         <LocationSearch
           name="dropoff"
-          path="/route"
+          path="/add-vehicles"
           sectionName={t("dropoff.section_name")}
           sectionTitle={t("dropoff.section_title")}
           onLocationSelect={(location) => {
