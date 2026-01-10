@@ -354,4 +354,33 @@ export const api = {
 
     return callApi(endpoint, "GET", {});
   },
+
+  // Payment APIs
+  createBooking: (data: { ride_id: number; ride_amount_id: number }) =>
+    callApi(import.meta.env.VITE_API_BOOKING_CREATE, "POST", data, "json"),
+
+  authorizePayment: (data: {
+    booking_id: number;
+    payment_brand: string;
+    card_number: string;
+    card_holder_name: string;
+    card_expiration_month: string;
+    card_expiration_year: number;
+    card_cvv: string;
+    customer_email: string;
+    billing_street: string;
+    billing_city: string;
+    billing_state: string;
+    billing_post_code: string;
+    billing_country: string;
+    given_name: string;
+    sur_name: string;
+    alias?: string;
+  }) =>
+    callApi(import.meta.env.VITE_API_PAYMENT_AUTHORIZE, "POST", data, "json"),
+
+  getPaymentStatus: (booking_id: number) => {
+    const endpoint = `${import.meta.env.VITE_API_BOOKING_PAYMENT_STATUS}?booking_id=${booking_id}`;
+    return callApi(endpoint, "GET", {});
+  },
 };

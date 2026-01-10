@@ -11,6 +11,7 @@ export default [
   route("/chat", "./routes/chat.tsx"),
   route("/reviews", "./routes/reviews.tsx"),
   route("/payment", "./routes/payment.tsx"),
+  route("/add-card", "./routes/add-card.tsx"),
   route("/publish", "./routes/publish.tsx"),
   route("/pickup", "./routes/pickup.tsx"),
   route("/dropoff", "./routes/dropoff.tsx"),
