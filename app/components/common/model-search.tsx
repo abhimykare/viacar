@@ -86,9 +86,8 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
   // When an item is selected, update the selected state and URL.
   const onSelectItem = (value: string) => {
     console.log("value we get select ", value);
-    setVehicleId(parseInt(value));
-      : parseInt(value);
-    setVehicleId(vehicleId);
+    const parsedVehicleId = parseInt(value);
+    setVehicleId(parsedVehicleId);
     setSelectedValue(value);
     const labelText = labels[value] || value;
     setSearchValue(labelText);
@@ -97,8 +96,7 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
     navigate(
       `/vehicle-color?selectedVehicleId=${brandId}&selectedVehicleName=${searchParams.get(
         "selectedVehicleName"
-      )}&selectedCategoryId=${categoryId}&selectedModelId=${value}&selectedModelName=${labelText}${
-        returnTo ? `&returnTo=${returnTo}` : ""
+      )}&selectedCategoryId=${categoryId}&selectedModelId=${value}&selectedModelName=${labelText}${returnTo ? `&returnTo=${returnTo}` : ""
       }`
     );
   };
