@@ -214,9 +214,18 @@ export default function ProfileDetails() {
                   <Calendar
                     mode="single"
                     selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
-                    onSelect={(date) =>
-                      setDateOfBirth(date ? format(date, "yyyy-MM-dd") : "")
-                    }
+                    onSelect={(date) => {
+                      if (date) {
+                        setDateOfBirth(format(date, "yyyy-MM-dd"));
+                      }
+                    }}
+                    onMonthChange={(month) => {
+                      // If user changes month/year but hasn't selected a date,
+                      // set the first day of that month as the date
+                      if (!dateOfBirth) {
+                        setDateOfBirth(format(month, "yyyy-MM-dd"));
+                      }
+                    }}
                     captionLayout="dropdown-buttons"
                     fromYear={1900}
                     toYear={new Date().getFullYear()}

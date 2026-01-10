@@ -22,7 +22,7 @@ async function callApi(
       Accept: "application/json",
       Authorization: getToken() ? `Bearer ${getToken()}` : "",
     };
-    if (method !== "GET") {
+    if (method !== "GET" && method !== "HEAD") {
       options.body = JSON.stringify(data);
     }
   } else if (contentType === "formdata") {
@@ -123,15 +123,19 @@ export const api = {
       "formdata"
     ),
 
-  getProfile: () =>
-    callApi(import.meta.env.VITE_API_GET_PROFILE, "GET", {}),
+  getProfile: () => callApi(import.meta.env.VITE_API_GET_PROFILE, "GET", {}),
+  
   updateProfile: (data: {
     first_name: string;
     last_name: string;
-    date_of_birth: string;
-    gender: string;
-    profile_image?: File | string;
+    email?: string;
+    country_code?: string;
+    mobile_number?: string;
+    date_of_birth?: string;
+    gender?: number | null;
     about?: string;
+    travel_preferences?: string[];
+    age?: number;
   }) =>
     callApi(import.meta.env.VITE_API_UPDATE_PROFILE, "POST", data, "formdata"),
 
@@ -142,6 +146,9 @@ export const api = {
       data,
       "formdata"
     ),
+
+  deleteProfileImage: () =>
+    callApi(import.meta.env.VITE_API_DELETE_PROFILE_IMAGE, "DELETE", {}),
 
   createRide: (data: {
     vehicle_id: number;
@@ -195,7 +202,11 @@ export const api = {
     return callApi(endpoint, "GET", {});
   },
 
-  getVehicleModels: (searchQuery?: string, brand_id?: number, category_id?: number) => {
+  getVehicleModels: (
+    searchQuery?: string,
+    brand_id?: number,
+    category_id?: number
+  ) => {
     let endpoint = import.meta.env.VITE_API_LIST_VEHICLE_MODELS;
     const params = new URLSearchParams();
     if (searchQuery) {
@@ -214,8 +225,28 @@ export const api = {
     return callApi(endpoint, "GET", {});
   },
 
+  getVehicleCategories: () =>
+    callApi(
+      `${import.meta.env.VITE_API_VEHICLE_CATEGORIES}?is_active=true`,
+      "GET",
+      {}
+    ),
+
   addVehicle: (data: { model_id: number; year: number; color: string }) =>
     callApi(import.meta.env.VITE_API_VEHICLE_ADD, "POST", data, "json"),
+
+  getVehicleList: () =>
+    callApi(import.meta.env.VITE_API_VEHICLE_LIST, "GET", {}),
+
+  deleteVehicle: (data: { vehicle_id: number }) =>
+    callApi(import.meta.env.VITE_API_VEHICLE_DELETE, "DELETE", data, "json"),
+
+  updateVehicle: (data: {
+    vehicle_id: number;
+    model_id: number;
+    year: number;
+    color: string;
+  }) => callApi(import.meta.env.VITE_API_VEHICLE_UPDATE, "PUT", data, "json"),
 
   searchRides: (data: {
     user_lat: number;
@@ -237,22 +268,28 @@ export const api = {
     accessible_for_disabled?: boolean;
   }) => callApi(import.meta.env.VITE_API_RIDE_SEARCH, "POST", data, "json"),
 
-  getRideDetail: (data: { ride_id: number }) =>
+  getRideDetail: (data: { ride_id: number; ride_amount_id: number }) =>
     callApi(import.meta.env.VITE_API_RIDE_DETAIL, "POST", data, "json"),
 
   updateRideStatus: (data: { ride_id: number; status: string }) =>
     callApi(import.meta.env.VITE_API_RIDE_STATUS, "POST", data, "json"),
 
-  getUserStatus: () =>
-    callApi(import.meta.env.VITE_API_USER_STATUS, "GET", {}),
-  getRoutes: (data: RoutesPayload) => callApi(import.meta.env.VITE_API_PLACES_ROUTES, "POST", data, "json"),
+  getUserStatus: () => callApi(import.meta.env.VITE_API_USER_STATUS, "GET", {}),
+  getRoutes: (data: RoutesPayload) =>
+    callApi(import.meta.env.VITE_API_PLACES_ROUTES, "POST", data, "json"),
 
   getPopularPlacesNearby: (data: {
     lat: number;
     lng: number;
     radius: number;
     limit: number;
-  }) => callApi(import.meta.env.VITE_API_POPULAR_PLACES_NEARBY, "POST", data, "json"),
+  }) =>
+    callApi(
+      import.meta.env.VITE_API_POPULAR_PLACES_NEARBY,
+      "POST",
+      data,
+      "json"
+    ),
 
   getPopularPlaces: (data: {
     pickup_lat: number;
@@ -263,10 +300,8 @@ export const api = {
     type: string;
   }) => callApi(import.meta.env.VITE_API_POPULAR_PLACES, "POST", data, "json"),
 
-  createRideAlert: (data: {
-    ride_id: number;
-    email: string;
-  }) => callApi(import.meta.env.VITE_API_RIDE_ALERT_CREATE, "POST", data, "json"),
+  createRideAlert: (data: { ride_id: number; email: string }) =>
+    callApi(import.meta.env.VITE_API_RIDE_ALERT_CREATE, "POST", data, "json"),
 
   listRides: (params?: {
     page?: number;
@@ -277,19 +312,20 @@ export const api = {
   }) => {
     let endpoint = import.meta.env.VITE_API_RIDE_LIST;
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       if (params.page) queryParams.append("page", params.page.toString());
-      if (params.per_page) queryParams.append("per_page", params.per_page.toString());
+      if (params.per_page)
+        queryParams.append("per_page", params.per_page.toString());
       if (params.status) queryParams.append("status", params.status);
       if (params.date_from) queryParams.append("date_from", params.date_from);
       if (params.date_to) queryParams.append("date_to", params.date_to);
     }
-    
+
     if (queryParams.toString()) {
       endpoint = `${endpoint}?${queryParams.toString()}`;
     }
-    
+
     return callApi(endpoint, "GET", {});
   },
 
@@ -302,19 +338,49 @@ export const api = {
   }) => {
     let endpoint = import.meta.env.VITE_API_PAYMENT_TRANSACTIONS;
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       if (params.page) queryParams.append("page", params.page.toString());
-      if (params.per_page) queryParams.append("per_page", params.per_page.toString());
+      if (params.per_page)
+        queryParams.append("per_page", params.per_page.toString());
       if (params.status) queryParams.append("status", params.status);
       if (params.date_from) queryParams.append("date_from", params.date_from);
       if (params.date_to) queryParams.append("date_to", params.date_to);
     }
-    
+
     if (queryParams.toString()) {
       endpoint = `${endpoint}?${queryParams.toString()}`;
     }
-    
+
+    return callApi(endpoint, "GET", {});
+  },
+
+  // Payment APIs
+  createBooking: (data: { ride_id: number; ride_amount_id: number }) =>
+    callApi(import.meta.env.VITE_API_BOOKING_CREATE, "POST", data, "json"),
+
+  authorizePayment: (data: {
+    booking_id: number;
+    payment_brand: string;
+    card_number: string;
+    card_holder_name: string;
+    card_expiration_month: string;
+    card_expiration_year: number;
+    card_cvv: string;
+    customer_email: string;
+    billing_street: string;
+    billing_city: string;
+    billing_state: string;
+    billing_post_code: string;
+    billing_country: string;
+    given_name: string;
+    sur_name: string;
+    alias?: string;
+  }) =>
+    callApi(import.meta.env.VITE_API_PAYMENT_AUTHORIZE, "POST", data, "json"),
+
+  getPaymentStatus: (booking_id: number) => {
+    const endpoint = `${import.meta.env.VITE_API_BOOKING_PAYMENT_STATUS}?booking_id=${booking_id}`;
     return callApi(endpoint, "GET", {});
   },
 };

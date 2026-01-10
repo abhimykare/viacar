@@ -12,6 +12,7 @@ import { ChevronRight, MapPin } from "lucide-react";
 import CloseIcon from "../icons/close-icon";
 import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
+import { useRideCreationStore } from "~/lib/store/rideCreationStore";
 
 interface Props {
   label?: string;
@@ -25,6 +26,8 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { setVehicleId } = useRideCreationStore((state) => state);
+
   const initialValue = searchParams.get(name) || "";
   const brandId = searchParams.get("selectedVehicleId");
   const categoryId = searchParams.get("selectedCategoryId");
@@ -36,7 +39,8 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
 
   // If a URL param exists, initialize the input with the matching label.
   const initialLabel =
-    vehicleModels.find((model) => model.id.toString() === initialValue)?.name || "";
+    vehicleModels.find((model) => model.id.toString() === initialValue)?.name ||
+    "";
 
   const [searchValue, setSearchValue] = useState<string>(initialLabel);
   const [selectedValue, setSelectedValue] = useState<string>(initialValue);
@@ -81,12 +85,20 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
 
   // When an item is selected, update the selected state and URL.
   const onSelectItem = (value: string) => {
+    console.log("value we get select ", value);
+    const parsedVehicleId = parseInt(value);
+    setVehicleId(parsedVehicleId);
     setSelectedValue(value);
     const labelText = labels[value] || value;
     setSearchValue(labelText);
     updateSearchParam(value);
     setOpen(false);
-    navigate(`/vehicle-color?selectedVehicleId=${brandId}&selectedVehicleName=${searchParams.get("selectedVehicleName")}&selectedCategoryId=${categoryId}&selectedModelId=${value}&selectedModelName=${labelText}${returnTo ? `&returnTo=${returnTo}` : ''}`);
+    navigate(
+      `/vehicle-color?selectedVehicleId=${brandId}&selectedVehicleName=${searchParams.get(
+        "selectedVehicleName"
+      )}&selectedCategoryId=${categoryId}&selectedModelId=${value}&selectedModelName=${labelText}${returnTo ? `&returnTo=${returnTo}` : ""
+      }`
+    );
   };
 
   // Reset selection.
@@ -133,7 +145,8 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
     if (paramValue !== selectedValue) {
       setSelectedValue(paramValue);
       const newLabel =
-        vehicleModels.find((model) => model.id.toString() === paramValue)?.name || "";
+        vehicleModels.find((model) => model.id.toString() === paramValue)
+          ?.name || "";
       setSearchValue(newLabel);
     }
   }, [searchParams, name, selectedValue, vehicleModels]);
@@ -171,9 +184,7 @@ function ModelSearch({ label, name, path, sectionName, sectionTitle }: Props) {
                   className="cursor-pointer px-6 py-5 hover:bg-gray-100 rounded-2xl flex items-center justify-between"
                 >
                   <div className="flex flex-col">
-                    <p className="text-sm">
-                      {option.name}
-                    </p>
+                    <p className="text-sm">{option.name}</p>
                   </div>
                   <ChevronRight color="#AAAAAA" />
                 </div>

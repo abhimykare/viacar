@@ -149,7 +149,7 @@ function VehicleSearch({
           onChange={handleInputChange}
           onFocus={() => setOpen(true)}
           onBlur={onInputBlur}
-          placeholder="Enter the full address"
+          placeholder="Enter the vehicle "
           autoComplete="off"
           className={cn(
             "text-lg font-light placeholder:text-[#666666] bg-white border-0 h-[60px] rounded-full !ring-0 pl-16"

@@ -19,98 +19,6 @@ export default function SearchRide({ className = "" }) {
   const location = useLocation();
   const { setLeavingFrom, setGoingTo, leavingFrom, goingTo, triggerSearch } =
     useRideSearchStore();
-  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-          // Reverse geocoding to get location text
-          fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              if (data.address && data.address.city) {
-                setCurrentLocation(data.address.city);
-                // Only set if no location is already selected
-                if (!leavingFrom) {
-                  // Create a basic location object for the current city
-                  const currentCityData = {
-                    placeId: `current_${data.address.city}`,
-                    text: data.address.city,
-                    mainText: data.address.city,
-                    secondaryText: "Current Location",
-                    lat: latitude,
-                    lng: longitude,
-                  };
-                  setLeavingFrom(currentCityData);
-                }
-              } else if (data.address && data.address.town) {
-                setCurrentLocation(data.address.town);
-                if (!leavingFrom) {
-                  const currentTownData = {
-                    placeId: `current_${data.address.town}`,
-                    text: data.address.town,
-                    mainText: data.address.town,
-                    secondaryText: "Current Location",
-                    lat: latitude,
-                    lng: longitude,
-                  };
-                  setLeavingFrom(currentTownData);
-                }
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching location name:", error);
-              setCurrentLocation("Kochi");
-              if (!leavingFrom) {
-                const kochiData = {
-                  placeId: "current_kochi",
-                  text: "Kochi",
-                  mainText: "Kochi",
-                  secondaryText: "Current Location",
-                  lat: 9.9312328,
-                  lng: 76.26730409999999,
-                };
-                setLeavingFrom(kochiData);
-              }
-            });
-        },
-        (error) => {
-          console.error("Error getting geolocation:", error);
-          setCurrentLocation("Kochi");
-          if (!leavingFrom) {
-            const kochiData = {
-              placeId: "current_kochi",
-              text: "Kochi",
-              mainText: "Kochi",
-              secondaryText: "Current Location",
-              lat: 9.9312328,
-              lng: 76.26730409999999,
-            };
-            setLeavingFrom(kochiData);
-          }
-        }
-      );
-    } else {
-      console.log("Geolocation is not supported by this browser.");
-      setCurrentLocation("Kochi");
-      if (!leavingFrom) {
-        const kochiData = {
-          placeId: "current_kochi",
-          text: "Kochi",
-          mainText: "Kochi",
-          secondaryText: "Current Location",
-          lat: 9.9312328,
-          lng: 76.26730409999999,
-        };
-        setLeavingFrom(kochiData);
-      }
-    }
-  }, [leavingFrom, setLeavingFrom]);
 
   const handleLocationSwap = () => {
     if (leavingFrom && goingTo) {
@@ -131,7 +39,6 @@ export default function SearchRide({ className = "" }) {
           label={t("search.ride.leaving_from")}
           name="from"
           placeholder={t("search.ride.select_pickup")}
-          initialLocation={currentLocation}
         />
       </div>
       <div className="py-2 lg:py-5 grid grid-cols-1 grid-rows-1 max-lg:hidden max-w-[36px] w-full h-full">
@@ -153,7 +60,6 @@ export default function SearchRide({ className = "" }) {
           label={t("search.ride.going_to")}
           name="to"
           placeholder={t("search.ride.select_dropoff")}
-          initialLocation={currentLocation}
         />
       </div>
       <div className="py-0 lg:py-5 max-lg:hidden">

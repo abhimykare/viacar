@@ -31,14 +31,17 @@ export default function Page() {
   useEffect(() => {
     if (departureDate && !selected) {
       console.log("Initializing selected with stored departureDate:", departureDate);
-      setSelected(new Date(departureDate + 'T00:00:00'));
+      // Parse the date string without timezone conversion
+      const [year, month, day] = departureDate.split('-').map(Number);
+      setSelected(new Date(year, month - 1, day));
     }
   }, [departureDate]);
 
   // Sync store date with selected state when store changes
   useEffect(() => {
     if (departureDate && selected) {
-      const storedDate = new Date(departureDate + 'T00:00:00');
+      const [year, month, day] = departureDate.split('-').map(Number);
+      const storedDate = new Date(year, month - 1, day);
       if (selected.getTime() !== storedDate.getTime()) {
         console.log("Syncing selected with store date:", departureDate);
         setSelected(storedDate);
@@ -72,7 +75,12 @@ export default function Page() {
             Debug Store State
           </button>
           <div className="text-xs text-gray-600 mt-2">
-            Stored date: {departureDate || 'none'} | Selected: {selected ? selected.toISOString().split('T')[0] : 'none'}
+            Stored date: {departureDate || 'none'} | Selected: {selected ? (() => {
+              const year = selected.getFullYear();
+              const month = String(selected.getMonth() + 1).padStart(2, '0');
+              const day = String(selected.getDate()).padStart(2, '0');
+              return `${year}-${month}-${day}`;
+            })() : 'none'}
           </div>
           {departureDate && (
             <div className="text-xs text-green-600 mt-1">
@@ -85,12 +93,18 @@ export default function Page() {
             className="shadow-2xl rounded-2xl max-w-[394px]"
             mode="single"
             disabled={(date) => isBefore(date, startOfDay(new Date()))}
-            selected={selected || (departureDate ? new Date(departureDate + 'T00:00:00') : undefined)}
+            selected={selected || (departureDate ? (() => {
+              const [year, month, day] = departureDate.split('-').map(Number);
+              return new Date(year, month - 1, day);
+            })() : undefined)}
             onSelect={(value: SetStateAction<Date | undefined>) => {
               setSelected(value);
               if (value) {
-                // Convert Date to YYYY-MM-DD format for the store
-                const dateString = value.toISOString().split('T')[0];
+                // Convert Date to YYYY-MM-DD format for the store without timezone conversion
+                const year = value.getFullYear();
+                const month = String(value.getMonth() + 1).padStart(2, '0');
+                const day = String(value.getDate()).padStart(2, '0');
+                const dateString = `${year}-${month}-${day}`;
                 console.log("Setting departure date to:", dateString);
                 setDepartureDate(dateString);
                 

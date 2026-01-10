@@ -121,8 +121,8 @@ export const useRideSearchStore = create<RideSearchStore>()(
       setLeavingFrom: (leavingFrom) =>
         set((state) => {
           const newState = { leavingFrom };
-          // Only trigger search if we have all required data
-          if (leavingFrom && state.goingTo && state.date) {
+          // Trigger search if we have basic required data (leavingFrom and goingTo)
+          if (leavingFrom && state.goingTo) {
             setTimeout(() => get().triggerSearch(), 0);
           }
           return newState;
@@ -130,8 +130,8 @@ export const useRideSearchStore = create<RideSearchStore>()(
       setGoingTo: (goingTo) =>
         set((state) => {
           const newState = { goingTo };
-          // Only trigger search if we have all required data
-          if (state.leavingFrom && goingTo && state.date) {
+          // Trigger search if we have basic required data (leavingFrom and goingTo)
+          if (state.leavingFrom && goingTo) {
             setTimeout(() => get().triggerSearch(), 0);
           }
           return newState;
@@ -139,8 +139,8 @@ export const useRideSearchStore = create<RideSearchStore>()(
       setPassengers: (passengers) =>
         set((state) => {
           const newState = { passengers };
-          // Only trigger search if we have all required data
-          if (state.leavingFrom && state.goingTo && state.date) {
+          // Trigger search if we have basic required data (leavingFrom and goingTo)
+          if (state.leavingFrom && state.goingTo) {
             setTimeout(() => get().triggerSearch(), 0);
           }
           return newState;
@@ -148,8 +148,8 @@ export const useRideSearchStore = create<RideSearchStore>()(
       setDate: (date) =>
         set((state) => {
           const newState = { date };
-          // Only trigger search if we have all required data
-          if (state.leavingFrom && state.goingTo && date) {
+          // Trigger search if we have basic required data (leavingFrom and goingTo)
+          if (state.leavingFrom && state.goingTo) {
             setTimeout(() => get().triggerSearch(), 0);
           }
           return newState;
@@ -268,12 +268,11 @@ export const useRideSearchStore = create<RideSearchStore>()(
         console.log("date:", state.date);
         console.log("passengers:", state.passengers);
 
-        // Validate required fields
-        if (!state.leavingFrom || !state.goingTo || !state.date) {
+        // Validate required fields - only require leavingFrom and goingTo for basic search
+        if (!state.leavingFrom || !state.goingTo) {
           console.log("Validation failed - missing required fields");
           console.log("!state.leavingFrom:", !state.leavingFrom);
           console.log("!state.goingTo:", !state.goingTo);
-          console.log("!state.date:", !state.date);
           return null;
         }
 
@@ -284,7 +283,7 @@ export const useRideSearchStore = create<RideSearchStore>()(
           earliest: 1,
           lowest: 2,
           closest_dep: 3,
-        closest_arr: 4,
+          closest_arr: 4,
           shortest: 5,
         };
 
@@ -305,9 +304,10 @@ export const useRideSearchStore = create<RideSearchStore>()(
           user_lng: state.leavingFrom.lng,
           destination_lat: state.goingTo.lat,
           destination_lng: state.goingTo.lng,
-          date: state.date,
+          date: state.date || new Date().toISOString().split("T")[0], // Use current date if not set
           passengers: state.passengers,
-          // max_walking_distance_km: 5,
+          max_walking_distance_km: 10,
+          verified_drivers_only: false,
           // sort_by:
           //   sortByMapping[state.filters.sortBy as keyof typeof sortByMapping] ||
           //   1,

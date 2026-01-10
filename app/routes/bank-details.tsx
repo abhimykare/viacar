@@ -57,10 +57,21 @@ const BankDetails: React.FC = () => {
     >
   ) => {
     try {
-      await api.addBankDetails(newBankDetails);
-      fetchBankAccounts();
+      console.log("Adding bank details:", newBankDetails);
+      const response = await api.addBankDetails(newBankDetails);
+      console.log("API response:", response);
+
+      // Check if the response indicates success
+      if (response && response.message === "Success") {
+        fetchBankAccounts();
+        return true;
+      } else {
+        console.error("API response does not indicate success:", response);
+        return false;
+      }
     } catch (error) {
       console.error("Error adding bank details:", error);
+      return false;
     }
   };
 
@@ -73,8 +84,10 @@ const BankDetails: React.FC = () => {
     try {
       await api.updateBankDetails(updatedBankDetails);
       fetchBankAccounts();
+      return true;
     } catch (error) {
       console.error("Error updating bank details:", error);
+      return false;
     }
   };
 
@@ -193,7 +206,12 @@ const BankDetails: React.FC = () => {
           setIsAddModalOpen(open);
           if (!open) fetchBankAccounts();
         }}
-        onSave={handleAddBankDetails}
+        onSave={async (newBankDetails) => {
+          const success = await handleAddBankDetails(newBankDetails);
+          if (success) {
+            setIsAddModalOpen(false);
+          }
+        }}
       />
       {editingBank && (
         <AddBankAccountModal
@@ -205,7 +223,12 @@ const BankDetails: React.FC = () => {
               fetchBankAccounts();
             }
           }}
-          onSave={handleUpdateBankDetails}
+          onSave={async (updatedBankDetails) => {
+            const success = await handleUpdateBankDetails(updatedBankDetails);
+            if (success) {
+              setIsEditModalOpen(false);
+            }
+          }}
           initialData={editingBank}
         />
       )}

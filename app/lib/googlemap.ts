@@ -115,7 +115,7 @@ export class GoogleMapService {
 
       this.directionsRenderer.setMap(this.map);
 
-      await this.displayRoute(startCoordinates, endCoordinates, maps);
+      await this.displayDirectionsRoute(startCoordinates, endCoordinates, maps);
     } catch (error) {
       console.error("Error initializing Google Map:", error);
 
@@ -139,7 +139,7 @@ export class GoogleMapService {
     }
   }
 
-  private async displayRoute(
+  private async displayDirectionsRoute(
     start: Coordinates,
     end: Coordinates,
     maps: GoogleMapsWindow["google"]["maps"]

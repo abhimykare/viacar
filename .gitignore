@@ -1,5 +1,6 @@
 .DS_Store
 /node_modules/
+/mobileapp/
 
 # React Router
 /.react-router/

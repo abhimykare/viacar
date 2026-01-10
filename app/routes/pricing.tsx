@@ -120,8 +120,8 @@ export default function Page() {
     for (let i = 0; i < allStops.length - 1; i++) {
       for (let j = i + 1; j < allStops.length; j++) {
         segments.push({
-          pickup_order: i + 1,
-          drop_order: j + 1,
+          pickup_order: i,
+          drop_order: j,
           pickup_location: allStops[i]!,
           drop_location: allStops[j]!
         });

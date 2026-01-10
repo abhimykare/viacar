@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { AutoComplete } from "./auto-complete";
 import { Search } from "lucide-react";
 import { api } from "~/lib/api";
@@ -37,6 +37,9 @@ function LocationSelect({
   const [selectedValue, setSelectedValue] = useState<string>(currentText);
   const [searchValue, setSearchValue] = useState<string>(currentText);
   const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
+  
+  // Use ref to store suggestions map for reliable lookup during selection
+  const suggestionsMapRef = useRef<Map<string, PlacePrediction>>(new Map());
 
   useEffect(() => {
     if (initialLocation && !currentText) {
@@ -72,7 +75,18 @@ function LocationSelect({
           const response = await api.placesAutocomplete({
             input: searchValue,
           });
-          setSuggestions(response.data);
+          const data = response.data || [];
+          setSuggestions(data);
+          
+          // Update the ref map with all suggestions for reliable lookup
+          const newMap = new Map<string, PlacePrediction>();
+          data.forEach((item: PlacePrediction) => {
+            newMap.set(item.placeId, item);
+          });
+          suggestionsMapRef.current = newMap;
+          
+          console.log("Fetched suggestions:", data);
+          console.log("Suggestions map updated:", Array.from(newMap.entries()));
         } catch (error) {
           console.error("Error fetching autocomplete suggestions:", error);
           setSuggestions([]);
@@ -93,7 +107,13 @@ function LocationSelect({
   // Handler when a value is selected from the autocomplete.
   const handleSelectedValueChange = useCallback(
     (value: string) => {
-      const selectedItem = suggestions.find((item) => item.placeId === value);
+      // Use the ref map for reliable lookup (won't be affected by state timing issues)
+      const selectedItem = suggestionsMapRef.current.get(value);
+      
+      console.log("handleSelectedValueChange called with value:", value);
+      console.log("Found selectedItem from map:", selectedItem);
+      console.log("Current suggestionsMap:", Array.from(suggestionsMapRef.current.entries()));
+      
       const textToSet = selectedItem ? selectedItem.text : value;
       setSelectedValue(textToSet);
       setSearchValue(textToSet);
@@ -106,7 +126,7 @@ function LocationSelect({
           setGoingTo(null);
         }
       } else if (selectedItem) {
-        // Store full location data in store
+        // Store full location data in store with coordinates
         const locationData = {
           placeId: selectedItem.placeId,
           text: selectedItem.text,
@@ -116,14 +136,18 @@ function LocationSelect({
           lng: selectedItem.lng,
         };
         
+        console.log("Storing location data with coordinates:", locationData);
+        
         if (name === "from") {
           setLeavingFrom(locationData);
         } else {
           setGoingTo(locationData);
         }
+      } else {
+        console.warn("Could not find selected item in suggestions map for placeId:", value);
       }
     },
-    [suggestions, name, setLeavingFrom, setGoingTo]
+    [name, setLeavingFrom, setGoingTo]
   );
 
   return (
